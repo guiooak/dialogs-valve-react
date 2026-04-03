@@ -1,10 +1,10 @@
 /**
  * Default query param key used to identify the active dialog.
- * e.g. `?dlg=my-dialog`
+ * e.g. `?dialog=my-dialog`
  *
  * Can be overridden via `DialogsValveConfig.dialogParamKey`.
  */
-export const DIALOG_MAIN_KEY = "dlg";
+export const DIALOG_MAIN_KEY = "dialog";
 
 /**
  * Default delay (in milliseconds) before unmounting a dialog after close.
