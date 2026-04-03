@@ -20,7 +20,7 @@ export type DialogPropValue = string | number | boolean;
  * router-agnostic — it works with react-router-dom, Next.js, TanStack Router,
  * or any custom solution.
  *
- * Pathname and search string are read from `window.location` internally;
+ * Pathname and search string are read from the browser's location internally;
  * the adapter is only responsible for performing navigation.
  */
 export type RouterAdapter = {
@@ -112,7 +112,7 @@ export type BuildDialogUrlOptions = {
 
   /**
    * Override the pathname used for the URL.
-   * Defaults to `window.location.pathname`.
+   * Defaults to `getLocationPathname()`.
    */
   pathName?: string;
 };

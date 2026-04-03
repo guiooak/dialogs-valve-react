@@ -8,7 +8,7 @@ import {
 } from "react";
 import { DialogsValveContext } from "./context";
 import { DIALOG_DELAY_TO_CLOSE, DIALOG_MAIN_KEY } from "./constants";
-import { getLocationSearch } from "./location";
+import { getLocationSearch, addLocationChangeListener } from "./browser";
 import {
   extractDialogProps,
   getActiveDialogKeys,
@@ -72,26 +72,14 @@ export function DialogsValveProvider<
   // -----------------------------------------------------------------------
   const [search, setSearch] = useState(() => getLocationSearch());
 
-  // Listen for popstate (back/forward) and re-read search on navigation
+  // Listen for location change (popstate or router-triggered DOM changes)
   useEffect(() => {
-    const onLocationChange = () => {
-      setSearch(getLocationSearch());
-    };
-
-    window.addEventListener("popstate", onLocationChange);
-
-    // Also poll for pushState/replaceState changes (they don't fire popstate)
-    const observer = new MutationObserver(() => {
-      if (getLocationSearch() !== search) {
-        setSearch(getLocationSearch());
+    return addLocationChangeListener(() => {
+      const currentSearch = getLocationSearch();
+      if (currentSearch !== search) {
+        setSearch(currentSearch);
       }
     });
-    observer.observe(document, { subtree: true, childList: true });
-
-    return () => {
-      window.removeEventListener("popstate", onLocationChange);
-      observer.disconnect();
-    };
   }, [search]);
 
   const activeKeys = useMemo(

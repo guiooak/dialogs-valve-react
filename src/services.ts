@@ -7,7 +7,7 @@ import {
   DIALOG_BOOLEAN_PREFIX,
   DIALOG_MAIN_KEY,
 } from "./constants";
-import { getLocationPathname, getLocationSearch } from "./location";
+import { getLocationPathname, getLocationSearch } from "./browser";
 import type { BuildDialogUrlOptions, DialogPropValue } from "./types";
 
 /*
