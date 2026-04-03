@@ -59,12 +59,13 @@ export type DialogEntry<TPermissions = unknown> = {
  * Consumers typically define this with `as const satisfies DialogMap<T>`
  * for full type-safe key autocomplete.
  *
+ * @template TKeys - Allowed keys for the dialogs.
  * @template TPermissions - Shape of the permissions/guard context object.
  */
-export type DialogMap<TPermissions = unknown> = Record<
-  string,
-  DialogEntry<TPermissions>
->;
+export type DialogMap<
+  TKeys extends string = string,
+  TPermissions = unknown,
+> = Record<TKeys, DialogEntry<TPermissions>>;
 
 // ---------------------------------------------------------------------------
 // Provider configuration
@@ -123,22 +124,24 @@ export type BuildDialogUrlOptions = {
 /**
  * The shape of the value provided by `DialogsValveContext`.
  * Used internally by the provider and the `useDialogsValve()` hook.
+ *
+ * @template TKeys - Allowed keys for the dialogs.
  */
-export type DialogsValveContextValue = {
+export type DialogsValveContextValue<TKeys extends string = string> = {
   /** Open a dialog by key with optional props and overlap. */
-  openDialog: (key: string, options?: BuildDialogUrlOptions) => void;
+  openDialog: (key: TKeys, options?: BuildDialogUrlOptions) => void;
 
   /** Close a specific dialog by key. */
-  closeDialog: (key: string) => void;
+  closeDialog: (key: TKeys) => void;
 
   /** Close all currently open dialogs. */
   closeAllDialogs: () => void;
 
   /** Check whether a specific dialog is currently open. */
-  isOpen: (key: string) => boolean;
+  isOpen: (key: TKeys) => boolean;
 
   /** Get the custom props for a specific dialog extracted from query params. */
-  getDialogProps: (key: string) => Record<string, DialogPropValue>;
+  getDialogProps: (key: TKeys) => Record<string, DialogPropValue>;
 
   /** The dialog param key in use (resolved from config or default). */
   dialogParamKey: string;

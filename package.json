@@ -24,7 +24,7 @@
     "LICENSE"
   ],
   "scripts": {
-    "build": "tsdown",
+    "build": "tsdown && tsc --emitDeclarationOnly",
     "dev": "tsdown --watch",
     "test": "vitest run",
     "test:watch": "vitest",

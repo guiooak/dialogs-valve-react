@@ -32,12 +32,15 @@ import type {
 // Props
 // ---------------------------------------------------------------------------
 
-export type DialogsValveProviderProps<TPermissions = unknown> = {
+export type DialogsValveProviderProps<
+  TKeys extends string = string,
+  TPermissions = unknown,
+> = {
   /** Router adapter providing the `navigate` function. */
   router: RouterAdapter;
 
   /** Registry of dialog keys → components and optional guards. */
-  dialogs: DialogMap<TPermissions>;
+  dialogs: DialogMap<TKeys, TPermissions>;
 
   /** Optional permissions context passed to `canShow` guards. */
   permissions?: TPermissions;
@@ -52,13 +55,16 @@ export type DialogsValveProviderProps<TPermissions = unknown> = {
 // Provider
 // ---------------------------------------------------------------------------
 
-export function DialogsValveProvider<TPermissions = unknown>({
+export function DialogsValveProvider<
+  TKeys extends string = string,
+  TPermissions = unknown,
+>({
   router,
   dialogs,
   permissions,
   config,
   children,
-}: DialogsValveProviderProps<TPermissions>) {
+}: DialogsValveProviderProps<TKeys, TPermissions>) {
   const dialogParamKey = config?.dialogParamKey ?? DIALOG_MAIN_KEY;
   const closeDelay = config?.closeDelay ?? DIALOG_DELAY_TO_CLOSE;
   const validDialogKeys = useMemo(() => Object.keys(dialogs), [dialogs]);
@@ -167,13 +173,18 @@ export function DialogsValveProvider<TPermissions = unknown>({
     [search],
   );
 
-  const contextValue: DialogsValveContextValue = useMemo(
+  const contextValue: DialogsValveContextValue<TKeys> = useMemo(
     () => ({
-      openDialog,
-      closeDialog,
+      openDialog: openDialog as (
+        key: TKeys,
+        options?: BuildDialogUrlOptions,
+      ) => void,
+      closeDialog: closeDialog as (key: TKeys) => void,
       closeAllDialogs,
-      isOpen,
-      getDialogProps,
+      isOpen: isOpen as (key: TKeys) => boolean,
+      getDialogProps: getDialogProps as (
+        key: TKeys,
+      ) => Record<string, DialogPropValue>,
       dialogParamKey,
     }),
     [
@@ -190,7 +201,7 @@ export function DialogsValveProvider<TPermissions = unknown>({
   // Render dialog components
   // -----------------------------------------------------------------------
   const dialogElements = renderedKeys.map((key) => {
-    const entry = dialogs[key];
+    const entry = dialogs[key as TKeys];
     if (!entry) return null;
 
     // Guard check

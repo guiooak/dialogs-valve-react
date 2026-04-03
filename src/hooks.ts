@@ -18,7 +18,9 @@ import type { DialogsValveContextValue } from "./types";
  * isOpen("my-drawer"); // boolean
  * ```
  */
-export function useDialogsValve(): DialogsValveContextValue | null {
+export function useDialogsValve<
+  TKeys extends string = string,
+>(): DialogsValveContextValue<TKeys> | null {
   const context = useContext(DialogsValveContext);
 
   if (!context) {

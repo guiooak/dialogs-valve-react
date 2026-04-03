@@ -34,3 +34,6 @@ export type { DialogsValveProviderProps } from "./provider";
 
 // React — Hook
 export { useDialogsValve } from "./hooks";
+
+// React — Factory for typed systems
+export { createDialogsValve } from "./factory";
