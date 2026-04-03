@@ -31,7 +31,7 @@ import type {
 // Props
 // ---------------------------------------------------------------------------
 
-export interface DialogsValveProviderProps<TPermissions = unknown> {
+export type DialogsValveProviderProps<TPermissions = unknown> = {
   /** Router adapter providing the `navigate` function. */
   router: RouterAdapter;
 
@@ -45,7 +45,7 @@ export interface DialogsValveProviderProps<TPermissions = unknown> {
   config?: DialogsValveConfig;
 
   children: ReactNode;
-}
+};
 
 // ---------------------------------------------------------------------------
 // Provider

@@ -23,9 +23,9 @@ export type DialogPropValue = string | number | boolean;
  * Pathname and search string are read from `window.location` internally;
  * the adapter is only responsible for performing navigation.
  */
-export interface RouterAdapter {
+export type RouterAdapter = {
   navigate(url: string): void;
-}
+};
 
 // ---------------------------------------------------------------------------
 // Dialog registry
@@ -36,7 +36,7 @@ export interface RouterAdapter {
  *
  * @template TPermissions - Shape of the permissions/guard context object.
  */
-export interface DialogEntry<TPermissions = unknown> {
+export type DialogEntry<TPermissions = unknown> = {
   /**
    * The React component to render for this dialog.
    * It will receive `open` and `onClose` props controlled by the library,
@@ -51,7 +51,7 @@ export interface DialogEntry<TPermissions = unknown> {
    * and a `console.warn` is emitted.
    */
   canShow?: (permissions: TPermissions) => boolean;
-}
+};
 
 /**
  * A map of dialog keys to their entries.
@@ -73,7 +73,7 @@ export type DialogMap<TPermissions = unknown> = Record<
 /**
  * Optional configuration for `<DialogsValveProvider>`.
  */
-export interface DialogsValveConfig {
+export type DialogsValveConfig = {
   /**
    * The query param key used to identify the active dialog.
    * @default "dlg"
@@ -86,7 +86,7 @@ export interface DialogsValveConfig {
    * @default 300
    */
   closeDelay?: number;
-}
+};
 
 // ---------------------------------------------------------------------------
 // URL builder options
@@ -95,7 +95,7 @@ export interface DialogsValveConfig {
 /**
  * Options for `buildDialogUrl()`.
  */
-export interface BuildDialogUrlOptions {
+export type BuildDialogUrlOptions = {
   /**
    * Custom props to pass to the dialog via query params.
    * Values are serialized as strings in the URL.
@@ -114,7 +114,7 @@ export interface BuildDialogUrlOptions {
    * Defaults to `window.location.pathname`.
    */
   pathName?: string;
-}
+};
 
 // ---------------------------------------------------------------------------
 // Internal / context types
@@ -124,7 +124,7 @@ export interface BuildDialogUrlOptions {
  * The shape of the value provided by `DialogsValveContext`.
  * Used internally by the provider and the `useDialogsValve()` hook.
  */
-export interface DialogsValveContextValue {
+export type DialogsValveContextValue = {
   /** Open a dialog by key with optional props and overlap. */
   openDialog: (key: string, options?: BuildDialogUrlOptions) => void;
 
@@ -142,4 +142,4 @@ export interface DialogsValveContextValue {
 
   /** The dialog param key in use (resolved from config or default). */
   dialogParamKey: string;
-}
+};
