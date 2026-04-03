@@ -8,4 +8,4 @@ import type { DialogsValveContextValue } from "./types";
  * Defaults to `null` — the hook will throw if used outside the provider.
  */
 export const DialogsValveContext =
-  createContext<DialogsValveContextValue<any> | null>(null);
+  createContext<DialogsValveContextValue<string> | null>(null);

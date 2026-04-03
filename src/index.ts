@@ -12,21 +12,19 @@ export type {
   DialogsValveContextValue,
 } from "./types";
 
-// URL utilities
 export {
+  // URL builders
   buildDialogUrl,
   buildCloseDialogUrl,
   buildCloseAllDialogsUrl,
-} from "./services/url-builder-service";
 
-// Query param utilities
-export {
+  // Query param helpers
   extractDialogProps,
   getActiveDialogKeys,
   cleanUpQueryParams,
   validateDialogKeys,
   parsePropValue,
-} from "./services/query-params-service";
+} from "./services";
 
 // React — Provider
 export { DialogsValveProvider } from "./provider";
@@ -36,4 +34,4 @@ export type { DialogsValveProviderProps } from "./provider";
 export { useDialogsValve } from "./hooks";
 
 // React — Factory for typed systems
-export { createDialogsValve } from "./factory";
+export { createDialogsValve } from "./factories";

@@ -13,12 +13,10 @@ import {
   extractDialogProps,
   getActiveDialogKeys,
   validateDialogKeys,
-} from "./services/query-params-service";
-import {
   buildCloseAllDialogsUrl,
   buildCloseDialogUrl,
   buildDialogUrl,
-} from "./services/url-builder-service";
+} from "./services";
 import type {
   BuildDialogUrlOptions,
   DialogMap,
@@ -229,7 +227,9 @@ export function DialogsValveProvider<
   });
 
   return (
-    <DialogsValveContext.Provider value={contextValue}>
+    <DialogsValveContext.Provider
+      value={contextValue as DialogsValveContextValue<string>}
+    >
       {children}
       {dialogElements}
     </DialogsValveContext.Provider>
