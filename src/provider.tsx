@@ -155,10 +155,10 @@ export function DialogsValveProvider<TPermissions = unknown>({
 
   const closeAllDialogs = useCallback(() => {
     router.navigate(
-      buildCloseAllDialogsUrl(validDialogKeys, dialogParamKey),
+      buildCloseAllDialogsUrl(dialogParamKey),
     );
     setTimeout(() => setSearch(getLocationSearch()), 0);
-  }, [router, validDialogKeys, dialogParamKey]);
+  }, [router, dialogParamKey]);
 
   const isOpen = useCallback(
     (key: string) => activeKeys.includes(key),
