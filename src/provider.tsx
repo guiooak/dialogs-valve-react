@@ -8,7 +8,11 @@ import {
 } from "react";
 import { DialogsValveContext } from "./context";
 import { DIALOG_DELAY_TO_CLOSE, DIALOG_MAIN_KEY } from "./constants";
-import { getLocationSearch, addLocationChangeListener } from "./browser";
+import {
+  getLocationSearch,
+  addLocationChangeListener,
+  pushState,
+} from "./browser";
 import {
   extractDialogProps,
   getActiveDialogKeys,
@@ -23,7 +27,7 @@ import type {
   DialogPropValue,
   DialogsValveConfig,
   DialogsValveContextValue,
-  RouterAdapter,
+  onNavigateType,
 } from "./types";
 
 // ---------------------------------------------------------------------------
@@ -34,8 +38,11 @@ export type DialogsValveProviderProps<
   TKeys extends string = string,
   TPermissions = unknown,
 > = {
-  /** Router adapter providing the `navigate` function. */
-  router: RouterAdapter;
+  /**
+   * Callback to perform navigation within the hosting application's router.
+   * If not provided, the library falls back to `window.history.pushState`.
+   */
+  onNavigate?: onNavigateType;
 
   /** Registry of dialog keys → components and optional guards. */
   dialogs: DialogMap<TKeys, TPermissions>;
@@ -57,7 +64,7 @@ export function DialogsValveProvider<
   TKeys extends string = string,
   TPermissions = unknown,
 >({
-  router,
+  onNavigate,
   dialogs,
   permissions,
   config,
@@ -124,29 +131,43 @@ export function DialogsValveProvider<
   );
 
   // -----------------------------------------------------------------------
+  // Navigation Helper
+  // -----------------------------------------------------------------------
+  const navigate = useCallback(
+    (url: string) => {
+      if (onNavigate) {
+        onNavigate(url);
+      } else {
+        pushState(url);
+      }
+
+      // Update search immediately so React re-renders without waiting for events
+      // (This is crucial when using pushState as it doesn't trigger observers immediately)
+      setSearch(getLocationSearch());
+    },
+    [onNavigate],
+  );
+
+  // -----------------------------------------------------------------------
   // Context value
   // -----------------------------------------------------------------------
   const openDialog = useCallback(
     (key: string, options?: BuildDialogUrlOptions) => {
-      router.navigate(buildDialogUrl(key, options, dialogParamKey));
-      // Update search immediately so React re-renders without waiting for events
-      setTimeout(() => setSearch(getLocationSearch()), 0);
+      navigate(buildDialogUrl(key, options, dialogParamKey));
     },
-    [router, dialogParamKey],
+    [navigate, dialogParamKey],
   );
 
   const closeDialog = useCallback(
     (key: string) => {
-      router.navigate(buildCloseDialogUrl(key, dialogParamKey));
-      setTimeout(() => setSearch(getLocationSearch()), 0);
+      navigate(buildCloseDialogUrl(key, dialogParamKey));
     },
-    [router, dialogParamKey],
+    [navigate, dialogParamKey],
   );
 
   const closeAllDialogs = useCallback(() => {
-    router.navigate(buildCloseAllDialogsUrl(dialogParamKey));
-    setTimeout(() => setSearch(getLocationSearch()), 0);
-  }, [router, dialogParamKey]);
+    navigate(buildCloseAllDialogsUrl(dialogParamKey));
+  }, [navigate, dialogParamKey]);
 
   const isOpen = useCallback(
     (key: string) => activeKeys.includes(key),

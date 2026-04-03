@@ -14,18 +14,12 @@ export type DialogPropValue = string | number | boolean;
 // ---------------------------------------------------------------------------
 
 /**
- * Minimal router interface the library requires.
+ * Function signature for performing navigation within the hosting application's router.
  *
- * Consumers provide an object matching this shape so the library remains
- * router-agnostic — it works with react-router-dom, Next.js, TanStack Router,
- * or any custom solution.
- *
- * Pathname and search string are read from the browser's location internally;
- * the adapter is only responsible for performing navigation.
+ * This allows the library to remain router-agnostic. Consumers provide this function
+ * (e.g., from `useNavigate` in react-router-dom or `useRouter` in Next.js).
  */
-export type RouterAdapter = {
-  navigate(url: string): void;
-};
+export type onNavigateType = (url: string) => void;
 
 // ---------------------------------------------------------------------------
 // Dialog registry

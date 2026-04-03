@@ -4,7 +4,7 @@ export { DIALOG_MAIN_KEY, DIALOG_DELAY_TO_CLOSE } from "./constants";
 // Types
 export type {
   DialogPropValue,
-  RouterAdapter,
+  onNavigateType,
   DialogEntry,
   DialogMap,
   DialogsValveConfig,

@@ -61,3 +61,14 @@ export function addLocationChangeListener(callback: () => void): () => void {
     observer.disconnect();
   };
 }
+
+/**
+ * Perform a browser navigation using the generic `history.pushState` API.
+ * This is used as the fallback navigation logic when no custom router is provided.
+ *
+ * @param {string} url - The URL to navigate to.
+ */
+export function pushState(url: string): void {
+  if (typeof window === "undefined") return;
+  window.history.pushState({}, "", url);
+}
