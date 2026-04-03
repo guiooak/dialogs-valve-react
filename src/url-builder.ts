@@ -1,4 +1,5 @@
 import { DIALOG_MAIN_KEY } from "./constants";
+import { getLocationPathname, getLocationSearch } from "./location";
 import type { BuildDialogUrlOptions, DialogPropValue } from "./types";
 
 /**
@@ -19,11 +20,11 @@ export function buildDialogUrl(
 ): string {
   const { props, overlap = false, pathName } = options ?? {};
 
-  const pathname = pathName ?? window.location.pathname;
+  const pathname = pathName ?? getLocationPathname();
 
   // Start from existing params when overlapping, otherwise start fresh
   const params = overlap
-    ? new URLSearchParams(window.location.search)
+    ? new URLSearchParams(getLocationSearch())
     : new URLSearchParams();
 
   // Set the dialog key
@@ -54,8 +55,8 @@ export function buildCloseDialogUrl(
   dialogKey: string,
   dialogParamKey: string = DIALOG_MAIN_KEY,
 ): string {
-  const pathname = window.location.pathname;
-  const params = new URLSearchParams(window.location.search);
+  const pathname = getLocationPathname();
+  const params = new URLSearchParams(getLocationSearch());
 
   // Remove the main dialog key if it matches
   if (params.get(dialogParamKey) === dialogKey) {
@@ -89,8 +90,8 @@ export function buildCloseAllDialogsUrl(
   validDialogKeys: string[],
   dialogParamKey: string = DIALOG_MAIN_KEY,
 ): string {
-  const pathname = window.location.pathname;
-  const params = new URLSearchParams(window.location.search);
+  const pathname = getLocationPathname();
+  const params = new URLSearchParams(getLocationSearch());
 
   // Remove the main dialog param
   params.delete(dialogParamKey);

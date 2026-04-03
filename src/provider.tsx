@@ -8,6 +8,7 @@ import {
 } from "react";
 import { DialogsValveContext } from "./context";
 import { DIALOG_DELAY_TO_CLOSE, DIALOG_MAIN_KEY } from "./constants";
+import { getLocationSearch } from "./location";
 import {
   extractDialogProps,
   getActiveDialogKeys,
@@ -65,20 +66,20 @@ export function DialogsValveProvider<TPermissions = unknown>({
   // -----------------------------------------------------------------------
   // Read current dialog keys from URL
   // -----------------------------------------------------------------------
-  const [search, setSearch] = useState(() => window.location.search);
+  const [search, setSearch] = useState(() => getLocationSearch());
 
   // Listen for popstate (back/forward) and re-read search on navigation
   useEffect(() => {
     const onLocationChange = () => {
-      setSearch(window.location.search);
+      setSearch(getLocationSearch());
     };
 
     window.addEventListener("popstate", onLocationChange);
 
     // Also poll for pushState/replaceState changes (they don't fire popstate)
     const observer = new MutationObserver(() => {
-      if (window.location.search !== search) {
-        setSearch(window.location.search);
+      if (getLocationSearch() !== search) {
+        setSearch(getLocationSearch());
       }
     });
     observer.observe(document, { subtree: true, childList: true });
@@ -139,7 +140,7 @@ export function DialogsValveProvider<TPermissions = unknown>({
     (key: string, options?: BuildDialogUrlOptions) => {
       router.navigate(buildDialogUrl(key, options, dialogParamKey));
       // Update search immediately so React re-renders without waiting for events
-      setTimeout(() => setSearch(window.location.search), 0);
+      setTimeout(() => setSearch(getLocationSearch()), 0);
     },
     [router, dialogParamKey],
   );
@@ -147,7 +148,7 @@ export function DialogsValveProvider<TPermissions = unknown>({
   const closeDialog = useCallback(
     (key: string) => {
       router.navigate(buildCloseDialogUrl(key, dialogParamKey));
-      setTimeout(() => setSearch(window.location.search), 0);
+      setTimeout(() => setSearch(getLocationSearch()), 0);
     },
     [router, dialogParamKey],
   );
@@ -156,7 +157,7 @@ export function DialogsValveProvider<TPermissions = unknown>({
     router.navigate(
       buildCloseAllDialogsUrl(validDialogKeys, dialogParamKey),
     );
-    setTimeout(() => setSearch(window.location.search), 0);
+    setTimeout(() => setSearch(getLocationSearch()), 0);
   }, [router, validDialogKeys, dialogParamKey]);
 
   const isOpen = useCallback(
