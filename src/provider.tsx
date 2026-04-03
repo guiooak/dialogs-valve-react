@@ -109,26 +109,72 @@ export function DialogsValveProvider<
 
   useEffect(() => {
     const prevKeys = prevActiveKeysRef.current;
-    prevActiveKeysRef.current = activeKeys;
 
     // Keys that were active before but aren't anymore → need delayed removal
     const closedKeys = prevKeys.filter((k) => !activeKeys.includes(k));
-    if (closedKeys.length === 0) return;
 
-    setDelayedKeys((prev) => [...new Set([...prev, ...closedKeys])]);
+    if (closedKeys.length > 0) {
+      setDelayedKeys((prev) => [...new Set([...prev, ...closedKeys])]);
 
-    const timer = setTimeout(() => {
-      setDelayedKeys((prev) => prev.filter((k) => !closedKeys.includes(k)));
-    }, closeDelay);
+      const timer = setTimeout(() => {
+        setDelayedKeys((prev) => prev.filter((k) => !closedKeys.includes(k)));
+      }, closeDelay);
 
-    return () => clearTimeout(timer);
+      return () => clearTimeout(timer);
+    }
   }, [activeKeys, closeDelay]);
 
-  // All keys to render: currently active + closing (delayed)
-  const renderedKeys = useMemo(
-    () => [...new Set([...activeKeys, ...delayedKeys])],
-    [activeKeys, delayedKeys],
-  );
+  // IMPORTANT: Update ref AFTER calculate what's becoming delayed, but we do it
+  // in another effect or at the end of this one but it's tricky.
+  // Actually, we can update it in a separate effect to ensure it's always up to date
+  // AFTER the main logic.
+  useEffect(() => {
+    prevActiveKeysRef.current = activeKeys;
+  }, [activeKeys]);
+
+  // -----------------------------------------------------------------------
+  // Stable & Gap-free rendered keys
+  // -----------------------------------------------------------------------
+  // 1. We keep a history of all keys that have been opened to maintain stable order.
+  const historyRef = useRef<string[]>(activeKeys);
+
+  // 2. We calculate rendered keys synchronously during render to avoid the
+  // "one-frame unmount" flicker that occurs before useEffect/useState can sync.
+  const renderedKeys = useMemo(() => {
+    // Add any new active keys to our history to keep their positions stable
+    activeKeys.forEach((k) => {
+      if (!historyRef.current.includes(k)) {
+        historyRef.current.push(k);
+      }
+    });
+
+    // To prevent the flicker immediately after a URL change, we must include
+    // keys that just became inactive in this render pass.
+    const becomingDelayed = prevActiveKeysRef.current.filter(
+      (k) => !activeKeys.includes(k),
+    );
+
+    // Results are keys that are either active, already delayed by state,
+    // or about to be delayed (the one-frame gap).
+    const result = historyRef.current.filter(
+      (k) =>
+        activeKeys.includes(k) ||
+        delayedKeys.includes(k) ||
+        becomingDelayed.includes(k),
+    );
+
+    // Clean up historyRef periodically to avoid leaking keys?
+    // Actually, historical filter is enough, but we should update historyRef
+    // to strictly match the current 'alive' set to prevent memory leaks over time.
+    historyRef.current = historyRef.current.filter(
+      (k) =>
+        activeKeys.includes(k) ||
+        delayedKeys.includes(k) ||
+        becomingDelayed.includes(k),
+    );
+
+    return result;
+  }, [activeKeys, delayedKeys]);
 
   // -----------------------------------------------------------------------
   // Navigation Helper
