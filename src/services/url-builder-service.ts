@@ -3,9 +3,9 @@ import {
   DIALOG_MAIN_KEY,
   DIALOG_NUMBER_PREFIX,
   DIALOG_PROP_PREFIX_SEPARATOR,
-} from "./constants";
-import { getLocationPathname, getLocationSearch } from "./location";
-import type { BuildDialogUrlOptions, DialogPropValue } from "./types";
+} from "../constants";
+import { getLocationPathname, getLocationSearch } from "../location";
+import type { BuildDialogUrlOptions, DialogPropValue } from "../types";
 
 export function buildDialogUrl(
   dialogKey: string,

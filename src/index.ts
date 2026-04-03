@@ -17,7 +17,7 @@ export {
   buildDialogUrl,
   buildCloseDialogUrl,
   buildCloseAllDialogsUrl,
-} from "./url-builder";
+} from "./services/url-builder-service";
 
 // Query param utilities
 export {
@@ -26,7 +26,7 @@ export {
   cleanUpQueryParams,
   validateDialogKeys,
   parsePropValue,
-} from "./query-params-utils";
+} from "./services/query-params-service";
 
 // React — Provider
 export { DialogsValveProvider } from "./provider";

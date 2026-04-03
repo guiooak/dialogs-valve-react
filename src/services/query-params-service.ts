@@ -4,8 +4,8 @@ import {
   DIALOG_NUMBER_PREFIX,
   DIALOG_NUMBER_REGEX,
   DIALOG_PROP_PREFIX_SEPARATOR,
-} from "./constants";
-import type { DialogPropValue } from "./types";
+} from "../constants";
+import type { DialogPropValue } from "../types";
 
 export function extractDialogProps(
   search: string,

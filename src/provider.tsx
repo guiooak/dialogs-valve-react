@@ -13,12 +13,12 @@ import {
   extractDialogProps,
   getActiveDialogKeys,
   validateDialogKeys,
-} from "./query-params-utils";
+} from "./services/query-params-service";
 import {
   buildCloseAllDialogsUrl,
   buildCloseDialogUrl,
   buildDialogUrl,
-} from "./url-builder";
+} from "./services/url-builder-service";
 import type {
   BuildDialogUrlOptions,
   DialogMap,
