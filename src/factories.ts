@@ -1,6 +1,7 @@
 import { useContext } from "react";
 import { DialogsValveContext } from "./context";
-import type { DialogsValveContextValue } from "./types";
+import { buildDialogUrl } from "./services";
+import type { DialogsValveContextValue, BuildDialogUrlOptions } from "./types";
 
 /**
  * Creates a set of typed hooks and components for your dialog system.
@@ -13,10 +14,11 @@ import type { DialogsValveContextValue } from "./types";
  * ```tsx
  * // registry.ts
  * export type MyDialogKeys = "drawer-1" | "drawer-2";
- * export const { useDialogs } = createDialogsValve<MyDialogKeys>();
+ * export const { useDialogs, buildDialogUrl } = createDialogsValve<MyDialogKeys>();
  *
  * // HomePage.tsx
  * const { openDialog } = useDialogs(); // "openDialog" is now typed!
+ * const url = buildDialogUrl("drawer-1"); // Now typed with MyDialogKeys!
  * ```
  */
 export function createDialogsValve<TKeys extends string = string>() {
@@ -36,7 +38,17 @@ export function createDialogsValve<TKeys extends string = string>() {
     return context as DialogsValveContextValue<TKeys> | null;
   };
 
+  /**
+   * Utility to build a URL for a dialog, pre-typed with your keys.
+   */
+  const buildDialogUrlTyped = (
+    key: TKeys,
+    options?: BuildDialogUrlOptions,
+    dialogParamKey?: string,
+  ): string => buildDialogUrl(key, options, dialogParamKey);
+
   return {
     useDialogs,
+    buildDialogUrl: buildDialogUrlTyped,
   };
 }
