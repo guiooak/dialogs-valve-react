@@ -2,7 +2,6 @@ import {
   useCallback,
   useEffect,
   useMemo,
-  useRef,
   useState,
   type ReactNode,
 } from "react";
@@ -99,36 +98,33 @@ export function DialogsValveProvider<
   );
 
   // -----------------------------------------------------------------------
-  // Delayed-close state machine
+  // Rendered Keys State Machine
   // -----------------------------------------------------------------------
-  // When a dialog closes, we keep rendering it for `closeDelay` ms so
-  // close animations can play. `delayedKeys` holds keys that are still
-  // rendered but no longer active.
-  const [delayedKeys, setDelayedKeys] = useState<string[]>([]);
-  const prevActiveKeysRef = useRef<string[]>(activeKeys);
+  // We maintain a stable list of keys to render in the DOM.
+  // - Additions: Synchronized immediately during render (gap-free opening).
+  // - Removals: Synchronized after `closeDelay` via useEffect (smooth exit).
+  const [renderedKeys, setRenderedKeys] = useState<string[]>(activeKeys);
+
+  // Synchronously update renderedKeys if new dialogs are opened.
+  // This prevents the "one-frame blank gap" when a drawer first appears.
+  const hasNewKeys = activeKeys.some((k) => !renderedKeys.includes(k));
+  if (hasNewKeys) {
+    setRenderedKeys((prev) => [...new Set([...prev, ...activeKeys])]);
+  }
 
   useEffect(() => {
-    const prevKeys = prevActiveKeysRef.current;
-    prevActiveKeysRef.current = activeKeys;
+    // Check if we have keys that are currently rendered but no longer active.
+    const hasKeysToRemove = renderedKeys.some((k) => !activeKeys.includes(k));
 
-    // Keys that were active before but aren't anymore → need delayed removal
-    const closedKeys = prevKeys.filter((k) => !activeKeys.includes(k));
-    if (closedKeys.length === 0) return;
+    if (hasKeysToRemove) {
+      const timer = setTimeout(() => {
+        // After the delay, we sync the DOM state with the URL state.
+        setRenderedKeys(activeKeys);
+      }, closeDelay);
 
-    setDelayedKeys((prev) => [...new Set([...prev, ...closedKeys])]);
-
-    const timer = setTimeout(() => {
-      setDelayedKeys((prev) => prev.filter((k) => !closedKeys.includes(k)));
-    }, closeDelay);
-
-    return () => clearTimeout(timer);
-  }, [activeKeys, closeDelay]);
-
-  // All keys to render: currently active + closing (delayed)
-  const renderedKeys = useMemo(
-    () => [...new Set([...activeKeys, ...delayedKeys])],
-    [activeKeys, delayedKeys],
-  );
+      return () => clearTimeout(timer);
+    }
+  }, [activeKeys, renderedKeys, closeDelay]);
 
   // -----------------------------------------------------------------------
   // Navigation Helper
