@@ -1,14 +1,19 @@
 /**
- * Thin abstraction over browser APIs (window, document, location).
+ * Thin abstraction over browser-specific APIs (window, document, location).
  *
- * Centralises every read of `window.location` and event listener setup
- * so the rest of the codebase never touches globals directly.
- * This makes the code easier to test and keeps SSR-safety concerns in a single place.
+ * This module centralizes all direct access to global browser objects.
+ * By abstracting these reads and event listener setups, we ensure:
+ * 1. SSR safety - the rest of the codebase doesn't need to check for `window`.
+ * 2. Testability - these functions can be mocked easily in a Node.js environment.
+ * 3. Maintainability - browser-specific workarounds (like the MutationObserver swap)
+ *    are isolated to a single file.
  */
 
 /**
- * Get the current URL search string (e.g. `"?dlg=my-dialog&foo=bar"`).
- * Returns an empty string when `window` is not available (SSR).
+ * Retrieves the current URL search string (e.g., `"?dlg=my-dialog&foo=bar"`).
+ *
+ * @returns {string} The current search params or an empty string if `window`
+ *                   is not available (e.g., during Server-Side Rendering).
  */
 export function getLocationSearch(): string {
   if (typeof window === "undefined") return "";
@@ -16,8 +21,10 @@ export function getLocationSearch(): string {
 }
 
 /**
- * Get the current URL pathname (e.g. `"/app/dashboard"`).
- * Returns `"/"` when `window` is not available (SSR).
+ * Retrieves the current URL pathname (e.g., `"/app/dashboard"`).
+ *
+ * @returns {string} The current pathname or `"/"` if `window` is not
+ *                   available (e.g., during Server-Side Rendering).
  */
 export function getLocationPathname(): string {
   if (typeof window === "undefined") return "/";
@@ -25,8 +32,14 @@ export function getLocationPathname(): string {
 }
 
 /**
- * Listen for location changes (popstate and DOM changes that might indicate pushState).
- * Returns an unsubscribe function.
+ * Subscribes to location changes (both `popstate` and indicative DOM changes).
+ *
+ * Since many SPA routers use `pushState` and `replaceState` which do not
+ * trigger the `popstate` event, we also use a MutationObserver on the document.
+ * This acts as a heuristic proxy to detect when navigation might have occurred.
+ *
+ * @param {() => void} callback - Function to execute when a location change is detected.
+ * @returns {() => void} An unsubscribe function to clean up listeners and observers.
  */
 export function addLocationChangeListener(callback: () => void): () => void {
   if (typeof window === "undefined" || typeof document === "undefined") {
@@ -35,9 +48,11 @@ export function addLocationChangeListener(callback: () => void): () => void {
 
   window.addEventListener("popstate", callback);
 
-  // Fallback for pushState/replaceState changes (they don't fire popstate)
-  // using a MutationObserver on the document as a proxy for URL changes
-  // made by most SPA routers.
+  /**
+   * FALLBACK: pushState/replaceState changes do not trigger the native 'popstate' event.
+   * To detect these changes without monkey-patching the history API, we observe
+   * DOM mutations which typically happen concurrently with router navigation.
+   */
   const observer = new MutationObserver(callback);
   observer.observe(document, { subtree: true, childList: true });
 
