@@ -119,9 +119,7 @@ export function DialogsValveProvider<TPermissions = unknown>({
     setDelayedKeys((prev) => [...new Set([...prev, ...closedKeys])]);
 
     const timer = setTimeout(() => {
-      setDelayedKeys((prev) =>
-        prev.filter((k) => !closedKeys.includes(k)),
-      );
+      setDelayedKeys((prev) => prev.filter((k) => !closedKeys.includes(k)));
     }, closeDelay);
 
     return () => clearTimeout(timer);
@@ -154,9 +152,7 @@ export function DialogsValveProvider<TPermissions = unknown>({
   );
 
   const closeAllDialogs = useCallback(() => {
-    router.navigate(
-      buildCloseAllDialogsUrl(dialogParamKey),
-    );
+    router.navigate(buildCloseAllDialogsUrl(dialogParamKey));
     setTimeout(() => setSearch(getLocationSearch()), 0);
   }, [router, dialogParamKey]);
 
@@ -200,7 +196,7 @@ export function DialogsValveProvider<TPermissions = unknown>({
     // Guard check
     if (entry.canShow && permissions !== undefined) {
       if (!entry.canShow(permissions)) {
-        console.warn(
+        console.error(
           `[dialogs-valve] Dialog "${key}" blocked by canShow guard.`,
         );
         return null;

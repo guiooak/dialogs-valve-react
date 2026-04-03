@@ -29,8 +29,8 @@ export function buildDialogUrl(
     Object.entries(props).forEach(([propKey, value]) =>
       params.set(
         buildDialogPropParamKey(dialogKey, propKey),
-        serializePropValue(value)
-      )
+        serializePropValue(value),
+      ),
     );
   }
 

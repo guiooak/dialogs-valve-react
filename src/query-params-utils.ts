@@ -31,7 +31,9 @@ export function getActiveDialogKeys(
 ): string[] {
   const params = new URLSearchParams(search);
   const allDialogKeys = params.getAll(dialogParamKey) || [];
-  return allDialogKeys.filter((value, index, array) => array.indexOf(value) === index);
+  return allDialogKeys.filter(
+    (value, index, array) => array.indexOf(value) === index,
+  );
 }
 
 export function cleanUpQueryParams(
@@ -60,7 +62,7 @@ export function validateDialogKeys(
     }
 
     console.warn(
-      `DialogsController: Invalid dialog key was provided. ("${key}") \n`
+      `DialogsController: Invalid dialog key was provided. ("${key}") \n`,
     );
 
     return false;
@@ -82,4 +84,3 @@ export function parsePropValue(value: string): DialogPropValue {
 
   return value;
 }
-
