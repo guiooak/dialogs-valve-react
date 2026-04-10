@@ -1,12 +1,12 @@
 import React from 'react';
 import './Drawer.css';
 
-interface DrawerProps {
+type DrawerProps = {
   open: boolean;
   onClose: () => void;
   title: string;
   children: React.ReactNode;
-}
+};
 
 const Drawer: React.FC<DrawerProps> = ({ open, onClose, title, children }) => {
   React.useEffect(() => {

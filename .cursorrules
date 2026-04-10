@@ -1,0 +1,3 @@
+# Repository Rules
+
+- Always use `type` instead of `interface` when defining TypeScript types.

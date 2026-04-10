@@ -2,10 +2,10 @@ import { useDialogsValve } from '@dialogs-valve/react';
 import './DrawerContent.css';
 import Drawer from '../Drawer';
 
-interface DrawerContentProps {
+type DrawerContentProps = {
   open: boolean;
   onClose: () => void;
-}
+};
 
 const DrawerContent5: React.FC<DrawerContentProps> = ({ open, onClose }) => {
   const { openDialog } = useDialogsValve()!;
