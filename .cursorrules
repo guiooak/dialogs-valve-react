@@ -1,3 +1,5 @@
 # Repository Rules
 
 - Always use `type` instead of `interface` when defining TypeScript types.
+- Always use named exports instead of default exports.
+- Always user yarn commands instead of npm.

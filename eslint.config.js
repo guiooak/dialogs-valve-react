@@ -2,10 +2,14 @@ import eslint from "@eslint/js";
 import tseslint from "typescript-eslint";
 import eslintConfigPrettier from "eslint-config-prettier";
 import globals from "globals";
+import importPlugin from "eslint-plugin-import";
 
 export default tseslint.config(
   {
     ignores: ["dist/", "node_modules/", "*.config.*"],
+    plugins: {
+      import: importPlugin,
+    },
   },
   eslint.configs.recommended,
   ...tseslint.configs.recommended,
@@ -24,6 +28,7 @@ export default tseslint.config(
         { argsIgnorePattern: "^_", varsIgnorePattern: "^_" },
       ],
       "@typescript-eslint/consistent-type-definitions": ["error", "type"],
+      "import/no-default-export": "error",
     },
   },
 );
