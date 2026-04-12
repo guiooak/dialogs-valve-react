@@ -28,6 +28,5 @@ export const dialogs = {
   "drawer-12": { Component: DrawerContent12 },
 } as const satisfies DialogMap;
 
-export type AppDialogKeys = keyof typeof dialogs;
-
-export const { useDialogs } = createDialogsValve<AppDialogKeys>();
+export const { DialogsValveProvider, useDialogsValve, buildDialogUrl } =
+  createDialogsValve(dialogs);

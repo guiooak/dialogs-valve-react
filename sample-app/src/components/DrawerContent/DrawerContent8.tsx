@@ -1,4 +1,4 @@
-import { useDialogsValve } from '@dialogs-valve/react';
+import { useDialogsValve } from '../../dialogs-valve-registry';
 import './DrawerContent.css';
 import Drawer from '../Drawer';
 

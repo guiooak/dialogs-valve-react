@@ -7,6 +7,7 @@ export type {
   onNavigateType,
   DialogEntry,
   DialogMap,
+  InferDialogKeys,
   DialogsValveConfig,
   BuildDialogUrlOptions,
   DialogsValveContextValue,

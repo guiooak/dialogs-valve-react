@@ -1,26 +1,38 @@
 import { useNavigate } from "react-router-dom";
-import { DialogsValveProvider } from "@dialogs-valve/react";
-import { dialogs, useDialogs, type AppDialogKeys } from "../registry";
+import { DialogsValveProvider, useDialogsValve } from "../dialogs-valve-registry";
 import "./HomePage.css";
 
 const HomePage: React.FC = () => {
   const navigate = useNavigate();
 
   return (
-    <DialogsValveProvider
-      onNavigate={navigate}
-      dialogs={dialogs}
-    >
+    <DialogsValveProvider onNavigate={navigate}>
       <HomePageContent />
     </DialogsValveProvider>
   );
 };
 
 const HomePageContent: React.FC = () => {
-  const dialogsValve = useDialogs();
+  const dialogsValve = useDialogsValve();
 
   const opensDrawer = (index: number) => {
-    dialogsValve?.openDialog(`drawer-${index}` as AppDialogKeys);
+    // Dynamic template literal produces `string`, not a literal union.
+    // This cast is an explicit escape hatch — all static call sites are fully type-safe.
+    dialogsValve?.openDialog(
+      `drawer-${index}` as
+      | "drawer-1"
+      | "drawer-2"
+      | "drawer-3"
+      | "drawer-4"
+      | "drawer-5"
+      | "drawer-6"
+      | "drawer-7"
+      | "drawer-8"
+      | "drawer-9"
+      | "drawer-10"
+      | "drawer-11"
+      | "drawer-12",
+    );
   };
 
   return (

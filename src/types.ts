@@ -71,7 +71,7 @@ export type DialogMap<
 export type DialogsValveConfig = {
   /**
    * The query param key used to identify the active dialog.
-   * @default "dlg"
+   * @default "dialog"
    */
   dialogParamKey?: string;
 
@@ -110,6 +110,20 @@ export type BuildDialogUrlOptions = {
    */
   pathName?: string;
 };
+
+// ---------------------------------------------------------------------------
+// Utility types
+// ---------------------------------------------------------------------------
+
+/**
+ * Extracts the dialog key union from a registry map type.
+ * Useful when you need the key union for other purposes (e.g. analytics, routing)
+ * without manually writing `keyof typeof dialogs`.
+ *
+ * @example
+ *   type MyKeys = InferDialogKeys<typeof myDialogs>; // "drawer-1" | "drawer-2"
+ */
+export type InferDialogKeys<TMap extends DialogMap> = keyof TMap & string;
 
 // ---------------------------------------------------------------------------
 // Internal / context types
