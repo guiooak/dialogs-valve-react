@@ -1,12 +1,24 @@
-import { BrowserRouter } from 'react-router-dom'
-import HomePage from './pages/HomePage'
+import { createContext, useState } from 'react';
+import { BrowserRouter } from 'react-router-dom';
+import HomePage from './pages/HomePage';
+
+export type AppPermissionsContextValue = {
+  isAdmin: boolean;
+  setIsAdmin: (v: boolean) => void;
+};
+
+export const PermissionsContext = createContext<AppPermissionsContextValue | null>(null);
 
 function App() {
+  const [isAdmin, setIsAdmin] = useState(false);
+
   return (
-    <BrowserRouter>
-      <HomePage />
-    </BrowserRouter>
-  )
+    <PermissionsContext.Provider value={{ isAdmin, setIsAdmin }}>
+      <BrowserRouter>
+        <HomePage />
+      </BrowserRouter>
+    </PermissionsContext.Provider>
+  );
 }
 
-export default App
+export default App;

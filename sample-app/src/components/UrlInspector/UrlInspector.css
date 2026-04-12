@@ -1,0 +1,48 @@
+.url-inspector {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-6);
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  flex-wrap: wrap;
+}
+
+.url-inspector-label {
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.url-inspector-bar {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  overflow: hidden;
+  min-width: 0;
+}
+
+.url-base {
+  color: var(--color-text-muted);
+  white-space: nowrap;
+}
+
+.url-sep {
+  color: var(--color-text-muted);
+}
+
+.url-query {
+  color: var(--color-primary-light);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.url-empty {
+  color: var(--color-border);
+  font-style: italic;
+}

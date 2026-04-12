@@ -1,19 +1,361 @@
-* {
+/* ============================================================
+   Design Tokens
+   ============================================================ */
+:root {
+  /* Background layers */
+  --color-bg:           #0a0a0b;
+  --color-surface:      #111113;
+  --color-card:         #17171a;
+  --color-card-alt:     #1c1c20;
+  --color-border:       #27272a;
+  --color-border-subtle:#1f1f22;
+
+  /* Brand */
+  --color-primary:      #7c3aed;
+  --color-primary-light:#8b5cf6;
+  --color-primary-dim:  rgba(124, 58, 237, 0.15);
+  --color-primary-glow: rgba(124, 58, 237, 0.35);
+
+  /* Semantic */
+  --color-success:      #10b981;
+  --color-success-dim:  rgba(16, 185, 129, 0.12);
+  --color-warning:      #f59e0b;
+  --color-warning-dim:  rgba(245, 158, 11, 0.12);
+  --color-danger:       #ef4444;
+  --color-danger-dim:   rgba(239, 68, 68, 0.12);
+  --color-info:         #3b82f6;
+  --color-info-dim:     rgba(59, 130, 246, 0.12);
+
+  /* Text */
+  --color-text-primary:   #fafafa;
+  --color-text-secondary: #a1a1aa;
+  --color-text-muted:     #52525b;
+  --color-text-code:      #c084fc;
+
+  /* Code */
+  --color-code-bg:     #0d0d0f;
+  --color-code-border: #1e1e24;
+  --color-code-line:   #1a1a20;
+
+  /* Typography */
+  --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto',
+               'Helvetica Neue', Arial, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', 'Cascadia Code',
+               ui-monospace, 'SF Mono', Consolas, monospace;
+
+  /* Spacing */
+  --space-1:  4px;
+  --space-2:  8px;
+  --space-3:  12px;
+  --space-4:  16px;
+  --space-5:  20px;
+  --space-6:  24px;
+  --space-8:  32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+
+  /* Border radius */
+  --radius-sm:   4px;
+  --radius-md:   8px;
+  --radius-lg:   12px;
+  --radius-xl:   16px;
+  --radius-2xl:  24px;
+  --radius-full: 9999px;
+
+  /* Shadows */
+  --shadow-sm:   0 1px 3px rgba(0, 0, 0, 0.4);
+  --shadow-md:   0 4px 16px rgba(0, 0, 0, 0.5);
+  --shadow-lg:   0 8px 32px rgba(0, 0, 0, 0.6);
+  --shadow-glow: 0 0 40px rgba(124, 58, 237, 0.2);
+
+  /* Transitions */
+  --transition-fast: 150ms ease;
+  --transition-base: 250ms ease;
+  --transition-slow: 350ms ease;
+
+  /* Z-index */
+  --z-header: 100;
+  --z-drawer: 1000;
+  --z-modal:  1100;
+}
+
+/* ============================================================
+   Reset & Base
+   ============================================================ */
+*, *::before, *::after {
+  box-sizing: border-box;
   margin: 0;
   padding: 0;
-  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
 }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
+  font-family: var(--font-sans);
+  background-color: var(--color-bg);
+  color: var(--color-text-primary);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-color: #f5f5f5;
+  line-height: 1.6;
 }
 
 #root {
   min-height: 100vh;
-  padding: 2rem;
+}
+
+/* ============================================================
+   Buttons
+   ============================================================ */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-5);
+  border-radius: var(--radius-md);
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: all var(--transition-fast);
+  white-space: nowrap;
+  text-decoration: none;
+  font-family: inherit;
+  line-height: 1.4;
+}
+
+.btn:focus-visible {
+  outline: 2px solid var(--color-primary-light);
+  outline-offset: 2px;
+}
+
+.btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.btn-primary {
+  background: var(--color-primary);
+  color: #fff;
+  border-color: var(--color-primary);
+}
+
+.btn-primary:not(:disabled):hover {
+  background: var(--color-primary-light);
+  border-color: var(--color-primary-light);
+  box-shadow: 0 0 20px var(--color-primary-glow);
+}
+
+.btn-secondary {
+  background: transparent;
+  color: var(--color-text-primary);
+  border-color: var(--color-border);
+}
+
+.btn-secondary:not(:disabled):hover {
+  background: var(--color-card);
+  border-color: var(--color-primary);
+  color: var(--color-primary-light);
+}
+
+.btn-ghost {
+  background: transparent;
+  color: var(--color-text-secondary);
+  border-color: transparent;
+}
+
+.btn-ghost:not(:disabled):hover {
+  background: var(--color-card);
+  color: var(--color-text-primary);
+}
+
+.btn-sm {
+  padding: var(--space-1) var(--space-3);
+  font-size: 0.8rem;
+}
+
+.btn-lg {
+  padding: var(--space-3) var(--space-8);
+  font-size: 1rem;
+}
+
+/* ============================================================
+   Badges
+   ============================================================ */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: 3px var(--space-3);
+  border-radius: var(--radius-full);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  border: 1px solid transparent;
+}
+
+.badge-primary {
+  background: var(--color-primary-dim);
+  color: var(--color-primary-light);
+  border-color: rgba(124, 58, 237, 0.3);
+}
+
+.badge-success {
+  background: var(--color-success-dim);
+  color: var(--color-success);
+  border-color: rgba(16, 185, 129, 0.3);
+}
+
+.badge-warning {
+  background: var(--color-warning-dim);
+  color: var(--color-warning);
+  border-color: rgba(245, 158, 11, 0.3);
+}
+
+.badge-info {
+  background: var(--color-info-dim);
+  color: var(--color-info);
+  border-color: rgba(59, 130, 246, 0.3);
+}
+
+.badge-danger {
+  background: var(--color-danger-dim);
+  color: var(--color-danger);
+  border-color: rgba(239, 68, 68, 0.3);
+}
+
+.badge-muted {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--color-text-secondary);
+  border-color: var(--color-border);
+}
+
+/* ============================================================
+   Dialog shared content styles
+   ============================================================ */
+.dialog-content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.dialog-content p {
+  color: var(--color-text-secondary);
+  line-height: 1.7;
+}
+
+.dialog-content h3 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.dialog-actions {
+  display: flex;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+  margin-top: var(--space-2);
+}
+
+.hint-text {
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+  font-style: italic;
+}
+
+code {
+  font-family: var(--font-mono);
+  font-size: 0.85em;
+  color: var(--color-text-code);
+  background: rgba(124, 58, 237, 0.1);
+  padding: 1px 5px;
+  border-radius: var(--radius-sm);
+}
+
+kbd {
+  font-family: var(--font-mono);
+  font-size: 0.8em;
+  padding: 2px 6px;
+  border-radius: var(--radius-sm);
+  background: var(--color-card-alt);
+  border: 1px solid var(--color-border);
+  color: var(--color-text-secondary);
+}
+
+/* Profile dialog */
+.profile-avatar {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: var(--color-primary-dim);
+  color: var(--color-primary-light);
+  font-size: 1.6rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid rgba(124, 58, 237, 0.3);
+}
+
+.profile-name {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+
+.profile-details {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: var(--space-1) var(--space-4);
+  margin-top: var(--space-2);
+  padding: var(--space-4);
+  background: var(--color-card-alt);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-border);
+}
+
+.profile-details dt {
+  color: var(--color-text-muted);
+  font-size: 0.8rem;
+  align-self: center;
+}
+
+.profile-details dd {
+  color: var(--color-text-primary);
+  font-weight: 600;
+  font-size: 0.9rem;
+  align-self: center;
+}
+
+/* Admin panel dialog */
+.admin-features-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin-top: var(--space-2);
+}
+
+.admin-feature-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  background: var(--color-card-alt);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  font-size: 0.9rem;
+  color: var(--color-text-secondary);
+}
+
+.admin-feature-row::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--color-danger);
+  flex-shrink: 0;
 }
