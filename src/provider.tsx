@@ -20,6 +20,7 @@ import {
   buildCloseDialogUrl,
   buildDialogUrl,
 } from "./services";
+import { DialogsController } from "./controller";
 import type {
   BuildDialogUrlOptions,
   DialogMap,
@@ -98,35 +99,6 @@ export function DialogsValveProvider<
   );
 
   // -----------------------------------------------------------------------
-  // Rendered Keys State Machine
-  // -----------------------------------------------------------------------
-  // We maintain a stable list of keys to render in the DOM.
-  // - Additions: Synchronized immediately during render (gap-free opening).
-  // - Removals: Synchronized after `closeDelay` via useEffect (smooth exit).
-  const [renderedKeys, setRenderedKeys] = useState<string[]>(activeKeys);
-
-  // Synchronously update renderedKeys if new dialogs are opened.
-  // This prevents the "one-frame blank gap" when a drawer first appears.
-  const hasNewKeys = activeKeys.some((k) => !renderedKeys.includes(k));
-  if (hasNewKeys) {
-    setRenderedKeys((prev) => [...new Set([...prev, ...activeKeys])]);
-  }
-
-  useEffect(() => {
-    // Check if we have keys that are currently rendered but no longer active.
-    const hasKeysToRemove = renderedKeys.some((k) => !activeKeys.includes(k));
-
-    if (hasKeysToRemove) {
-      const timer = setTimeout(() => {
-        // After the delay, we sync the DOM state with the URL state.
-        setRenderedKeys(activeKeys);
-      }, closeDelay);
-
-      return () => clearTimeout(timer);
-    }
-  }, [activeKeys, renderedKeys, closeDelay]);
-
-  // -----------------------------------------------------------------------
   // Navigation Helper
   // -----------------------------------------------------------------------
   const navigate = useCallback(
@@ -200,43 +172,19 @@ export function DialogsValveProvider<
     ],
   );
 
-  // -----------------------------------------------------------------------
-  // Render dialog components
-  // -----------------------------------------------------------------------
-  const dialogElements = renderedKeys.map((key) => {
-    const entry = dialogs[key as TKeys];
-    if (!entry) return null;
-
-    // Guard check
-    if (entry.canShow && permissions !== undefined) {
-      if (!entry.canShow(permissions)) {
-        console.error(
-          `[dialogs-valve] Dialog "${key}" blocked by canShow guard.`,
-        );
-        return null;
-      }
-    }
-
-    const { Component } = entry;
-    const dialogProps = extractDialogProps(search, key);
-    const isCurrentlyOpen = activeKeys.includes(key);
-
-    return (
-      <Component
-        key={key}
-        open={isCurrentlyOpen}
-        onClose={() => closeDialog(key)}
-        {...dialogProps}
-      />
-    );
-  });
-
   return (
     <DialogsValveContext.Provider
       value={contextValue as DialogsValveContextValue<string>}
     >
       {children}
-      {dialogElements}
+      <DialogsController
+        activeKeys={activeKeys}
+        search={search}
+        closeDelay={closeDelay}
+        dialogs={dialogs}
+        permissions={permissions}
+        closeDialog={closeDialog}
+      />
     </DialogsValveContext.Provider>
   );
 }
