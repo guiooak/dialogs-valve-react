@@ -33,7 +33,8 @@
     "format": "prettier --write \"src/**/*.{ts,tsx}\" \"demo-app/src/**/*.{ts,tsx}\"",
     "format:check": "prettier --check \"src/**/*.{ts,tsx}\" \"demo-app/src/**/*.{ts,tsx}\"",
     "typecheck": "tsc --noEmit",
-    "prepublishOnly": "npm run build"
+    "prepublishOnly": "npm run build",
+    "demo:dev": "yarn --cwd demo-app dev"
   },
   "peerDependencies": {
     "react": ">=18",
