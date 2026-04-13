@@ -1,5 +1,5 @@
 import React, { useContext } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { PermissionsContext } from "../App";
 import {
   DialogsValveProvider,
@@ -14,13 +14,11 @@ import "./HomePage.css";
 
 const HomePage: React.FC = () => {
   const navigate = useNavigate();
-  const location = useLocation();
   const { isAdmin } = useContext(PermissionsContext)!;
 
   return (
     <DialogsValveProvider
       onNavigate={navigate}
-      getPathname={() => location.pathname}
       permissions={{ isAdmin }}
     >
       <HomePageContent />

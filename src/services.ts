@@ -122,8 +122,7 @@ export function buildDialogUrl(
     );
   }
 
-  const search = params.toString();
-  return search ? `?${search}` : "";
+  return `?${params.toString()}`;
 }
 
 function buildDialogPropParamKey(dialogKey: string, propKey: string): string {
@@ -147,16 +146,9 @@ export function buildCloseDialogUrl(
 }
 
 export function buildCloseAllDialogsUrl(
-  dialogParamKey: string = DIALOG_MAIN_KEY,
+  _dialogParamKey: string = DIALOG_MAIN_KEY,
 ): string {
-  const params = new URLSearchParams(getLocationSearch());
-
-  params.delete(dialogParamKey);
-
-  Array.from(params.keys()).forEach((key) => params.delete(key));
-
-  const search = params.toString();
-  return search ? `?${search}` : "";
+  return "";
 }
 
 function serializePropValue(value: DialogPropValue): string {

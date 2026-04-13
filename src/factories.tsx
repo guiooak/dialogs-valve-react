@@ -139,7 +139,6 @@ export function createDialogsValve<
 
   type ProviderProps = {
     onNavigate?: onNavigateType;
-    getPathname?: () => string;
     permissions?: TPermissions;
     config?: DialogsValveConfig;
     children: ReactNode;
