@@ -75,6 +75,10 @@
   margin-bottom: var(--space-5);
 }
 
+.hero-title-link {
+  text-decoration: none;
+}
+
 .hero-name {
   display: block;
   font-size: clamp(2.2rem, 6vw, 3.8rem);

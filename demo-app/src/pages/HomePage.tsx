@@ -71,8 +71,10 @@ const HeroSection: React.FC = () => (
         <span className="badge badge-muted">TypeScript</span>
       </div>
       <h1 className="hero-title">
-        <span className="hero-name">@dialogs-valve</span>
-        <span className="hero-slash">/react</span>
+        <a href="/" className="hero-title-link">
+          <span className="hero-name">@dialogs-valve</span>
+          <span className="hero-slash">/react</span>
+        </a>
       </h1>
       <p className="hero-tagline">
         URL-driven dialog management for React.
