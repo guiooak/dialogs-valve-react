@@ -14,7 +14,7 @@ function App() {
 
   return (
     <PermissionsContext.Provider value={{ isAdmin, setIsAdmin }}>
-      <BrowserRouter>
+      <BrowserRouter basename="/dialogs-valve-react">
         <HomePage />
       </BrowserRouter>
     </PermissionsContext.Provider>
