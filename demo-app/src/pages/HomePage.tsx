@@ -17,10 +17,7 @@ const HomePage: React.FC = () => {
   const { isAdmin } = useContext(PermissionsContext)!;
 
   return (
-    <DialogsValveProvider
-      onNavigate={navigate}
-      permissions={{ isAdmin }}
-    >
+    <DialogsValveProvider onNavigate={navigate} permissions={{ isAdmin }}>
       <HomePageContent />
     </DialogsValveProvider>
   );
