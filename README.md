@@ -1,7 +1,8 @@
 # @dialogs-valve/react
 
 > [!TIP]
-> **Check out the [Live Demo](https://guiooak.github.io/dialogs-valve-react/)!** See how Dialogs Valve handles deep linking, history, and overlapping modals in real-time. 🚀
+> **Check out the [Live Demo](https://guiooak.github.io/dialogs-valve-react/)!**
+> See how Dialogs Valve handles deep linking, history, and overlapping modals in real-time. 🚀
 
 A small, router-agnostic React library to manage dialogs (modals, drawers, etc.) using URL query params.
 
