@@ -1,20 +1,20 @@
-import { useState, useEffect } from 'react';
-import './UrlInspector.css';
+import { useState, useEffect } from "react";
+import "./UrlInspector.css";
 
 const UrlInspector: React.FC = () => {
   const [url, setUrl] = useState(window.location.href);
 
   useEffect(() => {
     const update = () => setUrl(window.location.href);
-    window.addEventListener('popstate', update);
+    window.addEventListener("popstate", update);
     const id = setInterval(update, 100);
     return () => {
-      window.removeEventListener('popstate', update);
+      window.removeEventListener("popstate", update);
       clearInterval(id);
     };
   }, []);
 
-  const questionMark = url.indexOf('?');
+  const questionMark = url.indexOf("?");
   const base = questionMark === -1 ? url : url.slice(0, questionMark);
   const query = questionMark === -1 ? null : url.slice(questionMark + 1);
 

@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import './CodeBlock.css';
+import { useState } from "react";
+import "./CodeBlock.css";
 
 type CodeBlockProps = {
   code: string;
@@ -7,7 +7,11 @@ type CodeBlockProps = {
   filename?: string;
 };
 
-const CodeBlock: React.FC<CodeBlockProps> = ({ code, language = 'tsx', filename }) => {
+const CodeBlock: React.FC<CodeBlockProps> = ({
+  code,
+  language = "tsx",
+  filename,
+}) => {
   const [copied, setCopied] = useState(false);
 
   const handleCopy = () => {
@@ -21,11 +25,16 @@ const CodeBlock: React.FC<CodeBlockProps> = ({ code, language = 'tsx', filename 
     <div className="code-block">
       <div className="code-block-header">
         <span className="code-block-filename">{filename ?? language}</span>
-        <button className="btn btn-ghost btn-sm code-block-copy" onClick={handleCopy}>
-          {copied ? '✓ Copied' : 'Copy'}
+        <button
+          className="btn btn-ghost btn-sm code-block-copy"
+          onClick={handleCopy}
+        >
+          {copied ? "✓ Copied" : "Copy"}
         </button>
       </div>
-      <pre className="code-block-body"><code>{code}</code></pre>
+      <pre className="code-block-body">
+        <code>{code}</code>
+      </pre>
     </div>
   );
 };

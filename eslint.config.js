@@ -31,4 +31,10 @@ export default tseslint.config(
       "import/no-default-export": "error",
     },
   },
+  {
+    files: ["demo-app/src/**/*.{ts,tsx}"],
+    rules: {
+      "import/no-default-export": "off",
+    },
+  },
 );

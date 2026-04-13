@@ -1,11 +1,14 @@
-import React, { useContext } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { PermissionsContext } from '../App';
-import { DialogsValveProvider, useDialogsValve } from '../dialogs-valve-registry';
-import UrlInspector from '../components/UrlInspector/UrlInspector';
-import SectionLayout from '../components/SectionLayout/SectionLayout';
-import CodeBlock from '../components/CodeBlock/CodeBlock';
-import './HomePage.css';
+import React, { useContext } from "react";
+import { useNavigate } from "react-router-dom";
+import { PermissionsContext } from "../App";
+import {
+  DialogsValveProvider,
+  useDialogsValve,
+} from "../dialogs-valve-registry";
+import UrlInspector from "../components/UrlInspector/UrlInspector";
+import SectionLayout from "../components/SectionLayout/SectionLayout";
+import CodeBlock from "../components/CodeBlock/CodeBlock";
+import "./HomePage.css";
 
 // ─── Top-level page: owns the provider ───────────────────────────────────────
 
@@ -41,7 +44,7 @@ const HomePageContent: React.FC = () => (
     <footer className="showcase-footer">
       <div className="showcase-inner">
         <p>
-          <strong>@dialogs-valve/react</strong> — MIT License —{' '}
+          <strong>@dialogs-valve/react</strong> — MIT License —{" "}
           <a
             href="https://github.com/guilhermecarvalho/dialogs-valve-react"
             target="_blank"
@@ -72,19 +75,22 @@ const HeroSection: React.FC = () => (
         <span className="hero-slash">/react</span>
       </h1>
       <p className="hero-tagline">
-        URL-driven dialog management for React.<br />
+        URL-driven dialog management for React.
+        <br />
         Deep-linkable, router-agnostic, type-safe.
       </p>
       <div className="hero-chips">
         {[
-          'URL-Driven State',
-          'Router-Agnostic',
-          'Overlap Support',
-          'Permission Guards',
-          'Type-Safe API',
-          'Animated Exits',
+          "URL-Driven State",
+          "Router-Agnostic",
+          "Overlap Support",
+          "Permission Guards",
+          "Type-Safe API",
+          "Animated Exits",
         ].map((f) => (
-          <span key={f} className="hero-chip">{f}</span>
+          <span key={f} className="hero-chip">
+            {f}
+          </span>
         ))}
       </div>
       <div className="hero-cta">
@@ -103,7 +109,7 @@ const HeroSection: React.FC = () => (
 
 const BasicUsageSection: React.FC = () => {
   const { openDialog, closeAllDialogs, isOpen } = useDialogsValve()!;
-  const anyOpen = isOpen('hello-modal') || isOpen('info-drawer');
+  const anyOpen = isOpen("hello-modal") || isOpen("info-drawer");
 
   const code = `import { useDialogsValve } from './dialogs-valve-registry';
 
@@ -131,17 +137,19 @@ const isModalOpen = isOpen('hello-modal'); // boolean`;
       description="Open, close, and check dialogs from anywhere inside the provider — modal, drawer, sheet, whatever your component looks like."
       demo={
         <div className="demo-card">
-          <p className="demo-card-hint">Try opening both, then closing all at once.</p>
+          <p className="demo-card-hint">
+            Try opening both, then closing all at once.
+          </p>
           <div className="demo-actions">
             <button
               className="btn btn-primary"
-              onClick={() => openDialog('hello-modal')}
+              onClick={() => openDialog("hello-modal")}
             >
               Open Modal
             </button>
             <button
               className="btn btn-secondary"
-              onClick={() => openDialog('info-drawer')}
+              onClick={() => openDialog("info-drawer")}
             >
               Open Drawer
             </button>
@@ -154,9 +162,13 @@ const isModalOpen = isOpen('hello-modal'); // boolean`;
             </button>
           </div>
           <div className="demo-state-row">
-            <span className={`demo-dot ${isOpen('hello-modal') ? 'demo-dot-on' : ''}`} />
+            <span
+              className={`demo-dot ${isOpen("hello-modal") ? "demo-dot-on" : ""}`}
+            />
             <span className="demo-state-label">hello-modal</span>
-            <span className={`demo-dot ${isOpen('info-drawer') ? 'demo-dot-on' : ''}`} />
+            <span
+              className={`demo-dot ${isOpen("info-drawer") ? "demo-dot-on" : ""}`}
+            />
             <span className="demo-state-label">info-drawer</span>
           </div>
         </div>
@@ -190,8 +202,9 @@ openDialog('overlap-drawer-b', { overlap: true });
       title="Overlapping Dialogs"
       description={
         <>
-          Open multiple dialogs simultaneously with <code>overlap: true</code>. Each
-          one adds its own key to the URL — close one and the rest stay open.
+          Open multiple dialogs simultaneously with <code>overlap: true</code>.
+          Each one adds its own key to the URL — close one and the rest stay
+          open.
         </>
       }
       demo={
@@ -203,7 +216,7 @@ openDialog('overlap-drawer-b', { overlap: true });
           <div className="demo-actions">
             <button
               className="btn btn-primary"
-              onClick={() => openDialog('overlap-drawer-a')}
+              onClick={() => openDialog("overlap-drawer-a")}
             >
               Open Drawer A
             </button>
@@ -240,20 +253,21 @@ openDialog('replacement-b', { overlap: false });
       title="Dialog Replacement"
       description={
         <>
-          Pass <code>overlap: false</code> to replace all current dialogs instead of
-          stacking. Useful for wizard steps, exclusive panels, or navigation flows.
+          Pass <code>overlap: false</code> to replace all current dialogs
+          instead of stacking. Useful for wizard steps, exclusive panels, or
+          navigation flows.
         </>
       }
       demo={
         <div className="demo-card">
           <p className="demo-card-hint">
-            Open Drawer A, then use the button inside to replace it with
-            Drawer B — no stacking.
+            Open Drawer A, then use the button inside to replace it with Drawer
+            B — no stacking.
           </p>
           <div className="demo-actions">
             <button
               className="btn btn-primary"
-              onClick={() => openDialog('replacement-a')}
+              onClick={() => openDialog("replacement-a")}
             >
               Open Drawer A
             </button>
@@ -276,9 +290,9 @@ openDialog('replacement-b', { overlap: false });
 // ─── Section 4: Props via URL ─────────────────────────────────────────────────
 
 const USERS = [
-  { name: 'Alice', role: 'Admin', userId: '001' },
-  { name: 'Bob', role: 'Viewer', userId: '002' },
-  { name: 'Carol', role: 'Editor', userId: '003' },
+  { name: "Alice", role: "Admin", userId: "001" },
+  { name: "Bob", role: "Viewer", userId: "002" },
+  { name: "Carol", role: "Editor", userId: "003" },
 ];
 
 const PropsSection: React.FC = () => {
@@ -320,14 +334,12 @@ type UserProfileDrawerProps = {
                 key={u.userId}
                 className="profile-card"
                 onClick={() =>
-                  openDialog('user-profile', {
+                  openDialog("user-profile", {
                     props: { name: u.name, role: u.role, userId: u.userId },
                   })
                 }
               >
-                <div className="profile-card-avatar">
-                  {u.name.charAt(0)}
-                </div>
+                <div className="profile-card-avatar">{u.name.charAt(0)}</div>
                 <div className="profile-card-name">{u.name}</div>
                 <div className="profile-card-role">{u.role}</div>
               </button>
@@ -372,35 +384,38 @@ export const dialogs = {
       title="Permission Guards"
       description={
         <>
-          Add a <code>canShow</code> function to any registry entry. The provider
-          re-evaluates it whenever <code>permissions</code> changes — no extra wiring
-          needed.
+          Add a <code>canShow</code> function to any registry entry. The
+          provider re-evaluates it whenever <code>permissions</code> changes —
+          no extra wiring needed.
         </>
       }
       demo={
         <div className="demo-card">
-          <div className="permission-toggle" onClick={() => setIsAdmin(!isAdmin)}>
-            <div className={`toggle-track ${isAdmin ? 'on' : ''}`}>
+          <div
+            className="permission-toggle"
+            onClick={() => setIsAdmin(!isAdmin)}
+          >
+            <div className={`toggle-track ${isAdmin ? "on" : ""}`}>
               <div className="toggle-thumb" />
             </div>
             <div className="toggle-label">
               <span className="toggle-title">Admin Mode</span>
-              <span className={`toggle-status ${isAdmin ? 'on' : ''}`}>
-                {isAdmin ? 'Enabled' : 'Disabled'}
+              <span className={`toggle-status ${isAdmin ? "on" : ""}`}>
+                {isAdmin ? "Enabled" : "Disabled"}
               </span>
             </div>
           </div>
           <div className="demo-actions">
             <button
               className="btn btn-secondary"
-              onClick={() => openDialog('public-info')}
+              onClick={() => openDialog("public-info")}
             >
               Open Public Info
             </button>
             <button
-              className={`btn ${isAdmin ? 'btn-primary' : 'btn-ghost'}`}
-              onClick={() => openDialog('admin-panel')}
-              title={isAdmin ? undefined : 'Enable Admin Mode first'}
+              className={`btn ${isAdmin ? "btn-primary" : "btn-ghost"}`}
+              onClick={() => openDialog("admin-panel")}
+              title={isAdmin ? undefined : "Enable Admin Mode first"}
             >
               Open Admin Panel
             </button>
@@ -489,7 +504,10 @@ function SettingsButton() {
             <span className="install-step-number">2</span>
             Create your registry
           </div>
-          <CodeBlock code={registryCode} filename="dialogs-valve-registry.tsx" />
+          <CodeBlock
+            code={registryCode}
+            filename="dialogs-valve-registry.tsx"
+          />
         </div>
         <div className="install-step">
           <div className="install-step-label">

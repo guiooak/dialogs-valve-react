@@ -1,11 +1,14 @@
-import Drawer from '../../components/Drawer/Drawer';
+import Drawer from "../../components/Drawer/Drawer";
 
 type AdminPanelDrawerProps = {
   open: boolean;
   onClose: () => void;
 };
 
-const AdminPanelDrawer: React.FC<AdminPanelDrawerProps> = ({ open, onClose }) => (
+const AdminPanelDrawer: React.FC<AdminPanelDrawerProps> = ({
+  open,
+  onClose,
+}) => (
   <Drawer open={open} onClose={onClose} title="Admin Panel">
     <div className="dialog-content">
       <span className="badge badge-danger">Admin only</span>

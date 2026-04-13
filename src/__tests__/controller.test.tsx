@@ -120,7 +120,8 @@ describe("DialogsController — props forwarding", () => {
 
   it("forwards deserialized dialog props extracted from the search string", () => {
     // Arrange
-    const search = "?dialog=dialog-a&dialog-a.title=Hello&dialog-a.count=number.3";
+    const search =
+      "?dialog=dialog-a&dialog-a.title=Hello&dialog-a.count=number.3";
     // Act
     render(
       <DialogsController

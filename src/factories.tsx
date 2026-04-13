@@ -88,17 +88,14 @@ export function createDialogsValve<
   /**
    * Utility to build a URL that closes a specific dialog, pre-typed with the registered keys.
    */
-  const buildCloseDialogUrl = (
-    key: TKeys,
-    dialogParamKey?: string,
-  ): string => _buildCloseDialogUrl(key, dialogParamKey);
+  const buildCloseDialogUrl = (key: TKeys, dialogParamKey?: string): string =>
+    _buildCloseDialogUrl(key, dialogParamKey);
 
   /**
    * Utility to build a URL that closes all open dialogs.
    */
-  const buildCloseAllDialogsUrl = (
-    dialogParamKey?: string,
-  ): string => _buildCloseAllDialogsUrl(dialogParamKey);
+  const buildCloseAllDialogsUrl = (dialogParamKey?: string): string =>
+    _buildCloseAllDialogsUrl(dialogParamKey);
 
   /**
    * Extracts the props for a specific dialog from a URL search string,
@@ -131,10 +128,8 @@ export function createDialogsValve<
    * Filters a list of raw keys to only those that are registered,
    * returning a typed array of valid dialog keys.
    */
-  const validateDialogKeys = (
-    keys: string[],
-    validKeys: string[],
-  ): TKeys[] => _validateDialogKeys(keys, validKeys) as TKeys[];
+  const validateDialogKeys = (keys: string[], validKeys: string[]): TKeys[] =>
+    _validateDialogKeys(keys, validKeys) as TKeys[];
 
   /**
    * Parses a raw URL query param string into its typed value

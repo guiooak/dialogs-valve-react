@@ -1,5 +1,5 @@
-import React from 'react';
-import './SectionLayout.css';
+import React from "react";
+import "./SectionLayout.css";
 
 type SectionLayoutProps = {
   id: string;

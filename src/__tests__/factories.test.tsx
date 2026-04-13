@@ -73,7 +73,8 @@ describe("createDialogsValve — return shape", () => {
 describe("createDialogsValve — DialogsValveProvider", () => {
   it("renders children without requiring a dialogs prop", () => {
     // Arrange
-    const { DialogsValveProvider, useDialogsValve } = createDialogsValve(registry);
+    const { DialogsValveProvider, useDialogsValve } =
+      createDialogsValve(registry);
     // Act — provider is used without passing dialogs; it is pre-bound
     const { result } = renderHook(() => useDialogsValve(), {
       wrapper: ({ children }) => (
@@ -91,7 +92,8 @@ describe("createDialogsValve — DialogsValveProvider", () => {
     const onNavigate = vi.fn();
     vi.mocked(getLocationSearch).mockReturnValue("");
     vi.mocked(getLocationPathname).mockReturnValue("/");
-    const { DialogsValveProvider, useDialogsValve } = createDialogsValve(registry);
+    const { DialogsValveProvider, useDialogsValve } =
+      createDialogsValve(registry);
     const { result } = renderHook(() => useDialogsValve(), {
       wrapper: ({ children }) => (
         <DialogsValveProvider
@@ -107,7 +109,9 @@ describe("createDialogsValve — DialogsValveProvider", () => {
       result.current?.openDialog("user-profile");
     });
     // Assert — onNavigate is called and the custom param key is used
-    expect(onNavigate).toHaveBeenCalledWith(expect.stringContaining("dlg=user-profile"));
+    expect(onNavigate).toHaveBeenCalledWith(
+      expect.stringContaining("dlg=user-profile"),
+    );
   });
 });
 
@@ -132,7 +136,8 @@ describe("createDialogsValve — useDialogsValve", () => {
 
   it("returns the context value when used inside the pre-bound provider", () => {
     // Arrange
-    const { DialogsValveProvider, useDialogsValve } = createDialogsValve(registry);
+    const { DialogsValveProvider, useDialogsValve } =
+      createDialogsValve(registry);
     // Act
     const { result } = renderHook(() => useDialogsValve(), {
       wrapper: ({ children }) => (

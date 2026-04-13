@@ -216,7 +216,9 @@ describe("DialogsValveProvider — closeDialog", () => {
 
   it("leaves other open dialogs in the navigation URL", () => {
     // Arrange
-    vi.mocked(getLocationSearch).mockReturnValue("?dialog=dialog-a&dialog=dialog-b");
+    vi.mocked(getLocationSearch).mockReturnValue(
+      "?dialog=dialog-a&dialog=dialog-b",
+    );
     vi.mocked(getLocationPathname).mockReturnValue("/");
     const onNavigate = vi.fn();
     const { result } = renderHook(() => useDialogsValve()!, {

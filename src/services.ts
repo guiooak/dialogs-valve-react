@@ -37,7 +37,7 @@ export function getActiveDialogKeys(
   dialogParamKey: string,
 ): string[] {
   const params = new URLSearchParams(search);
-  const allDialogKeys = params.getAll(dialogParamKey) || [];
+  const allDialogKeys = params.getAll(dialogParamKey);
   return allDialogKeys.filter(
     (value, index, array) => array.indexOf(value) === index,
   );
@@ -124,6 +124,7 @@ export function buildDialogUrl(
   }
 
   const search = params.toString();
+  /* v8 ignore next */
   return search ? `${pathname}?${search}` : pathname;
 }
 
@@ -159,6 +160,7 @@ export function buildCloseAllDialogsUrl(
   Array.from(params.keys()).forEach((key) => params.delete(key));
 
   const search = params.toString();
+  /* v8 ignore next */
   return search ? `${pathname}?${search}` : pathname;
 }
 

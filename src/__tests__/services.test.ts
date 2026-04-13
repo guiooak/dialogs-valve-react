@@ -469,7 +469,9 @@ describe("buildCloseDialogUrl", () => {
 
   it("removes only the target dialog key, leaving others in place", () => {
     // Arrange — uses realistic keys to avoid the substring-match edge case in prop cleanup
-    vi.mocked(getLocationSearch).mockReturnValue("?dialog=dialog-a&dialog=dialog-b");
+    vi.mocked(getLocationSearch).mockReturnValue(
+      "?dialog=dialog-a&dialog=dialog-b",
+    );
     // Act
     const result = buildCloseDialogUrl("dialog-a");
     // Assert
@@ -543,9 +545,7 @@ describe("buildCloseAllDialogsUrl", () => {
 
   it("removes unrelated query params too — total cleanup behaviour", () => {
     // Arrange — buildCloseAllDialogsUrl deletes everything, not just dialog params
-    vi.mocked(getLocationSearch).mockReturnValue(
-      "?dialog=a&utm_source=google",
-    );
+    vi.mocked(getLocationSearch).mockReturnValue("?dialog=a&utm_source=google");
     // Act
     const result = buildCloseAllDialogsUrl();
     // Assert

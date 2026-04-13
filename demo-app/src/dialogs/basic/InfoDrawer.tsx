@@ -1,4 +1,4 @@
-import Drawer from '../../components/Drawer/Drawer';
+import Drawer from "../../components/Drawer/Drawer";
 
 type InfoDrawerProps = {
   open: boolean;
@@ -10,8 +10,8 @@ const InfoDrawer: React.FC<InfoDrawerProps> = ({ open, onClose }) => (
     <div className="dialog-content">
       <p>
         This is a side drawer — the same URL-driven mechanism, different
-        presentation. The library is completely agnostic about how your
-        dialog component looks.
+        presentation. The library is completely agnostic about how your dialog
+        component looks.
       </p>
       <p>
         Notice the URL changed when you opened this. Close it and the URL

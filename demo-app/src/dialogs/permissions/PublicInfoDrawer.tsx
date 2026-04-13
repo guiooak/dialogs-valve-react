@@ -1,11 +1,14 @@
-import Drawer from '../../components/Drawer/Drawer';
+import Drawer from "../../components/Drawer/Drawer";
 
 type PublicInfoDrawerProps = {
   open: boolean;
   onClose: () => void;
 };
 
-const PublicInfoDrawer: React.FC<PublicInfoDrawerProps> = ({ open, onClose }) => (
+const PublicInfoDrawer: React.FC<PublicInfoDrawerProps> = ({
+  open,
+  onClose,
+}) => (
   <Drawer open={open} onClose={onClose} title="Public Info">
     <div className="dialog-content">
       <span className="badge badge-success">No guard</span>

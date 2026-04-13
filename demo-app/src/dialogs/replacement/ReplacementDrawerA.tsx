@@ -1,12 +1,15 @@
-import { useDialogsValve } from '../../dialogs-valve-registry';
-import Drawer from '../../components/Drawer/Drawer';
+import { useDialogsValve } from "../../dialogs-valve-registry";
+import Drawer from "../../components/Drawer/Drawer";
 
 type ReplacementDrawerAProps = {
   open: boolean;
   onClose: () => void;
 };
 
-const ReplacementDrawerA: React.FC<ReplacementDrawerAProps> = ({ open, onClose }) => {
+const ReplacementDrawerA: React.FC<ReplacementDrawerAProps> = ({
+  open,
+  onClose,
+}) => {
   const { openDialog } = useDialogsValve()!;
 
   return (
@@ -24,7 +27,7 @@ const ReplacementDrawerA: React.FC<ReplacementDrawerAProps> = ({ open, onClose }
         <div className="dialog-actions">
           <button
             className="btn btn-primary"
-            onClick={() => openDialog('replacement-b', { overlap: false })}
+            onClick={() => openDialog("replacement-b", { overlap: false })}
           >
             Replace with Drawer B
           </button>
