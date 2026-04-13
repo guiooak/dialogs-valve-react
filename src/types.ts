@@ -103,12 +103,6 @@ export type BuildDialogUrlOptions = {
    * When `false` (default), existing dialog params are replaced.
    */
   overlap?: boolean;
-
-  /**
-   * Override the pathname used for the URL.
-   * Defaults to `getLocationPathname()`.
-   */
-  pathName?: string;
 };
 
 // ---------------------------------------------------------------------------

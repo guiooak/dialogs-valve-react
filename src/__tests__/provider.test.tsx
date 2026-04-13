@@ -6,14 +6,12 @@ import type { DialogMap } from "../types";
 
 vi.mock("../browser", () => ({
   getLocationSearch: vi.fn(() => ""),
-  getLocationPathname: vi.fn(() => "/"),
   addLocationChangeListener: vi.fn(() => () => {}),
   pushState: vi.fn(),
 }));
 
 import {
   getLocationSearch,
-  getLocationPathname,
   addLocationChangeListener,
   pushState,
 } from "../browser";
@@ -119,7 +117,6 @@ describe("DialogsValveProvider — initial URL state", () => {
 describe("DialogsValveProvider — openDialog", () => {
   beforeEach(() => {
     vi.mocked(getLocationSearch).mockReturnValue("");
-    vi.mocked(getLocationPathname).mockReturnValue("/");
   });
 
   it("calls onNavigate with a URL containing the dialog key", () => {
@@ -199,7 +196,6 @@ describe("DialogsValveProvider — closeDialog", () => {
   it("calls onNavigate with a URL that no longer contains the dialog key", () => {
     // Arrange
     vi.mocked(getLocationSearch).mockReturnValue("?dialog=dialog-a");
-    vi.mocked(getLocationPathname).mockReturnValue("/");
     const onNavigate = vi.fn();
     const { result } = renderHook(() => useDialogsValve()!, {
       wrapper: makeWrapper({ onNavigate }),
@@ -219,7 +215,6 @@ describe("DialogsValveProvider — closeDialog", () => {
     vi.mocked(getLocationSearch).mockReturnValue(
       "?dialog=dialog-a&dialog=dialog-b",
     );
-    vi.mocked(getLocationPathname).mockReturnValue("/");
     const onNavigate = vi.fn();
     const { result } = renderHook(() => useDialogsValve()!, {
       wrapper: makeWrapper({ onNavigate }),
@@ -245,7 +240,6 @@ describe("DialogsValveProvider — closeAllDialogs", () => {
     vi.mocked(getLocationSearch).mockReturnValue(
       "?dialog=dialog-a&dialog=dialog-b",
     );
-    vi.mocked(getLocationPathname).mockReturnValue("/");
     const onNavigate = vi.fn();
     const { result } = renderHook(() => useDialogsValve()!, {
       wrapper: makeWrapper({ onNavigate }),
@@ -256,7 +250,7 @@ describe("DialogsValveProvider — closeAllDialogs", () => {
     });
     // Assert
     const calledUrl: string = onNavigate.mock.calls[0][0];
-    expect(calledUrl).toBe("/");
+    expect(calledUrl).toBe("");
   });
 });
 
@@ -267,7 +261,6 @@ describe("DialogsValveProvider — closeAllDialogs", () => {
 describe("DialogsValveProvider — navigation fallback", () => {
   beforeEach(() => {
     vi.mocked(getLocationSearch).mockReturnValue("");
-    vi.mocked(getLocationPathname).mockReturnValue("/");
     vi.mocked(pushState).mockClear();
   });
 
@@ -360,7 +353,6 @@ describe("DialogsValveProvider — closeDelay config", () => {
     // Arrange
     vi.useFakeTimers();
     vi.mocked(getLocationSearch).mockReturnValue("?dialog=dialog-a");
-    vi.mocked(getLocationPathname).mockReturnValue("/");
     const onNavigate = vi.fn((url: string) => {
       const search = url.includes("?") ? `?${url.split("?")[1]}` : "";
       vi.mocked(getLocationSearch).mockReturnValue(search);

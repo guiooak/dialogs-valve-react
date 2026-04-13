@@ -12,10 +12,9 @@ import {
 
 vi.mock("../browser", () => ({
   getLocationSearch: vi.fn(() => ""),
-  getLocationPathname: vi.fn(() => "/"),
 }));
 
-import { getLocationSearch, getLocationPathname } from "../browser";
+import { getLocationSearch } from "../browser";
 
 // ---------------------------------------------------------------------------
 // parsePropValue
@@ -347,22 +346,13 @@ describe("validateDialogKeys", () => {
 describe("buildDialogUrl", () => {
   beforeEach(() => {
     vi.mocked(getLocationSearch).mockReturnValue("");
-    vi.mocked(getLocationPathname).mockReturnValue("/app");
   });
 
-  it("builds a URL with the dialog key in the query string", () => {
+  it("builds a relative URL with the dialog key in the query string", () => {
     // Arrange / Act
     const result = buildDialogUrl("my-dialog");
     // Assert
-    expect(result).toBe("/app?dialog=my-dialog");
-  });
-
-  it("uses the provided pathName option over the current pathname", () => {
-    // Arrange / Act
-    const result = buildDialogUrl("d", { pathName: "/custom" });
-    // Assert
-    expect(result).toContain("/custom?");
-    expect(result).toContain("dialog=d");
+    expect(result).toBe("?dialog=my-dialog");
   });
 
   it("serializes a string prop into the query string", () => {
@@ -454,17 +444,13 @@ describe("buildDialogUrl", () => {
 // ---------------------------------------------------------------------------
 
 describe("buildCloseDialogUrl", () => {
-  beforeEach(() => {
-    vi.mocked(getLocationPathname).mockReturnValue("/app");
-  });
-
-  it("returns just the pathname when the closed dialog was the only param", () => {
+  it("returns an empty string when the closed dialog was the only param", () => {
     // Arrange
     vi.mocked(getLocationSearch).mockReturnValue("?dialog=my-dialog");
     // Act
     const result = buildCloseDialogUrl("my-dialog");
     // Assert
-    expect(result).toBe("/app");
+    expect(result).toBe("");
   });
 
   it("removes only the target dialog key, leaving others in place", () => {
@@ -510,7 +496,7 @@ describe("buildCloseDialogUrl", () => {
     // Act
     const result = buildCloseDialogUrl("my-dialog", "dlg");
     // Assert
-    expect(result).toBe("/app");
+    expect(result).toBe("");
   });
 });
 
@@ -519,11 +505,7 @@ describe("buildCloseDialogUrl", () => {
 // ---------------------------------------------------------------------------
 
 describe("buildCloseAllDialogsUrl", () => {
-  beforeEach(() => {
-    vi.mocked(getLocationPathname).mockReturnValue("/app");
-  });
-
-  it("returns just the pathname, stripping all query params", () => {
+  it("returns an empty string, stripping all query params", () => {
     // Arrange
     vi.mocked(getLocationSearch).mockReturnValue(
       "?dialog=a&dialog=b&a.title=Hi",
@@ -531,16 +513,16 @@ describe("buildCloseAllDialogsUrl", () => {
     // Act
     const result = buildCloseAllDialogsUrl();
     // Assert
-    expect(result).toBe("/app");
+    expect(result).toBe("");
   });
 
-  it("returns the pathname when there are no params to begin with", () => {
+  it("returns an empty string when there are no params to begin with", () => {
     // Arrange
     vi.mocked(getLocationSearch).mockReturnValue("");
     // Act
     const result = buildCloseAllDialogsUrl();
     // Assert
-    expect(result).toBe("/app");
+    expect(result).toBe("");
   });
 
   it("removes unrelated query params too — total cleanup behaviour", () => {
@@ -549,7 +531,7 @@ describe("buildCloseAllDialogsUrl", () => {
     // Act
     const result = buildCloseAllDialogsUrl();
     // Assert
-    expect(result).toBe("/app");
+    expect(result).toBe("");
   });
 
   it("uses a custom dialogParamKey", () => {
@@ -558,6 +540,6 @@ describe("buildCloseAllDialogsUrl", () => {
     // Act
     const result = buildCloseAllDialogsUrl("dlg");
     // Assert
-    expect(result).toBe("/app");
+    expect(result).toBe("");
   });
 });

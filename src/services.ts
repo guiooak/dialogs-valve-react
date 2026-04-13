@@ -7,7 +7,7 @@ import {
   DIALOG_BOOLEAN_PREFIX,
   DIALOG_MAIN_KEY,
 } from "./constants";
-import { getLocationPathname, getLocationSearch } from "./browser";
+import { getLocationSearch } from "./browser";
 import type { BuildDialogUrlOptions, DialogPropValue } from "./types";
 
 /*
@@ -101,9 +101,8 @@ export function buildDialogUrl(
   options?: BuildDialogUrlOptions,
   dialogParamKey: string = DIALOG_MAIN_KEY,
 ): string {
-  const { props, overlap = true, pathName } = options ?? {};
+  const { props, overlap = true } = options ?? {};
 
-  const pathname = pathName ?? getLocationPathname();
   const params = new URLSearchParams(getLocationSearch());
 
   const allDialogKeys = params.getAll(dialogParamKey);
@@ -124,8 +123,7 @@ export function buildDialogUrl(
   }
 
   const search = params.toString();
-  /* v8 ignore next */
-  return search ? `${pathname}?${search}` : pathname;
+  return search ? `?${search}` : "";
 }
 
 function buildDialogPropParamKey(dialogKey: string, propKey: string): string {
@@ -136,7 +134,6 @@ export function buildCloseDialogUrl(
   dialogKey: string,
   dialogParamKey: string = DIALOG_MAIN_KEY,
 ): string {
-  const pathname = getLocationPathname();
   const params = new URLSearchParams(getLocationSearch());
 
   params.delete(dialogParamKey, dialogKey);
@@ -146,13 +143,12 @@ export function buildCloseDialogUrl(
     .forEach((key) => params.delete(key));
 
   const search = params.toString();
-  return search ? `${pathname}?${search}` : pathname;
+  return search ? `?${search}` : "";
 }
 
 export function buildCloseAllDialogsUrl(
   dialogParamKey: string = DIALOG_MAIN_KEY,
 ): string {
-  const pathname = getLocationPathname();
   const params = new URLSearchParams(getLocationSearch());
 
   params.delete(dialogParamKey);
@@ -160,8 +156,7 @@ export function buildCloseAllDialogsUrl(
   Array.from(params.keys()).forEach((key) => params.delete(key));
 
   const search = params.toString();
-  /* v8 ignore next */
-  return search ? `${pathname}?${search}` : pathname;
+  return search ? `?${search}` : "";
 }
 
 function serializePropValue(value: DialogPropValue): string {

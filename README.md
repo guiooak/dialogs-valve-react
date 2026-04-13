@@ -244,7 +244,7 @@ Returned by `createDialogsValve`. Import from your registry file. Must be called
 
 | Method / Property | Signature | Description |
 |-------------------|-----------|-------------|
-| `openDialog` | `(key, options?) => void` | Opens a dialog. Optionally pass `props`, `overlap`, or `pathName`. |
+| `openDialog` | `(key, options?) => void` | Opens a dialog. Optionally pass `props` or `overlap`. |
 | `closeDialog` | `(key) => void` | Closes a specific dialog by key. |
 | `closeAllDialogs` | `() => void` | Closes all currently open dialogs. |
 | `isOpen` | `(key) => boolean` | Returns `true` if the dialog is currently open. |
@@ -260,8 +260,7 @@ Passed as the second argument to `openDialog` or `buildDialogUrl`.
 | Option | Type | Default | Description |
 |--------|------|---------|-------------|
 | `props` | `Record<string, string \| number \| boolean>` | — | Custom props to serialize into the URL. |
-| `overlap` | `boolean` | `false` | `true` to stack on existing dialogs; `false` to replace them. |
-| `pathName` | `string` | current pathname | Override the pathname in the generated URL. |
+| `overlap` | `boolean` | `true` | `true` to stack on existing dialogs; `false` to replace them. |
 
 ---
 

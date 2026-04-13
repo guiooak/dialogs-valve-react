@@ -21,17 +21,6 @@ export function getLocationSearch(): string {
 }
 
 /**
- * Retrieves the current URL pathname (e.g., `"/app/dashboard"`).
- *
- * @returns {string} The current pathname or `"/"` if `window` is not
- *                   available (e.g., during Server-Side Rendering).
- */
-export function getLocationPathname(): string {
-  if (typeof window === "undefined") return "/";
-  return window.location.pathname;
-}
-
-/**
  * Subscribes to location changes (both `popstate` and indicative DOM changes).
  *
  * Since many SPA routers use `pushState` and `replaceState` which do not

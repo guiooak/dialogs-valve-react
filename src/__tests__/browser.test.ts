@@ -1,7 +1,6 @@
 import { describe, it, expect, vi, afterEach } from "vitest";
 import {
   getLocationSearch,
-  getLocationPathname,
   addLocationChangeListener,
   pushState,
 } from "../browser";
@@ -31,30 +30,6 @@ describe("getLocationSearch", () => {
     const result = getLocationSearch();
     // Assert
     expect(result).toBe("");
-  });
-});
-
-// ---------------------------------------------------------------------------
-// getLocationPathname
-// ---------------------------------------------------------------------------
-
-describe("getLocationPathname", () => {
-  it("returns window.location.pathname in a browser environment", () => {
-    // Arrange
-    window.history.pushState({}, "", "/my/path");
-    // Act
-    const result = getLocationPathname();
-    // Assert
-    expect(result).toBe("/my/path");
-  });
-
-  it("returns '/' when window is undefined (SSR)", () => {
-    // Arrange
-    vi.stubGlobal("window", undefined);
-    // Act
-    const result = getLocationPathname();
-    // Assert
-    expect(result).toBe("/");
   });
 });
 

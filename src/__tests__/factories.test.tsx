@@ -6,12 +6,11 @@ import type { DialogMap } from "../types";
 
 vi.mock("../browser", () => ({
   getLocationSearch: vi.fn(() => ""),
-  getLocationPathname: vi.fn(() => "/"),
   addLocationChangeListener: vi.fn(() => () => {}),
   pushState: vi.fn(),
 }));
 
-import { getLocationSearch, getLocationPathname } from "../browser";
+import { getLocationSearch } from "../browser";
 
 // ---------------------------------------------------------------------------
 // Fixtures
@@ -91,7 +90,6 @@ describe("createDialogsValve — DialogsValveProvider", () => {
     // Arrange
     const onNavigate = vi.fn();
     vi.mocked(getLocationSearch).mockReturnValue("");
-    vi.mocked(getLocationPathname).mockReturnValue("/");
     const { DialogsValveProvider, useDialogsValve } =
       createDialogsValve(registry);
     const { result } = renderHook(() => useDialogsValve(), {
@@ -161,7 +159,6 @@ describe("createDialogsValve — useDialogsValve", () => {
 describe("createDialogsValve — utility functions", () => {
   beforeEach(() => {
     vi.mocked(getLocationSearch).mockReturnValue("");
-    vi.mocked(getLocationPathname).mockReturnValue("/app");
   });
 
   it("buildDialogUrl produces a URL containing the dialog key", () => {
@@ -183,7 +180,7 @@ describe("createDialogsValve — utility functions", () => {
     expect(result).not.toContain("user-profile");
   });
 
-  it("buildCloseAllDialogsUrl returns just the pathname", () => {
+  it("buildCloseAllDialogsUrl returns an empty string", () => {
     // Arrange
     vi.mocked(getLocationSearch).mockReturnValue(
       "?dialog=user-profile&dialog=settings",
@@ -192,7 +189,7 @@ describe("createDialogsValve — utility functions", () => {
     // Act
     const result = buildCloseAllDialogsUrl();
     // Assert
-    expect(result).toBe("/app");
+    expect(result).toBe("");
   });
 
   it("extractDialogProps returns props for the given dialog key", () => {
