@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none">
+  <!-- Dialog/modal window -->
+  <rect x="4" y="7" width="24" height="18" rx="3" fill="#6366f1"/>
+  <!-- Title bar stripe -->
+  <rect x="4" y="7" width="24" height="6" rx="3" fill="#4f46e5"/>
+  <rect x="4" y="10" width="24" height="3" fill="#4f46e5"/>
+  <!-- Window control dots -->
+  <circle cx="9" cy="11" r="1.5" fill="#a5b4fc"/>
+  <circle cx="14" cy="11" r="1.5" fill="#a5b4fc"/>
+  <!-- Content lines -->
+  <rect x="8" y="18" width="10" height="2" rx="1" fill="#c7d2fe"/>
+  <rect x="8" y="22" width="6" height="2" rx="1" fill="#c7d2fe"/>
+  <!-- Valve pipe symbol (bottom-right) -->
+  <circle cx="24" cy="22" r="4" fill="#818cf8"/>
+  <rect x="22" y="21" width="4" height="2" rx="0.5" fill="#e0e7ff"/>
+  <rect x="23.25" y="19" width="1.5" height="2" rx="0.5" fill="#e0e7ff"/>
+  <rect x="23.25" y="23" width="1.5" height="2" rx="0.5" fill="#e0e7ff"/>
+</svg>
