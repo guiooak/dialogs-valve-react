@@ -13,6 +13,7 @@ By storing your dialog state in the URL, you get out-of-the-box support for deep
 
 - 🔗 **URL-Driven:** Dialog state is completely synced with URL query parameters.
 - 🚏 **Router-Agnostic:** Works seamlessly with Next.js, React Router, TanStack Router, Remix, or any custom router.
+- 🌐 **Route-Independent:** Open any dialog from any page without registering it as a route — the current page stays underneath, and closing returns you to it untouched.
 - 🎭 **Overlap Support:** Open multiple dialogs stacked on top of each other.
 - 🧩 **Type-Safe:** Define a strict registry of dialog keys and components via `createDialogsValve`.
 - 💂 **Route Guards:** Built-in `canShow` guard mechanism for permission-based rendering.

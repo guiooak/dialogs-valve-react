@@ -61,11 +61,15 @@ const HeroSection: React.FC = () => (
         URL-driven dialog management for React.
         <br />
         Deep-linkable, router-agnostic, type-safe.
+        <br />
+        Open any dialog from any page — no route registration, the current
+        page stays underneath.
       </p>
       <div className="hero-chips">
         {[
           "URL-Driven State",
           "Router-Agnostic",
+          "Route-Independent",
           "Overlap Support",
           "Permission Guards",
           "Type-Safe API",
