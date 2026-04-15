@@ -59,12 +59,10 @@ const HeroSection: React.FC = () => (
           <span className="hero-pkg">react</span>
         </a>
       </h1>
-      <p className="hero-headline">
-        URL-driven dialog management for React.
-      </p>
+      <p className="hero-headline">URL-driven dialog management for React.</p>
       <p className="hero-tagline">
-        Deep-linkable, router-agnostic, type-safe. Open any dialog from any
-        page — no route registration, the current page stays underneath.
+        Deep-linkable, router-agnostic, type-safe. Open any dialog from any page
+        — no route registration, the current page stays underneath.
       </p>
       <div className="hero-chips">
         {[
