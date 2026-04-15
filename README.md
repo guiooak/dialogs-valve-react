@@ -54,7 +54,7 @@ export const { DialogsValveProvider, useDialogsValve, buildDialogUrl } =
   createDialogsValve(dialogs);
 ```
 
-> **Note on dialog components:** The library automatically passes `open` (boolean) and `onClose` (() => void) to every dialog component it renders, along with any custom props extracted from query params.
+> **Note on dialog components:** The library automatically passes `open` (boolean) and `onClose` (() => void) to every dialog component it renders, along with any custom props extracted from query params. Any props beyond `open` and `onClose` should be declared as **optional**, since a dialog can be opened from a deep link without those query params present.
 
 ### 2. Setup the Provider
 
