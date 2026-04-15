@@ -62,8 +62,8 @@ const HeroSection: React.FC = () => (
         <br />
         Deep-linkable, router-agnostic, type-safe.
         <br />
-        Open any dialog from any page — no route registration, the current
-        page stays underneath.
+        Open any dialog from any page — no route registration, the current page
+        stays underneath.
       </p>
       <div className="hero-chips">
         {[
