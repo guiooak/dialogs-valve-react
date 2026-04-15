@@ -27,7 +27,7 @@ const HomePage: React.FC = () => (
         <p>
           <strong>@dialogs-valve/react</strong> — MIT License —{" "}
           <a
-            href="https://github.com/guilhermecarvalho/dialogs-valve-react"
+            href="https://github.com/guiooak/dialogs-valve-react"
             target="_blank"
             rel="noreferrer"
             className="footer-link"
@@ -53,26 +53,26 @@ const HeroSection: React.FC = () => (
       </div>
       <h1 className="hero-title">
         <a href="/" className="hero-title-link">
-          <span className="hero-name">@dialogs-valve</span>
-          <span className="hero-slash">/react</span>
+          <span className="hero-at">@</span>
+          <span className="hero-scope">dialogs-valve</span>
+          <span className="hero-slash">/</span>
+          <span className="hero-pkg">react</span>
         </a>
       </h1>
-      <p className="hero-tagline">
+      <p className="hero-headline">
         URL-driven dialog management for React.
-        <br />
-        Deep-linkable, router-agnostic, type-safe.
-        <br />
-        Open any dialog from any page — no route registration, the current page
-        stays underneath.
+      </p>
+      <p className="hero-tagline">
+        Deep-linkable, router-agnostic, type-safe. Open any dialog from any
+        page — no route registration, the current page stays underneath.
       </p>
       <div className="hero-chips">
         {[
           "URL-Driven State",
           "Router-Agnostic",
-          "Route-Independent",
+          "Type-Safe API",
           "Overlap Support",
           "Permission Guards",
-          "Type-Safe API",
           "Animated Exits",
         ].map((f) => (
           <span key={f} className="hero-chip">
@@ -308,13 +308,26 @@ type UserProfileDrawerProps = {
       id="props"
       label="04"
       title="Props via URL"
-      description="Pass serializable data (string, number, boolean) through URL query params. The library extracts and spreads them onto your dialog component automatically. Any props beyond `open` and `onClose` should be declared as optional, since a dialog can be opened from a deep link without those query params present."
+      description={
+        <>
+          Pass serializable data (string, number, boolean) through URL query
+          params. The library extracts and spreads them onto your dialog
+          component automatically.
+        </>
+      }
       demo={
         <div className="demo-card">
           <p className="demo-card-hint">
             Click a user to open their profile — the data travels through the
             URL.
           </p>
+          <div className="demo-callout">
+            <span className="demo-callout-tag">Tip</span>
+            <span>
+              Declare props beyond <code>open</code> / <code>onClose</code> as
+              optional — a dialog can be deep-linked without them present.
+            </span>
+          </div>
           <div className="profile-cards">
             {USERS.map((u) => (
               <button
