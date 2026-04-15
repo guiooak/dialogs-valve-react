@@ -1,5 +1,7 @@
 # @dialogs-valve/react
 
+![CI](https://img.shields.io/github/checks-status/guiooak/dialogs-valve-react/main)
+
 > [!TIP]
 > **Check out the [Live Demo](https://guiooak.github.io/dialogs-valve-react/)!** 🚀
 > 
