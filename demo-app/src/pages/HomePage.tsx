@@ -1,31 +1,12 @@
 import React, { useContext } from "react";
-import { useNavigate } from "react-router-dom";
 import { PermissionsContext } from "../App";
-import {
-  DialogsValveProvider,
-  useDialogsValve,
-} from "../dialogs-valve-registry";
+import { useDialogsValve } from "../dialogs-valve-registry";
 import UrlInspector from "../components/UrlInspector/UrlInspector";
 import SectionLayout from "../components/SectionLayout/SectionLayout";
 import CodeBlock from "../components/CodeBlock/CodeBlock";
 import "./HomePage.css";
 
-// ─── Top-level page: owns the provider ───────────────────────────────────────
-
-const HomePage: React.FC = () => {
-  const navigate = useNavigate();
-  const { isAdmin } = useContext(PermissionsContext)!;
-
-  return (
-    <DialogsValveProvider onNavigate={navigate} permissions={{ isAdmin }}>
-      <HomePageContent />
-    </DialogsValveProvider>
-  );
-};
-
-// ─── Inner content: has access to the hook ───────────────────────────────────
-
-const HomePageContent: React.FC = () => (
+const HomePage: React.FC = () => (
   <div className="showcase">
     <HeroSection />
     <div className="url-inspector-sticky">
