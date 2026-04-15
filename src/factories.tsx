@@ -69,7 +69,7 @@ export function createDialogsValve<
     if (!context) {
       console.error(
         "[dialogs-valve] useDialogsValve() must be used within a <DialogsValveProvider>. " +
-          "Make sure you have wrapped your app with <DialogsValveProvider>.",
+        "Make sure you have wrapped your app with <DialogsValveProvider>.",
       );
     }
 
@@ -157,19 +157,22 @@ export function createDialogsValve<
   );
 
   return {
-    // React
+    // React stuff
     DialogsValveProvider,
     useDialogsValve,
+
     // URL builders
     buildDialogUrl,
     buildCloseDialogUrl,
     buildCloseAllDialogsUrl,
+
     // Query param helpers
     extractDialogProps,
     getActiveDialogKeys,
     cleanUpQueryParams,
     validateDialogKeys,
     parsePropValue,
+
     // Constants
     DIALOG_MAIN_KEY,
     DIALOG_DELAY_TO_CLOSE,
