@@ -1,6 +1,6 @@
-import { useContext, type ReactNode } from "react";
-import { DialogsValveContext } from "./context";
+import { type ReactNode } from "react";
 import { DialogsValveProvider as BaseProvider } from "./provider";
+import { useDialogsValve as _useDialogsValve } from "./hooks";
 import {
   buildDialogUrl as _buildDialogUrl,
   buildCloseDialogUrl as _buildCloseDialogUrl,
@@ -63,18 +63,8 @@ export function createDialogsValve<
   /**
    * Hook to access the dialogs valve API, pre-typed with the registered keys.
    */
-  const useDialogsValve = (): DialogsValveContextValue<TKeys> | null => {
-    const context = useContext(DialogsValveContext);
-
-    if (!context) {
-      console.error(
-        "[dialogs-valve] useDialogsValve() must be used within a <DialogsValveProvider>. " +
-        "Make sure you have wrapped your app with <DialogsValveProvider>.",
-      );
-    }
-
-    return context as DialogsValveContextValue<TKeys> | null;
-  };
+  const useDialogsValve = (): DialogsValveContextValue<TKeys> | null =>
+    _useDialogsValve<TKeys>();
 
   /**
    * Utility to build a URL that opens a dialog, pre-typed with the registered keys.
