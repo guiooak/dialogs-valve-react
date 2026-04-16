@@ -41,7 +41,7 @@ import type {
  * } as const satisfies DialogMap;
  *
  * export const { DialogsValveProvider, useDialogsValve, buildDialogUrl } =
- *   createDialogsValve(dialogs);
+ *   initDialogsValve(dialogs);
  *
  * // App.tsx
  * <DialogsValveProvider onNavigate={navigate}>
@@ -54,7 +54,7 @@ import type {
  * openDialog("nonexistent");  // TypeScript error
  * ```
  */
-export function createDialogsValve<
+export function initDialogsValve<
   TMap extends DialogMap<string, TPermissions>,
   TPermissions = unknown,
 >(dialogs: TMap) {

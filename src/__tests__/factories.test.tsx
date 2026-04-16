@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { renderHook, act } from "@testing-library/react";
-import { createDialogsValve } from "../factories";
+import { initDialogsValve } from "../factories";
 import { DIALOG_MAIN_KEY, DIALOG_DELAY_TO_CLOSE } from "../constants";
 import type { DialogMap } from "../types";
 
@@ -29,10 +29,10 @@ const registry = {
 // Return shape
 // ---------------------------------------------------------------------------
 
-describe("createDialogsValve — return shape", () => {
+describe("initDialogsValve — return shape", () => {
   it("returns all expected React and utility exports", () => {
     // Arrange / Act
-    const valve = createDialogsValve(registry);
+    const valve = initDialogsValve(registry);
     // Assert — every documented export is present
     expect(typeof valve.DialogsValveProvider).toBe("function");
     expect(typeof valve.useDialogsValve).toBe("function");
@@ -50,7 +50,7 @@ describe("createDialogsValve — return shape", () => {
 
   it("re-exports DIALOG_MAIN_KEY with the value 'dialog'", () => {
     // Arrange / Act
-    const { DIALOG_MAIN_KEY: key } = createDialogsValve(registry);
+    const { DIALOG_MAIN_KEY: key } = initDialogsValve(registry);
     // Assert
     expect(key).toBe(DIALOG_MAIN_KEY);
     expect(key).toBe("dialog");
@@ -58,7 +58,7 @@ describe("createDialogsValve — return shape", () => {
 
   it("re-exports DIALOG_DELAY_TO_CLOSE with the value 300", () => {
     // Arrange / Act
-    const { DIALOG_DELAY_TO_CLOSE: delay } = createDialogsValve(registry);
+    const { DIALOG_DELAY_TO_CLOSE: delay } = initDialogsValve(registry);
     // Assert
     expect(delay).toBe(DIALOG_DELAY_TO_CLOSE);
     expect(delay).toBe(300);
@@ -69,11 +69,11 @@ describe("createDialogsValve — return shape", () => {
 // Pre-bound provider
 // ---------------------------------------------------------------------------
 
-describe("createDialogsValve — DialogsValveProvider", () => {
+describe("initDialogsValve — DialogsValveProvider", () => {
   it("renders children without requiring a dialogs prop", () => {
     // Arrange
     const { DialogsValveProvider, useDialogsValve } =
-      createDialogsValve(registry);
+      initDialogsValve(registry);
     // Act — provider is used without passing dialogs; it is pre-bound
     const { result } = renderHook(() => useDialogsValve(), {
       wrapper: ({ children }) => (
@@ -91,7 +91,7 @@ describe("createDialogsValve — DialogsValveProvider", () => {
     const onNavigate = vi.fn();
     vi.mocked(getLocationSearch).mockReturnValue("");
     const { DialogsValveProvider, useDialogsValve } =
-      createDialogsValve(registry);
+      initDialogsValve(registry);
     const { result } = renderHook(() => useDialogsValve(), {
       wrapper: ({ children }) => (
         <DialogsValveProvider
@@ -117,11 +117,11 @@ describe("createDialogsValve — DialogsValveProvider", () => {
 // useDialogsValve hook
 // ---------------------------------------------------------------------------
 
-describe("createDialogsValve — useDialogsValve", () => {
+describe("initDialogsValve — useDialogsValve", () => {
   it("returns null and logs console.error when used outside the provider", () => {
     // Arrange
     const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
-    const { useDialogsValve } = createDialogsValve(registry);
+    const { useDialogsValve } = initDialogsValve(registry);
     // Act
     const { result } = renderHook(() => useDialogsValve());
     // Assert
@@ -135,7 +135,7 @@ describe("createDialogsValve — useDialogsValve", () => {
   it("returns the context value when used inside the pre-bound provider", () => {
     // Arrange
     const { DialogsValveProvider, useDialogsValve } =
-      createDialogsValve(registry);
+      initDialogsValve(registry);
     // Act
     const { result } = renderHook(() => useDialogsValve(), {
       wrapper: ({ children }) => (
@@ -156,14 +156,14 @@ describe("createDialogsValve — useDialogsValve", () => {
 // Utility pass-throughs
 // ---------------------------------------------------------------------------
 
-describe("createDialogsValve — utility functions", () => {
+describe("initDialogsValve — utility functions", () => {
   beforeEach(() => {
     vi.mocked(getLocationSearch).mockReturnValue("");
   });
 
   it("buildDialogUrl produces a URL containing the dialog key", () => {
     // Arrange
-    const { buildDialogUrl } = createDialogsValve(registry);
+    const { buildDialogUrl } = initDialogsValve(registry);
     // Act
     const result = buildDialogUrl("user-profile");
     // Assert
@@ -173,7 +173,7 @@ describe("createDialogsValve — utility functions", () => {
   it("buildCloseDialogUrl produces a URL without the dialog key", () => {
     // Arrange
     vi.mocked(getLocationSearch).mockReturnValue("?dialog=user-profile");
-    const { buildCloseDialogUrl } = createDialogsValve(registry);
+    const { buildCloseDialogUrl } = initDialogsValve(registry);
     // Act
     const result = buildCloseDialogUrl("user-profile");
     // Assert
@@ -185,7 +185,7 @@ describe("createDialogsValve — utility functions", () => {
     vi.mocked(getLocationSearch).mockReturnValue(
       "?dialog=user-profile&dialog=settings",
     );
-    const { buildCloseAllDialogsUrl } = createDialogsValve(registry);
+    const { buildCloseAllDialogsUrl } = initDialogsValve(registry);
     // Act
     const result = buildCloseAllDialogsUrl();
     // Assert
@@ -194,7 +194,7 @@ describe("createDialogsValve — utility functions", () => {
 
   it("extractDialogProps returns props for the given dialog key", () => {
     // Arrange
-    const { extractDialogProps } = createDialogsValve(registry);
+    const { extractDialogProps } = initDialogsValve(registry);
     // Act
     const result = extractDialogProps(
       "?dialog=user-profile&user-profile.userId=42",
@@ -206,7 +206,7 @@ describe("createDialogsValve — utility functions", () => {
 
   it("getActiveDialogKeys returns keys present in the search string", () => {
     // Arrange
-    const { getActiveDialogKeys } = createDialogsValve(registry);
+    const { getActiveDialogKeys } = initDialogsValve(registry);
     // Act
     const result = getActiveDialogKeys("?dialog=settings", "dialog");
     // Assert
@@ -215,7 +215,7 @@ describe("createDialogsValve — utility functions", () => {
 
   it("cleanUpQueryParams removes the specified dialog key and its props", () => {
     // Arrange
-    const { cleanUpQueryParams } = createDialogsValve(registry);
+    const { cleanUpQueryParams } = initDialogsValve(registry);
     // Act
     const result = cleanUpQueryParams(
       "?dialog=user-profile&user-profile.tab=info",
@@ -228,7 +228,7 @@ describe("createDialogsValve — utility functions", () => {
 
   it("validateDialogKeys filters out keys not in the valid set", () => {
     // Arrange
-    const { validateDialogKeys } = createDialogsValve(registry);
+    const { validateDialogKeys } = initDialogsValve(registry);
     // Act
     const result = validateDialogKeys(
       ["user-profile", "unknown"],
@@ -240,7 +240,7 @@ describe("createDialogsValve — utility functions", () => {
 
   it("parsePropValue correctly decodes a boolean sentinel", () => {
     // Arrange
-    const { parsePropValue } = createDialogsValve(registry);
+    const { parsePropValue } = initDialogsValve(registry);
     // Act / Assert
     expect(parsePropValue("bool.true")).toBe(true);
     expect(parsePropValue("bool.false")).toBe(false);

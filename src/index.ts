@@ -11,4 +11,4 @@ export type {
 } from "./types";
 
 // React — Factory for typed systems
-export { createDialogsValve } from "./factories";
+export { initDialogsValve } from "./factories";

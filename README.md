@@ -18,7 +18,7 @@ By storing your dialog state in the URL, you get out-of-the-box support for deep
 - 🚏 **Router-Agnostic:** Works seamlessly with Next.js, React Router, TanStack Router, Remix, or any custom router.
 - 🌐 **Route-Independent:** Open any dialog from any page without registering it as a route — the current page stays underneath, and closing returns you to it untouched.
 - 🎭 **Overlap Support:** Open multiple dialogs stacked on top of each other.
-- 🧩 **Type-Safe:** Define a strict registry of dialog keys and components via `createDialogsValve`.
+- 🧩 **Type-Safe:** Define a strict registry of dialog keys and components via `initDialogsValve`.
 - 💂 **Route Guards:** Built-in `canShow` guard mechanism for permission-based rendering.
 - ✨ **Animated Exits:** Configurable delay to allow close animations to finish before unmounting.
 
@@ -40,11 +40,11 @@ pnpm install @dialogs-valve/react
 
 ### 1. Define your dialog registry
 
-Create a map of dialog keys to their corresponding React components, then pass it to `createDialogsValve`. This is the **only** runtime export from the library — it returns a fully typed provider, hook, and URL utilities bound to your registry.
+Create a map of dialog keys to their corresponding React components, then pass it to `initDialogsValve`. This is the **only** runtime export from the library — it returns a fully typed provider, hook, and URL utilities bound to your registry.
 
 ```tsx
 // dialogs-valve-registry.tsx
-import { createDialogsValve } from "@dialogs-valve/react";
+import { initDialogsValve } from "@dialogs-valve/react";
 import type { DialogMap } from "@dialogs-valve/react";
 import { UserProfileModal } from "./components/UserProfileModal";
 import { SettingsDrawer } from "./components/SettingsDrawer";
@@ -55,7 +55,7 @@ export const dialogs = {
 } as const satisfies DialogMap;
 
 export const { DialogsValveProvider, useDialogsValve, buildDialogUrl } =
-  createDialogsValve(dialogs);
+  initDialogsValve(dialogs);
 ```
 
 > **Note on dialog components:** The library automatically passes `open` (boolean) and `onClose` (() => void) to every dialog component it renders, along with any custom props extracted from query params. Any props beyond `open` and `onClose` should be declared as **optional**, since a dialog can be opened from a deep link without those query params present.
@@ -167,7 +167,7 @@ export const dialogs = {
 } as const satisfies DialogMap<string, { isAdmin: boolean }>;
 
 export const { DialogsValveProvider, useDialogsValve } =
-  createDialogsValve(dialogs);
+  initDialogsValve(dialogs);
 ```
 
 ```tsx
@@ -199,7 +199,7 @@ Customize the URL param key and animation timing via the `config` prop on `Dialo
 
 ## API Reference
 
-### `createDialogsValve(dialogs)`
+### `initDialogsValve(dialogs)`
 
 The **only runtime export** from `@dialogs-valve/react`. Pass your registry once and get back a fully typed set of utilities. TypeScript will error at compile time if you use an unregistered key anywhere.
 
@@ -224,14 +224,14 @@ const {
   // Constants
   DIALOG_MAIN_KEY,
   DIALOG_DELAY_TO_CLOSE,
-} = createDialogsValve(dialogs);
+} = initDialogsValve(dialogs);
 ```
 
 ---
 
 ### `DialogsValveProvider` Props
 
-Returned by `createDialogsValve`. Import from your registry file.
+Returned by `initDialogsValve`. Import from your registry file.
 
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
@@ -244,7 +244,7 @@ Returned by `createDialogsValve`. Import from your registry file.
 
 ### `useDialogsValve()` Return Value
 
-Returned by `createDialogsValve`. Import from your registry file. Must be called within a `DialogsValveProvider`.
+Returned by `initDialogsValve`. Import from your registry file. Must be called within a `DialogsValveProvider`.
 
 | Method / Property | Signature | Description |
 |-------------------|-----------|-------------|

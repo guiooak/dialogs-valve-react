@@ -439,7 +439,7 @@ const InstallSection: React.FC = () => {
 yarn add @dialogs-valve/react`;
 
   const registryCode = `// dialogs-valve-registry.tsx
-import { createDialogsValve } from '@dialogs-valve/react';
+import { initDialogsValve } from '@dialogs-valve/react';
 import type { DialogMap } from '@dialogs-valve/react';
 import { SettingsDrawer } from './dialogs/SettingsDrawer';
 
@@ -447,10 +447,10 @@ export const dialogs = {
   'settings': { Component: SettingsDrawer },
 } as const satisfies DialogMap;
 
-// createDialogsValve is the only runtime export from the library.
+// initDialogsValve is the only runtime export from the library.
 // Everything else comes from its return value.
 export const { DialogsValveProvider, useDialogsValve } =
-  createDialogsValve(dialogs);`;
+  initDialogsValve(dialogs);`;
 
   const providerCode = `// App.tsx
 import { useNavigate } from 'react-router-dom';
@@ -486,7 +486,7 @@ function SettingsButton() {
       </div>
       <p className="section-desc">
         Get up and running in four steps. The library ships a single runtime
-        export — <code>createDialogsValve</code> — which returns your fully
+        export — <code>initDialogsValve</code> — which returns your fully
         typed provider, hook, and URL utilities.
       </p>
       <div className="install-steps">
