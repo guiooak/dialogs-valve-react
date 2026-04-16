@@ -10,7 +10,7 @@ type DialogsControllerProps<
   TKeys extends string = string,
   TPermissions = unknown,
 > = {
-  activeKeys: string[];
+  activeKeys: TKeys[];
   search: string;
   closeDelay: number;
   dialogs: DialogMap<TKeys, TPermissions>;
@@ -39,7 +39,7 @@ export function DialogsController<
   // We maintain a stable list of keys to render in the DOM.
   // - Additions: Synchronized immediately during render (gap-free opening).
   // - Removals: Synchronized after `closeDelay` via useEffect (smooth exit).
-  const [renderedKeys, setRenderedKeys] = useState<string[]>(activeKeys);
+  const [renderedKeys, setRenderedKeys] = useState<TKeys[]>(activeKeys);
 
   // Synchronously update renderedKeys if new dialogs are opened.
   // This prevents the "one-frame blank gap" when a drawer first appears.
@@ -66,7 +66,7 @@ export function DialogsController<
   // Render dialog components
   // -------------------------------------------------------------------------
   return renderedKeys.map((key) => {
-    const entry = dialogs[key as TKeys];
+    const entry = dialogs[key];
     if (!entry) return null;
 
     // Guard check

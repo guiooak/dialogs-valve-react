@@ -102,7 +102,7 @@ export function createDialogsValve<
   const getActiveDialogKeys = (
     search: string,
     dialogParamKey: string,
-  ): TKeys[] => _getActiveDialogKeys(search, dialogParamKey) as TKeys[];
+  ): TKeys[] => _getActiveDialogKeys<TKeys>(search, dialogParamKey);
 
   /**
    * Removes a dialog key and its associated props from a URL search string,

@@ -72,7 +72,7 @@ export function DialogsValveProvider<
 }: DialogsValveProviderProps<TKeys, TPermissions>) {
   const dialogParamKey = config?.dialogParamKey ?? DIALOG_MAIN_KEY;
   const closeDelay = config?.closeDelay ?? DIALOG_DELAY_TO_CLOSE;
-  const validDialogKeys = useMemo(() => Object.keys(dialogs), [dialogs]);
+  const validDialogKeys = useMemo(() => Object.keys(dialogs) as TKeys[], [dialogs]);
 
   // -----------------------------------------------------------------------
   // Read current dialog keys from URL
@@ -91,7 +91,7 @@ export function DialogsValveProvider<
 
   const activeKeys = useMemo(
     () =>
-      validateDialogKeys(
+      validateDialogKeys<TKeys>(
         getActiveDialogKeys(search, dialogParamKey),
         validDialogKeys,
       ),
@@ -138,12 +138,12 @@ export function DialogsValveProvider<
   }, [navigate, dialogParamKey]);
 
   const isOpen = useCallback(
-    (key: string) => activeKeys.includes(key),
+    (key: TKeys) => activeKeys.includes(key),
     [activeKeys],
   );
 
   const getDialogProps = useCallback(
-    (key: string): Record<string, DialogPropValue> =>
+    (key: TKeys): Record<string, DialogPropValue> =>
       extractDialogProps(search, key),
     [search],
   );

@@ -32,15 +32,15 @@ export function extractDialogProps(
   return result;
 }
 
-export function getActiveDialogKeys(
+export function getActiveDialogKeys<TKeys extends string = string>(
   search: string,
   dialogParamKey: string,
-): string[] {
+): TKeys[] {
   const params = new URLSearchParams(search);
   const allDialogKeys = params.getAll(dialogParamKey);
   return allDialogKeys.filter(
     (value, index, array) => array.indexOf(value) === index,
-  );
+  ) as TKeys[];
 }
 
 export function cleanUpQueryParams(
@@ -59,10 +59,10 @@ export function cleanUpQueryParams(
   return params.toString();
 }
 
-export function validateDialogKeys(
-  keys: string[],
-  validKeys: string[],
-): string[] {
+export function validateDialogKeys<TKeys extends string = string>(
+  keys: TKeys[],
+  validKeys: TKeys[],
+): TKeys[] {
   return keys.filter((key) => {
     if (validKeys.includes(key)) {
       return true;
