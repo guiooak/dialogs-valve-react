@@ -486,8 +486,8 @@ function SettingsButton() {
       </div>
       <p className="section-desc">
         Get up and running in four steps. The library ships a single runtime
-        export — <code>initDialogsValve</code> — which returns your fully
-        typed provider, hook, and URL utilities.
+        export — <code>initDialogsValve</code> — which returns your fully typed
+        provider, hook, and URL utilities.
       </p>
       <div className="install-steps">
         <div className="install-step">
