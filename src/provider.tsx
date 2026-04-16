@@ -72,7 +72,10 @@ export function DialogsValveProvider<
 }: DialogsValveProviderProps<TKeys, TPermissions>) {
   const dialogParamKey = config?.dialogParamKey ?? DIALOG_MAIN_KEY;
   const closeDelay = config?.closeDelay ?? DIALOG_DELAY_TO_CLOSE;
-  const validDialogKeys = useMemo(() => Object.keys(dialogs) as TKeys[], [dialogs]);
+  const validDialogKeys = useMemo(
+    () => Object.keys(dialogs) as TKeys[],
+    [dialogs],
+  );
 
   // -----------------------------------------------------------------------
   // Read current dialog keys from URL
