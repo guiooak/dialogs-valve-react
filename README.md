@@ -2,6 +2,7 @@
 
 ![CI](https://github.com/guiooak/dialogs-valve-react/actions/workflows/ci.yml/badge.svg?branch=main)
 ![Deploy Demo](https://github.com/guiooak/dialogs-valve-react/actions/workflows/deploy-demo.yml/badge.svg?branch=main)
+[![codecov](https://codecov.io/gh/guiooak/dialogs-valve-react/graph/badge.svg)](https://codecov.io/gh/guiooak/dialogs-valve-react)
 
 > [!TIP]
 > **Check out the [Live Demo](https://guiooak.github.io/dialogs-valve-react/)!** 🚀
