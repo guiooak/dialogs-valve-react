@@ -145,10 +145,11 @@ export interface DialogsValveRegistry {}
  * The dialog key union inferred from the augmented registry.
  * Falls back to `string` when no registry is declared.
  */
-export type RegisteredDialogKeys =
-  DialogsValveRegistry extends { dialogs: infer D extends DialogMap }
-    ? keyof D & string
-    : string;
+export type RegisteredDialogKeys = DialogsValveRegistry extends {
+  dialogs: infer D extends DialogMap;
+}
+  ? keyof D & string
+  : string;
 
 // ---------------------------------------------------------------------------
 // Internal / context types

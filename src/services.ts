@@ -8,7 +8,11 @@ import {
   DIALOG_MAIN_KEY,
 } from "./constants";
 import { getLocationSearch } from "./browser";
-import type { BuildDialogUrlOptions, DialogPropValue, RegisteredDialogKeys } from "./types";
+import type {
+  BuildDialogUrlOptions,
+  DialogPropValue,
+  RegisteredDialogKeys,
+} from "./types";
 
 /*
  * QUERY PARAMS HELPERS
@@ -32,10 +36,9 @@ export function extractDialogProps<TKeys extends string = RegisteredDialogKeys>(
   return result;
 }
 
-export function getActiveDialogKeys<TKeys extends string = RegisteredDialogKeys>(
-  search: string,
-  dialogParamKey: string,
-): TKeys[] {
+export function getActiveDialogKeys<
+  TKeys extends string = RegisteredDialogKeys,
+>(search: string, dialogParamKey: string): TKeys[] {
   const params = new URLSearchParams(search);
   const allDialogKeys = params.getAll(dialogParamKey);
   return allDialogKeys.filter(
@@ -129,10 +132,9 @@ function buildDialogPropParamKey(dialogKey: string, propKey: string): string {
   return `${dialogKey}${DIALOG_PROP_PREFIX_SEPARATOR}${propKey}`;
 }
 
-export function buildCloseDialogUrl<TKeys extends string = RegisteredDialogKeys>(
-  dialogKey: TKeys,
-  dialogParamKey: string = DIALOG_MAIN_KEY,
-): string {
+export function buildCloseDialogUrl<
+  TKeys extends string = RegisteredDialogKeys,
+>(dialogKey: TKeys, dialogParamKey: string = DIALOG_MAIN_KEY): string {
   const params = new URLSearchParams(getLocationSearch());
 
   params.delete(dialogParamKey, dialogKey);

@@ -18,7 +18,11 @@ function App() {
 
   return (
     <PermissionsContext.Provider value={{ isAdmin, setIsAdmin }}>
-      <DialogsValveProvider dialogs={dialogs} onNavigate={navigate} permissions={{ isAdmin }}>
+      <DialogsValveProvider
+        dialogs={dialogs}
+        onNavigate={navigate}
+        permissions={{ isAdmin }}
+      >
         <HomePage />
       </DialogsValveProvider>
     </PermissionsContext.Provider>
