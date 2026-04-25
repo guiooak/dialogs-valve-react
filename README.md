@@ -20,7 +20,7 @@ By storing your dialog state in the URL, you get out-of-the-box support for deep
 - 🚏 **Router-Agnostic:** Works seamlessly with Next.js, React Router, TanStack Router, Remix, or any custom router.
 - 🌐 **Route-Independent:** Open any dialog from any page without registering it as a route — the current page stays underneath, and closing returns you to it untouched.
 - 🎭 **Overlap Support:** Open multiple dialogs stacked on top of each other.
-- 🧩 **Type-Safe:** Define a strict registry of dialog keys and components via `initDialogsValve`.
+- 🧩 **Type-Safe:** Define a strict registry of dialog keys and get full compile-time validation via module augmentation — no generics at call sites.
 - 💂 **Route Guards:** Built-in `canShow` guard mechanism for permission-based rendering.
 - ✨ **Animated Exits:** Configurable delay to allow close animations to finish before unmounting.
 
@@ -42,11 +42,10 @@ pnpm install @dialogs-valve/react
 
 ### 1. Define your dialog registry
 
-Create a map of dialog keys to their corresponding React components, then pass it to `initDialogsValve`. This is the **only** runtime export from the library — it returns a fully typed provider, hook, and URL utilities bound to your registry.
+Create a map of dialog keys to their corresponding React components. Add a `declare module` block in the same file to register your types — this is what enables compile-time key validation and autocomplete across the entire app with no boilerplate at call sites.
 
 ```tsx
 // dialogs-valve-registry.tsx
-import { initDialogsValve } from "@dialogs-valve/react";
 import type { DialogMap } from "@dialogs-valve/react";
 import { UserProfileModal } from "./components/UserProfileModal";
 import { SettingsDrawer } from "./components/SettingsDrawer";
@@ -56,26 +55,32 @@ export const dialogs = {
   "settings":     { Component: SettingsDrawer },
 } as const satisfies DialogMap;
 
-export const { DialogsValveProvider, useDialogsValve, buildDialogUrl } =
-  initDialogsValve(dialogs);
+// Register once — all hooks and helpers are auto-typed from this point on
+declare module "@dialogs-valve/react" {
+  // eslint-disable-next-line @typescript-eslint/consistent-type-definitions
+  interface DialogsValveRegistry {
+    dialogs: typeof dialogs;
+  }
+}
 ```
 
 > **Note on dialog components:** The library automatically passes `open` (boolean) and `onClose` (() => void) to every dialog component it renders, along with any custom props extracted from query params. Any props beyond `open` and `onClose` should be declared as **optional**, since a dialog can be opened from a deep link without those query params present.
 
 ### 2. Setup the Provider
 
-Wrap your app (or the sub-tree where dialogs live) with `DialogsValveProvider`. Import it from **your registry file**, not from the library directly.
+Wrap your app (or the sub-tree where dialogs live) with `DialogsValveProvider`, imported directly from the library. Pass your `dialogs` registry as a prop.
 
 ```tsx
 // App.tsx
 import { useNavigate } from "react-router-dom";
-import { DialogsValveProvider } from "./dialogs-valve-registry";
+import { DialogsValveProvider } from "@dialogs-valve/react";
+import { dialogs } from "./dialogs-valve-registry";
 
 function App() {
   const navigate = useNavigate();
 
   return (
-    <DialogsValveProvider onNavigate={navigate}>
+    <DialogsValveProvider dialogs={dialogs} onNavigate={navigate}>
       <MainLayout />
     </DialogsValveProvider>
   );
@@ -86,11 +91,11 @@ The `onNavigate` prop is optional — if omitted, the library falls back to `win
 
 ### 3. Trigger dialogs anywhere
 
-Use `useDialogsValve` (imported from your registry) anywhere inside the provider to open, close, and inspect dialogs.
+Import `useDialogsValve` directly from the library anywhere inside the provider. Keys are fully typed — TypeScript will error on typos and provide autocomplete.
 
 ```tsx
 // UserList.tsx
-import { useDialogsValve } from "./dialogs-valve-registry";
+import { useDialogsValve } from "@dialogs-valve/react";
 
 export function UserList() {
   const { openDialog, closeDialog, closeAllDialogs, isOpen } = useDialogsValve()!;
@@ -161,20 +166,27 @@ Add a `canShow` guard to any registry entry to conditionally prevent rendering. 
 
 ```tsx
 // dialogs-valve-registry.tsx
+export type AppPermissions = { isAdmin: boolean };
+
 export const dialogs = {
   "admin-dashboard": {
     Component: AdminDashboardModal,
-    canShow: (permissions) => permissions.isAdmin === true,
+    canShow: (permissions: AppPermissions) => permissions.isAdmin === true,
   },
-} as const satisfies DialogMap<string, { isAdmin: boolean }>;
+} as const satisfies DialogMap<string, AppPermissions>;
 
-export const { DialogsValveProvider, useDialogsValve } =
-  initDialogsValve(dialogs);
+declare module "@dialogs-valve/react" {
+  // eslint-disable-next-line @typescript-eslint/consistent-type-definitions
+  interface DialogsValveRegistry {
+    dialogs: typeof dialogs;
+  }
+}
 ```
 
 ```tsx
 // App.tsx
 <DialogsValveProvider
+  dialogs={dialogs}
   onNavigate={navigate}
   permissions={{ isAdmin: currentUser.role === "admin" }}
 >
@@ -190,8 +202,8 @@ Customize the URL param key and animation timing via the `config` prop on `Dialo
 
 ```tsx
 <DialogsValveProvider
-  onNavigate={navigate}
   dialogs={dialogs}
+  onNavigate={navigate}
   config={{
     dialogParamKey: "modal", // Default: "dialog"
     closeDelay: 500,         // Default: 300ms — wait before unmounting for animations
@@ -201,42 +213,13 @@ Customize the URL param key and animation timing via the `config` prop on `Dialo
 
 ## API Reference
 
-### `initDialogsValve(dialogs)`
-
-The **only runtime export** from `@dialogs-valve/react`. Pass your registry once and get back a fully typed set of utilities. TypeScript will error at compile time if you use an unregistered key anywhere.
-
-```tsx
-const {
-  // React
-  DialogsValveProvider,
-  useDialogsValve,
-
-  // URL builders (typed to your registry keys)
-  buildDialogUrl,
-  buildCloseDialogUrl,
-  buildCloseAllDialogsUrl,
-
-  // Query param helpers (typed to your registry keys)
-  extractDialogProps,
-  getActiveDialogKeys,
-  cleanUpQueryParams,
-  validateDialogKeys,
-  parsePropValue,
-
-  // Constants
-  DIALOG_MAIN_KEY,
-  DIALOG_DELAY_TO_CLOSE,
-} = initDialogsValve(dialogs);
-```
-
----
-
 ### `DialogsValveProvider` Props
 
-Returned by `initDialogsValve`. Import from your registry file.
+Import directly from `@dialogs-valve/react`.
 
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
+| `dialogs` | `DialogMap` | — | **Required.** Your dialog registry map. |
 | `onNavigate` | `(url: string) => void` | `history.pushState` | Navigation callback from your router. |
 | `permissions` | `TPermissions` | — | Permissions context forwarded to `canShow` guards. |
 | `config` | `DialogsValveConfig` | — | Override `dialogParamKey` or `closeDelay`. |
@@ -246,7 +229,7 @@ Returned by `initDialogsValve`. Import from your registry file.
 
 ### `useDialogsValve()` Return Value
 
-Returned by `initDialogsValve`. Import from your registry file. Must be called within a `DialogsValveProvider`.
+Import directly from `@dialogs-valve/react`. Must be called within a `DialogsValveProvider`. Keys are automatically typed from your `DialogsValveRegistry` augmentation.
 
 | Method / Property | Signature | Description |
 |-------------------|-----------|-------------|
@@ -256,6 +239,32 @@ Returned by `initDialogsValve`. Import from your registry file. Must be called w
 | `isOpen` | `(key) => boolean` | Returns `true` if the dialog is currently open. |
 | `getDialogProps` | `(key) => Record<string, DialogPropValue>` | Returns the deserialized props for a dialog from the URL. |
 | `dialogParamKey` | `string` | The active URL param key (e.g. `"dialog"`). |
+
+---
+
+### URL Builder Helpers
+
+All imported directly from `@dialogs-valve/react`. Keys are typed from your registry augmentation.
+
+| Function | Signature | Description |
+|----------|-----------|-------------|
+| `buildDialogUrl` | `(key, options?, paramKey?) => string` | Builds a URL that opens a dialog. |
+| `buildCloseDialogUrl` | `(key, paramKey?) => string` | Builds a URL that closes a specific dialog. |
+| `buildCloseAllDialogsUrl` | `(paramKey?) => string` | Builds a URL that closes all dialogs. |
+| `extractDialogProps` | `(search, key) => Record<string, DialogPropValue>` | Extracts props for a dialog from a URL search string. |
+| `getActiveDialogKeys` | `(search, paramKey) => string[]` | Returns the currently active dialog keys from a URL. |
+| `cleanUpQueryParams` | `(search, paramKey, key) => string` | Removes a dialog key and its props from a URL search string. |
+| `validateDialogKeys` | `(keys, validKeys) => string[]` | Filters a list of keys to only registered ones. |
+| `parsePropValue` | `(value) => DialogPropValue` | Deserializes a URL-encoded prop value to its typed primitive. |
+
+---
+
+### Constants
+
+| Export | Value | Description |
+|--------|-------|-------------|
+| `DIALOG_MAIN_KEY` | `"dialog"` | Default URL query param key for tracking active dialogs. |
+| `DIALOG_DELAY_TO_CLOSE` | `300` | Default milliseconds before unmounting a closed dialog. |
 
 ---
 
@@ -287,20 +296,33 @@ All types are re-exported directly from `@dialogs-valve/react`:
 
 ```tsx
 import type {
-  DialogMap,          // Registry map type
-  DialogEntry,        // Single registry entry { Component, canShow? }
-  DialogPropValue,    // string | number | boolean
+  DialogMap,              // Registry map type
+  DialogEntry,            // Single registry entry { Component, canShow? }
+  DialogPropValue,        // string | number | boolean
   BuildDialogUrlOptions,
   DialogsValveConfig,
   DialogsValveContextValue,
-  InferDialogKeys,    // Extracts key union from a registry type
-  onNavigateType,     // (url: string) => void
+  DialogsValveProviderProps,
+  InferDialogKeys,        // Extracts key union from a registry type
+  RegisteredDialogKeys,   // Key union resolved from DialogsValveRegistry augmentation
+  onNavigateType,         // (url: string) => void
 } from "@dialogs-valve/react";
 ```
 
-`InferDialogKeys` is useful when you need the key union outside the registry:
+`InferDialogKeys` is useful when you need the key union in other type declarations:
 
 ```tsx
 type MyDialogKeys = InferDialogKeys<typeof dialogs>;
 // "user-profile" | "settings"
+```
+
+`DialogsValveRegistry` is the augmentation interface. Extend it once in your registry file:
+
+```tsx
+declare module "@dialogs-valve/react" {
+  // eslint-disable-next-line @typescript-eslint/consistent-type-definitions
+  interface DialogsValveRegistry {
+    dialogs: typeof dialogs;
+  }
+}
 ```

@@ -138,7 +138,7 @@ export type InferDialogKeys<TMap extends DialogMap> = keyof TMap & string;
  * }
  * ```
  */
-// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type, @typescript-eslint/consistent-type-definitions
 export interface DialogsValveRegistry {}
 
 /**

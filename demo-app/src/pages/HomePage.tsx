@@ -486,9 +486,9 @@ function SettingsButton() {
         <h2 className="section-title">Quick Start</h2>
       </div>
       <p className="section-desc">
-        Get up and running in four steps. The library ships a single runtime
-        export — <code>initDialogsValve</code> — which returns your fully typed
-        provider, hook, and URL utilities.
+        Get up and running in four steps. Define your dialogs, register them
+        once with a <code>declare module</code> block, and import everything
+        directly from the library — fully typed, no boilerplate at call sites.
       </p>
       <div className="install-steps">
         <div className="install-step">
