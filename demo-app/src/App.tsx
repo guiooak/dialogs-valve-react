@@ -1,7 +1,8 @@
 import { createContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { DialogsValveProvider } from "@dialogs-valve/react";
 import HomePage from "./pages/HomePage";
-import { DialogsValveProvider } from "./dialogs-valve-registry";
+import { dialogs } from "./dialogs-valve-registry";
 
 export type AppPermissionsContextValue = {
   isAdmin: boolean;
@@ -17,7 +18,7 @@ function App() {
 
   return (
     <PermissionsContext.Provider value={{ isAdmin, setIsAdmin }}>
-      <DialogsValveProvider onNavigate={navigate} permissions={{ isAdmin }}>
+      <DialogsValveProvider dialogs={dialogs} onNavigate={navigate} permissions={{ isAdmin }}>
         <HomePage />
       </DialogsValveProvider>
     </PermissionsContext.Provider>

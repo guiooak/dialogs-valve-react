@@ -1,4 +1,3 @@
-import { initDialogsValve } from "@dialogs-valve/react";
 import type { DialogMap } from "@dialogs-valve/react";
 
 import HelloModal from "./dialogs/basic/HelloModal";
@@ -28,10 +27,8 @@ export const dialogs = {
   },
 } as const satisfies DialogMap<string, AppPermissions>;
 
-export const {
-  DialogsValveProvider,
-  useDialogsValve,
-  buildDialogUrl,
-  buildCloseDialogUrl,
-  buildCloseAllDialogsUrl,
-} = initDialogsValve<typeof dialogs, AppPermissions>(dialogs);
+declare module "@dialogs-valve/react" {
+  interface DialogsValveRegistry {
+    dialogs: typeof dialogs;
+  }
+}

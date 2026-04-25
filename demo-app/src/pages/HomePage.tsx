@@ -1,6 +1,6 @@
 import React, { useContext } from "react";
 import { PermissionsContext } from "../App";
-import { useDialogsValve } from "../dialogs-valve-registry";
+import { useDialogsValve } from "@dialogs-valve/react";
 import UrlInspector from "../components/UrlInspector/UrlInspector";
 import SectionLayout from "../components/SectionLayout/SectionLayout";
 import CodeBlock from "../components/CodeBlock/CodeBlock";
@@ -96,7 +96,7 @@ const BasicUsageSection: React.FC = () => {
   const { openDialog, closeAllDialogs, isOpen } = useDialogsValve()!;
   const anyOpen = isOpen("hello-modal") || isOpen("info-drawer");
 
-  const code = `import { useDialogsValve } from './dialogs-valve-registry';
+  const code = `import { useDialogsValve } from '@dialogs-valve/react';
 
 const { openDialog, closeDialog, closeAllDialogs, isOpen } =
   useDialogsValve()!;
@@ -439,7 +439,6 @@ const InstallSection: React.FC = () => {
 yarn add @dialogs-valve/react`;
 
   const registryCode = `// dialogs-valve-registry.tsx
-import { initDialogsValve } from '@dialogs-valve/react';
 import type { DialogMap } from '@dialogs-valve/react';
 import { SettingsDrawer } from './dialogs/SettingsDrawer';
 
@@ -447,27 +446,29 @@ export const dialogs = {
   'settings': { Component: SettingsDrawer },
 } as const satisfies DialogMap;
 
-// initDialogsValve is the only runtime export from the library.
-// Everything else comes from its return value.
-export const { DialogsValveProvider, useDialogsValve } =
-  initDialogsValve(dialogs);`;
+// Register your dialogs once — all hooks/helpers are auto-typed
+declare module '@dialogs-valve/react' {
+  interface DialogsValveRegistry {
+    dialogs: typeof dialogs;
+  }
+}`;
 
   const providerCode = `// App.tsx
 import { useNavigate } from 'react-router-dom';
-import { DialogsValveProvider } from './dialogs-valve-registry';
+import { DialogsValveProvider } from '@dialogs-valve/react';
+import { dialogs } from './dialogs-valve-registry';
 
 function App() {
   const navigate = useNavigate();
   return (
-    // Import DialogsValveProvider from YOUR registry, not the library
-    <DialogsValveProvider onNavigate={navigate}>
+    <DialogsValveProvider dialogs={dialogs} onNavigate={navigate}>
       <YourApp />
     </DialogsValveProvider>
   );
 }`;
 
   const usageCode = `// Anywhere inside the provider:
-import { useDialogsValve } from './dialogs-valve-registry';
+import { useDialogsValve } from '@dialogs-valve/react';
 
 function SettingsButton() {
   const { openDialog } = useDialogsValve()!;

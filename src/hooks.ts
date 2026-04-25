@@ -1,6 +1,6 @@
 import { useContext } from "react";
 import { DialogsValveContext } from "./context";
-import type { DialogsValveContextValue } from "./types";
+import type { DialogsValveContextValue, RegisteredDialogKeys } from "./types";
 
 /**
  * Hook to access the dialogs valve API.
@@ -19,7 +19,7 @@ import type { DialogsValveContextValue } from "./types";
  * ```
  */
 export function useDialogsValve<
-  TKeys extends string = string,
+  TKeys extends string = RegisteredDialogKeys,
 >(): DialogsValveContextValue<TKeys> | null {
   const context = useContext(DialogsValveContext);
 
@@ -30,5 +30,5 @@ export function useDialogsValve<
     );
   }
 
-  return context;
+  return context as DialogsValveContextValue<TKeys> | null;
 }

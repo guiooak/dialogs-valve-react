@@ -1,4 +1,4 @@
-import { useDialogsValve } from "../../dialogs-valve-registry";
+import { useDialogsValve } from "@dialogs-valve/react";
 import Drawer from "../../components/Drawer/Drawer";
 
 type ReplacementDrawerAProps = {

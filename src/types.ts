@@ -120,6 +120,37 @@ export type BuildDialogUrlOptions = {
 export type InferDialogKeys<TMap extends DialogMap> = keyof TMap & string;
 
 // ---------------------------------------------------------------------------
+// Module augmentation registry
+// ---------------------------------------------------------------------------
+
+/**
+ * Augment this interface in your app to register your dialogs map.
+ * All hooks and helpers will automatically use the registered keys —
+ * no generic parameter needed at every call site.
+ *
+ * @example
+ * ```ts
+ * // In the same file where you define your dialogs:
+ * declare module "@dialogs-valve/react" {
+ *   interface DialogsValveRegistry {
+ *     dialogs: typeof myDialogs;
+ *   }
+ * }
+ * ```
+ */
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export interface DialogsValveRegistry {}
+
+/**
+ * The dialog key union inferred from the augmented registry.
+ * Falls back to `string` when no registry is declared.
+ */
+export type RegisteredDialogKeys =
+  DialogsValveRegistry extends { dialogs: infer D extends DialogMap }
+    ? keyof D & string
+    : string;
+
+// ---------------------------------------------------------------------------
 // Internal / context types
 // ---------------------------------------------------------------------------
 

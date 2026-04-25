@@ -8,15 +8,15 @@ import {
   DIALOG_MAIN_KEY,
 } from "./constants";
 import { getLocationSearch } from "./browser";
-import type { BuildDialogUrlOptions, DialogPropValue } from "./types";
+import type { BuildDialogUrlOptions, DialogPropValue, RegisteredDialogKeys } from "./types";
 
 /*
  * QUERY PARAMS HELPERS
  */
 
-export function extractDialogProps(
+export function extractDialogProps<TKeys extends string = RegisteredDialogKeys>(
   search: string,
-  dialogKey: string,
+  dialogKey: TKeys,
 ): Record<string, DialogPropValue> {
   const params = new URLSearchParams(search);
   const propPrefix = `${dialogKey}${DIALOG_PROP_PREFIX_SEPARATOR}`;
@@ -32,7 +32,7 @@ export function extractDialogProps(
   return result;
 }
 
-export function getActiveDialogKeys<TKeys extends string = string>(
+export function getActiveDialogKeys<TKeys extends string = RegisteredDialogKeys>(
   search: string,
   dialogParamKey: string,
 ): TKeys[] {
@@ -43,10 +43,10 @@ export function getActiveDialogKeys<TKeys extends string = string>(
   ) as TKeys[];
 }
 
-export function cleanUpQueryParams(
+export function cleanUpQueryParams<TKeys extends string = RegisteredDialogKeys>(
   search: string,
   dialogParamKey: string,
-  dialogKey: string,
+  dialogKey: TKeys,
 ): string {
   const params = new URLSearchParams(search);
 
@@ -59,7 +59,7 @@ export function cleanUpQueryParams(
   return params.toString();
 }
 
-export function validateDialogKeys<TKeys extends string = string>(
+export function validateDialogKeys<TKeys extends string = RegisteredDialogKeys>(
   keys: TKeys[],
   validKeys: TKeys[],
 ): TKeys[] {
@@ -96,8 +96,8 @@ export function parsePropValue(value: string): DialogPropValue {
  * URL BUILDERS
  */
 
-export function buildDialogUrl(
-  dialogKey: string,
+export function buildDialogUrl<TKeys extends string = RegisteredDialogKeys>(
+  dialogKey: TKeys,
   options?: BuildDialogUrlOptions,
   dialogParamKey: string = DIALOG_MAIN_KEY,
 ): string {
@@ -129,8 +129,8 @@ function buildDialogPropParamKey(dialogKey: string, propKey: string): string {
   return `${dialogKey}${DIALOG_PROP_PREFIX_SEPARATOR}${propKey}`;
 }
 
-export function buildCloseDialogUrl(
-  dialogKey: string,
+export function buildCloseDialogUrl<TKeys extends string = RegisteredDialogKeys>(
+  dialogKey: TKeys,
   dialogParamKey: string = DIALOG_MAIN_KEY,
 ): string {
   const params = new URLSearchParams(getLocationSearch());
