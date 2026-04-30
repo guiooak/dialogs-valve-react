@@ -28,7 +28,6 @@ export const dialogs = {
 } as const satisfies DialogMap<string, AppPermissions>;
 
 declare module "@dialogs-valve/react" {
-  // eslint-disable-next-line @typescript-eslint/consistent-type-definitions
   interface DialogsValveRegistry {
     dialogs: typeof dialogs;
   }

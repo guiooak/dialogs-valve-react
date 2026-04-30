@@ -35,6 +35,7 @@ export default tseslint.config(
     files: ["demo-app/src/**/*.{ts,tsx}"],
     rules: {
       "import/no-default-export": "off",
+      "@typescript-eslint/consistent-type-definitions": "off",
     },
   },
 );
