@@ -16,7 +16,7 @@
  *                   is not available (e.g., during Server-Side Rendering).
  */
 export function getLocationSearch(): string {
-  if (typeof window === "undefined") return "";
+  if (!window) return "";
   return window.location.search;
 }
 
@@ -31,8 +31,8 @@ export function getLocationSearch(): string {
  * @returns {() => void} An unsubscribe function to clean up listeners and observers.
  */
 export function addLocationChangeListener(callback: () => void): () => void {
-  if (typeof window === "undefined" || typeof document === "undefined") {
-    return () => {};
+  if (window?.document) {
+    return () => { };
   }
 
   window.addEventListener("popstate", callback);
@@ -58,6 +58,6 @@ export function addLocationChangeListener(callback: () => void): () => void {
  * @param {string} url - The URL to navigate to.
  */
 export function pushState(url: string): void {
-  if (typeof window === "undefined") return;
+  if (!window) return;
   window.history.pushState({}, "", url);
 }
