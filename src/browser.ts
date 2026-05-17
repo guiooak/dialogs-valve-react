@@ -31,7 +31,7 @@ export function getLocationSearch(): string {
  * @returns {() => void} An unsubscribe function to clean up listeners and observers.
  */
 export function addLocationChangeListener(callback: () => void): () => void {
-  if (window?.document) {
+  if (!window?.document) {
     return () => { };
   }
 
