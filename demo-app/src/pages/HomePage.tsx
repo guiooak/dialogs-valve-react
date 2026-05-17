@@ -142,9 +142,7 @@ const isModalOpen = isOpen('hello-modal'); // boolean`;
             </button>
             <button
               className="btn btn-secondary"
-              onClick={() =>
-                openDialog("tip-rollover", { overlap: true })
-              }
+              onClick={() => openDialog("tip-rollover", { overlap: true })}
             >
               Open Rollover
             </button>
