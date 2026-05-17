@@ -29,7 +29,7 @@ const Drawer: React.FC<DrawerProps> = ({ open, onClose, title, children }) => {
         // Only restore overflow if there are no other open drawers
         // We look for overlays that don't have the 'closing' class
         const otherOpenDrawers = document.querySelectorAll(
-          ".drawer-overlay:not(.closing)",
+          ".drawer-overlay:not(.closing), .modal-overlay:not(.closing), .rollover:not(.closing)",
         );
         if (otherOpenDrawers.length <= 1) {
           document.body.style.overflow =

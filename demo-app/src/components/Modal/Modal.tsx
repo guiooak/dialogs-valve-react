@@ -29,7 +29,7 @@ const Modal: React.FC<ModalProps> = ({
       return () => {
         document.removeEventListener("keydown", handleEscape);
         const otherOpen = document.querySelectorAll(
-          ".modal-overlay:not(.closing), .drawer-overlay:not(.closing)",
+          ".modal-overlay:not(.closing), .drawer-overlay:not(.closing), .rollover:not(.closing)",
         );
         if (otherOpen.length <= 1) {
           document.body.style.overflow = "";

@@ -94,7 +94,8 @@ const HeroSection: React.FC = () => (
 
 const BasicUsageSection: React.FC = () => {
   const { openDialog, closeAllDialogs, isOpen } = useDialogsValve()!;
-  const anyOpen = isOpen("hello-modal") || isOpen("info-drawer");
+  const anyOpen =
+    isOpen("hello-modal") || isOpen("info-drawer") || isOpen("tip-rollover");
 
   const code = `import { useDialogsValve } from '@dialogs-valve/react';
 
@@ -104,6 +105,7 @@ const { openDialog, closeDialog, closeAllDialogs, isOpen } =
 // Open dialogs by key
 openDialog('hello-modal');
 openDialog('info-drawer');
+openDialog('tip-rollover', { overlap: true });
 
 // Close a specific one
 closeDialog('hello-modal');
@@ -119,11 +121,11 @@ const isModalOpen = isOpen('hello-modal'); // boolean`;
       id="basic-usage"
       label="01"
       title="Basic Usage"
-      description="Open, close, and check dialogs from anywhere inside the provider — modal, drawer, sheet, whatever your component looks like."
+      description="Open, close, and check dialogs from anywhere inside the provider — modal, drawer, rollover, whatever your component looks like."
       demo={
         <div className="demo-card">
           <p className="demo-card-hint">
-            Try opening both, then closing all at once.
+            Try opening each one, then closing all at once.
           </p>
           <div className="demo-actions">
             <button
@@ -137,6 +139,14 @@ const isModalOpen = isOpen('hello-modal'); // boolean`;
               onClick={() => openDialog("info-drawer")}
             >
               Open Drawer
+            </button>
+            <button
+              className="btn btn-secondary"
+              onClick={() =>
+                openDialog("tip-rollover", { overlap: true })
+              }
+            >
+              Open Rollover
             </button>
             <button
               className="btn btn-ghost"
@@ -155,6 +165,10 @@ const isModalOpen = isOpen('hello-modal'); // boolean`;
               className={`demo-dot ${isOpen("info-drawer") ? "demo-dot-on" : ""}`}
             />
             <span className="demo-state-label">info-drawer</span>
+            <span
+              className={`demo-dot ${isOpen("tip-rollover") ? "demo-dot-on" : ""}`}
+            />
+            <span className="demo-state-label">tip-rollover</span>
           </div>
         </div>
       }

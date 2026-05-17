@@ -2,6 +2,7 @@ import type { DialogMap } from "@dialogs-valve/react";
 
 import HelloModal from "./dialogs/basic/HelloModal";
 import InfoDrawer from "./dialogs/basic/InfoDrawer";
+import TipRollover from "./dialogs/basic/TipRollover";
 import OverlapDrawerA from "./dialogs/overlap/OverlapDrawerA";
 import OverlapDrawerB from "./dialogs/overlap/OverlapDrawerB";
 import ReplacementDrawerA from "./dialogs/replacement/ReplacementDrawerA";
@@ -15,6 +16,7 @@ export type AppPermissions = { isAdmin: boolean };
 export const dialogs = {
   "hello-modal": { Component: HelloModal },
   "info-drawer": { Component: InfoDrawer },
+  "tip-rollover": { Component: TipRollover },
   "overlap-drawer-a": { Component: OverlapDrawerA },
   "overlap-drawer-b": { Component: OverlapDrawerB },
   "replacement-a": { Component: ReplacementDrawerA },

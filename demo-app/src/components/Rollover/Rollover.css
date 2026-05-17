@@ -1,0 +1,75 @@
+.rollover {
+  position: fixed;
+  inset: 0;
+  background-color: var(--color-bg);
+  display: flex;
+  flex-direction: column;
+  z-index: var(--z-rollover);
+  animation: rolloverSlideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.rollover.closing {
+  animation: rolloverSlideOut 0.25s ease-in forwards;
+}
+
+@keyframes rolloverSlideIn {
+  from { transform: translateY(100%); }
+  to   { transform: translateY(0); }
+}
+
+@keyframes rolloverSlideOut {
+  from { transform: translateY(0); }
+  to   { transform: translateY(100%); }
+}
+
+.rollover-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--space-5) var(--space-6);
+  border-bottom: 1px solid var(--color-border);
+  background-color: var(--color-card-alt);
+  flex-shrink: 0;
+}
+
+.rollover-title {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin: 0;
+}
+
+.rollover-close {
+  background: none;
+  border: none;
+  font-size: 1.4rem;
+  line-height: 1;
+  cursor: pointer;
+  color: var(--color-text-secondary);
+  padding: 0;
+  width: 2rem;
+  height: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-sm);
+  transition: background-color var(--transition-fast), color var(--transition-fast);
+  font-family: inherit;
+  flex-shrink: 0;
+}
+
+.rollover-close:hover {
+  background-color: rgba(255, 255, 255, 0.08);
+  color: var(--color-text-primary);
+}
+
+.rollover-close:focus-visible {
+  outline: 2px solid var(--color-primary-light);
+  outline-offset: 2px;
+}
+
+.rollover-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--space-6);
+}
