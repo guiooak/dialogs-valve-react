@@ -201,8 +201,8 @@ openDialog('overlap-drawer-b');
       description={
         <>
           Opening a dialog stacks it on top of any currently open dialogs by
-          default. Each one adds its own key to the URL — close one and the
-          rest stay open.
+          default. Each one adds its own key to the URL — close one and the rest
+          stay open.
         </>
       }
       demo={
