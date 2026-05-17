@@ -32,7 +32,7 @@ export function getLocationSearch(): string {
  */
 export function addLocationChangeListener(callback: () => void): () => void {
   if (!window?.document) {
-    return () => { };
+    return () => {};
   }
 
   window.addEventListener("popstate", callback);
