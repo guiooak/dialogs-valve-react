@@ -426,6 +426,49 @@ describe("DialogsController — canShow guard", () => {
     expect(canShow).toHaveBeenCalledWith(permissions);
   });
 
+  it("falls back to URL-extracted props when a closing dialog has no cached entry", () => {
+    // Arrange — canShow blocks the initial open render, so the props cache is
+    // never written for `dialog-a`. The dialog still lands in renderedKeys via
+    // the useState(activeKeys) initializer.
+    const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+    let allowed = false;
+    const guardedDialogs: DialogMap = {
+      "dialog-a": {
+        Component: MockDialog,
+        canShow: () => allowed,
+      },
+    };
+    const { rerender } = render(
+      <DialogsController
+        activeKeys={["dialog-a"]}
+        search="?dialog=dialog-a&dialog-a.title=Hello"
+        closeDelay={300}
+        dialogs={guardedDialogs}
+        permissions={{}}
+        closeDialog={vi.fn()}
+      />,
+    );
+    // Act — unblock the guard and close the dialog. It stays mounted for the
+    // exit animation, and since the cache is empty, the controller must fall
+    // back to extractDialogProps against the current search.
+    allowed = true;
+    rerender(
+      <DialogsController
+        activeKeys={[]}
+        search="?dialog-a.title=Fallback"
+        closeDelay={300}
+        dialogs={guardedDialogs}
+        permissions={{}}
+        closeDialog={vi.fn()}
+      />,
+    );
+    // Assert
+    const propsAttr = screen.getByTestId("dialog").getAttribute("data-props");
+    const props = JSON.parse(propsAttr!);
+    expect(props.title).toBe("Fallback");
+    errorSpy.mockRestore();
+  });
+
   it("skips the canShow guard and renders when permissions prop is not provided", () => {
     // Arrange — canShow returns false, but without permissions the guard is skipped
     const guardedDialogs: DialogMap = {
