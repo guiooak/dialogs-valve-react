@@ -24,7 +24,7 @@ const OverlapDrawerA: React.FC<OverlapDrawerAProps> = ({ open, onClose }) => {
         <div className="dialog-actions">
           <button
             className="btn btn-primary"
-            onClick={() => openDialog("overlap-drawer-b", { overlap: true })}
+            onClick={() => openDialog("overlap-drawer-b")}
           >
             Open Drawer B on top →
           </button>

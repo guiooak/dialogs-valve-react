@@ -141,11 +141,11 @@ These props are automatically extracted and spread as React props onto the rende
 
 ### Overlapping Dialogs
 
-By default, opening a dialog **replaces** all currently open dialogs (`overlap: false`). Set `overlap: true` to stack the new dialog on top of existing ones instead.
+By default, opening a dialog **stacks** it on top of any currently open dialogs (`overlap: true`). Each dialog adds its own key to the URL — close one and the rest stay open.
 
 ```tsx
 // Open a second drawer on top of the first — both stay in the URL
-openDialog("settings", { overlap: true });
+openDialog("settings");
 // URL: ?dialog=user-profile&dialog=settings
 ```
 
@@ -153,10 +153,10 @@ Each dialog only removes itself when closed — the others remain open.
 
 ### Dialog Replacement
 
-The default (`overlap: false`) removes all currently open dialogs and opens the new one. Useful for wizard-style flows or exclusive panels.
+Pass `overlap: false` to remove all currently open dialogs and open the new one in their place. Useful for wizard-style flows or exclusive panels.
 
 ```tsx
-openDialog("step-two"); // removes step-one, adds step-two
+openDialog("step-two", { overlap: false }); // removes step-one, adds step-two
 // URL: ?dialog=step-one → ?dialog=step-two
 ```
 

@@ -102,10 +102,10 @@ const BasicUsageSection: React.FC = () => {
 const { openDialog, closeDialog, closeAllDialogs, isOpen } =
   useDialogsValve()!;
 
-// Open dialogs by key
+// Open dialogs by key (stacking is the default)
 openDialog('hello-modal');
 openDialog('info-drawer');
-openDialog('tip-rollover', { overlap: true });
+openDialog('tip-rollover');
 
 // Close a specific one
 closeDialog('hello-modal');
@@ -142,7 +142,7 @@ const isModalOpen = isOpen('hello-modal'); // boolean`;
             </button>
             <button
               className="btn btn-secondary"
-              onClick={() => openDialog("tip-rollover", { overlap: true })}
+              onClick={() => openDialog("tip-rollover")}
             >
               Open Rollover
             </button>
@@ -183,8 +183,9 @@ const OverlapSection: React.FC = () => {
   const code = `// Open Drawer A
 openDialog('overlap-drawer-a');
 
-// From within Drawer A, open B on top:
-openDialog('overlap-drawer-b', { overlap: true });
+// From within Drawer A, open B on top —
+// stacking is the default behavior:
+openDialog('overlap-drawer-b');
 
 // URL becomes:
 // ?dialog=overlap-drawer-a&dialog=overlap-drawer-b
@@ -199,9 +200,9 @@ openDialog('overlap-drawer-b', { overlap: true });
       title="Overlapping Dialogs"
       description={
         <>
-          Open multiple dialogs simultaneously with <code>overlap: true</code>.
-          Each one adds its own key to the URL — close one and the rest stay
-          open.
+          Opening a dialog stacks it on top of any currently open dialogs by
+          default. Each one adds its own key to the URL — close one and the
+          rest stay open.
         </>
       }
       demo={
