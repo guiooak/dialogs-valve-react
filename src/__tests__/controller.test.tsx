@@ -238,6 +238,77 @@ describe("DialogsController — delayed close", () => {
     expect(screen.queryByTestId("dialog")).not.toBeInTheDocument();
   });
 
+  it("preserves dialog props while the close animation is playing", () => {
+    // Arrange — open with serialized props in the URL
+    const openSearch =
+      "?dialog=dialog-a&dialog-a.title=Hello&dialog-a.count=number.3";
+    const { rerender } = render(
+      <DialogsController
+        activeKeys={["dialog-a"]}
+        search={openSearch}
+        closeDelay={300}
+        dialogs={dialogs}
+        closeDialog={vi.fn()}
+      />,
+    );
+    // Act — close the dialog: activeKeys empty AND search is cleaned, mimicking
+    // the real URL behavior. The dialog is still rendered for the exit animation.
+    rerender(
+      <DialogsController
+        activeKeys={[]}
+        search=""
+        closeDelay={300}
+        dialogs={dialogs}
+        closeDialog={vi.fn()}
+      />,
+    );
+    // Assert — props from the open phase are still forwarded during the close
+    // window so content does not flicker mid-animation.
+    const propsAttr = screen.getByTestId("dialog").getAttribute("data-props");
+    const props = JSON.parse(propsAttr!);
+    expect(props.title).toBe("Hello");
+    expect(props.count).toBe(3);
+  });
+
+  it("drops cached props once a dialog finishes closing", () => {
+    // Arrange — open with props, then close
+    const { rerender } = render(
+      <DialogsController
+        activeKeys={["dialog-a"]}
+        search="?dialog=dialog-a&dialog-a.title=Hello"
+        closeDelay={300}
+        dialogs={dialogs}
+        closeDialog={vi.fn()}
+      />,
+    );
+    rerender(
+      <DialogsController
+        activeKeys={[]}
+        search=""
+        closeDelay={300}
+        dialogs={dialogs}
+        closeDialog={vi.fn()}
+      />,
+    );
+    act(() => {
+      vi.advanceTimersByTime(300);
+    });
+    // Act — reopen with no props at all
+    rerender(
+      <DialogsController
+        activeKeys={["dialog-a"]}
+        search="?dialog=dialog-a"
+        closeDelay={300}
+        dialogs={dialogs}
+        closeDialog={vi.fn()}
+      />,
+    );
+    // Assert — the previous cache must not leak into the fresh open
+    const propsAttr = screen.getByTestId("dialog").getAttribute("data-props");
+    const props = JSON.parse(propsAttr!);
+    expect(props.title).toBeUndefined();
+  });
+
   it("keeps the dialog mounted if the dialog is reopened before the timer fires", () => {
     // Arrange
     const { rerender } = render(
