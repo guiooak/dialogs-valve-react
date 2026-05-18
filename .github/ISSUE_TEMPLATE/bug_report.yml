@@ -1,0 +1,93 @@
+name: Bug report
+description: Report a bug in @dialogs-valve/react
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to file a bug report. Please fill in as much of the form as you can — a minimal reproduction is the single most helpful thing you can provide.
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: A clear and concise description of what the bug is.
+      placeholder: When I do X, I expect Y, but instead Z happens.
+    validations:
+      required: true
+
+  - type: input
+    id: reproduction
+    attributes:
+      label: Minimal reproduction
+      description: A link to a CodeSandbox, StackBlitz, or GitHub repo that reproduces the issue.
+      placeholder: https://codesandbox.io/...
+    validations:
+      required: false
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: If you cannot share a sandbox, list the exact steps to reproduce.
+      placeholder: |
+        1. Render `<DialogProvider>` with ...
+        2. Click ...
+        3. Observe ...
+    validations:
+      required: false
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+    validations:
+      required: true
+
+  - type: input
+    id: library-version
+    attributes:
+      label: "@dialogs-valve/react version"
+      placeholder: 0.1.0
+    validations:
+      required: true
+
+  - type: input
+    id: react-version
+    attributes:
+      label: React version
+      placeholder: 19.0.0
+    validations:
+      required: true
+
+  - type: input
+    id: router
+    attributes:
+      label: Router (if applicable)
+      placeholder: react-router-dom 6.x / TanStack Router / Next.js App Router / etc.
+    validations:
+      required: false
+
+  - type: input
+    id: environment
+    attributes:
+      label: Environment
+      description: Node version, browser, OS — whatever is relevant.
+      placeholder: Node 20, Chrome 130, macOS 14
+    validations:
+      required: false
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional context
+      description: Anything else that might help — screenshots, error stack traces, etc.
+    validations:
+      required: false
