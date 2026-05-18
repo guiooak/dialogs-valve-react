@@ -39,13 +39,17 @@
     "format:check": "prettier --check \"src/**/*.{ts,tsx}\" \"demo-app/src/**/*.{ts,tsx}\"",
     "typecheck": "tsc --noEmit",
     "prepublishOnly": "yarn build",
-    "demo:dev": "yarn --cwd demo-app dev"
+    "demo:dev": "yarn --cwd demo-app dev",
+    "changeset": "changeset",
+    "version-packages": "changeset version",
+    "release": "changeset publish"
   },
   "peerDependencies": {
     "react": ">=18",
     "react-dom": ">=18"
   },
   "devDependencies": {
+    "@changesets/cli": "^2.31.0",
     "@eslint/js": "^10.0.1",
     "@testing-library/dom": "^10.0.0",
     "@testing-library/jest-dom": "^6.6.3",
