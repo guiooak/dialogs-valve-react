@@ -7,6 +7,25 @@ on:
     branches: [main]
 
 jobs:
+  changeset:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: yarn
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Verify changeset is present
+        run: yarn changeset status --since=origin/${{ github.base_ref }}
+
   lint:
     runs-on: ubuntu-latest
     steps:

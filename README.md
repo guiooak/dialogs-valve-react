@@ -326,3 +326,32 @@ declare module "@dialogs-valve/react" {
   }
 }
 ```
+
+## Versioning
+
+This project uses [Semantic Versioning](https://semver.org/), with one caveat while it is in `0.x`.
+
+### While in `0.x` (current)
+
+The library follows the **0ver** convention used by most pre-1.0 OSS projects (React, Vue, Vite all did this):
+
+- Breaking changes bump the **minor** number — `0.1.0` → `0.2.0`
+- Features and fixes bump the **patch** number — `0.1.0` → `0.1.1`
+
+Breaking changes are allowed in any `0.x` release. If you depend on this library while it is in `0.x`, pin with `~0.x.y` (patch-only updates) rather than `^0.x.y` (which would let breaking changes in).
+
+### After `1.0.0`
+
+Once `1.0.0` ships, standard [SemVer](https://semver.org/) applies:
+
+- **Major** (`1.x` → `2.0`) — breaking changes
+- **Minor** (`1.0` → `1.1`) — new features, backwards-compatible
+- **Patch** (`1.0.0` → `1.0.1`) — bug fixes, backwards-compatible
+
+At that point `^1.0.0` is safe to use.
+
+### Release process
+
+Releases are managed via [Changesets](https://github.com/changesets/changesets) and published automatically to npm by GitHub Actions. See [CONTRIBUTING.md](./CONTRIBUTING.md#changesets) for how to add a changeset to your PR.
+
+The changelog for each version lives in [`CHANGELOG.md`](./CHANGELOG.md) once the first automated release lands.
