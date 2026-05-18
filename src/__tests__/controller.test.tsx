@@ -238,6 +238,77 @@ describe("DialogsController — delayed close", () => {
     expect(screen.queryByTestId("dialog")).not.toBeInTheDocument();
   });
 
+  it("preserves dialog props while the close animation is playing", () => {
+    // Arrange — open with serialized props in the URL
+    const openSearch =
+      "?dialog=dialog-a&dialog-a.title=Hello&dialog-a.count=number.3";
+    const { rerender } = render(
+      <DialogsController
+        activeKeys={["dialog-a"]}
+        search={openSearch}
+        closeDelay={300}
+        dialogs={dialogs}
+        closeDialog={vi.fn()}
+      />,
+    );
+    // Act — close the dialog: activeKeys empty AND search is cleaned, mimicking
+    // the real URL behavior. The dialog is still rendered for the exit animation.
+    rerender(
+      <DialogsController
+        activeKeys={[]}
+        search=""
+        closeDelay={300}
+        dialogs={dialogs}
+        closeDialog={vi.fn()}
+      />,
+    );
+    // Assert — props from the open phase are still forwarded during the close
+    // window so content does not flicker mid-animation.
+    const propsAttr = screen.getByTestId("dialog").getAttribute("data-props");
+    const props = JSON.parse(propsAttr!);
+    expect(props.title).toBe("Hello");
+    expect(props.count).toBe(3);
+  });
+
+  it("drops cached props once a dialog finishes closing", () => {
+    // Arrange — open with props, then close
+    const { rerender } = render(
+      <DialogsController
+        activeKeys={["dialog-a"]}
+        search="?dialog=dialog-a&dialog-a.title=Hello"
+        closeDelay={300}
+        dialogs={dialogs}
+        closeDialog={vi.fn()}
+      />,
+    );
+    rerender(
+      <DialogsController
+        activeKeys={[]}
+        search=""
+        closeDelay={300}
+        dialogs={dialogs}
+        closeDialog={vi.fn()}
+      />,
+    );
+    act(() => {
+      vi.advanceTimersByTime(300);
+    });
+    // Act — reopen with no props at all
+    rerender(
+      <DialogsController
+        activeKeys={["dialog-a"]}
+        search="?dialog=dialog-a"
+        closeDelay={300}
+        dialogs={dialogs}
+        closeDialog={vi.fn()}
+      />,
+    );
+    // Assert — the previous cache must not leak into the fresh open
+    const propsAttr = screen.getByTestId("dialog").getAttribute("data-props");
+    const props = JSON.parse(propsAttr!);
+    expect(props.title).toBeUndefined();
+  });
+
   it("keeps the dialog mounted if the dialog is reopened before the timer fires", () => {
     // Arrange
     const { rerender } = render(
@@ -353,6 +424,49 @@ describe("DialogsController — canShow guard", () => {
     );
     // Assert
     expect(canShow).toHaveBeenCalledWith(permissions);
+  });
+
+  it("falls back to URL-extracted props when a closing dialog has no cached entry", () => {
+    // Arrange — canShow blocks the initial open render, so the props cache is
+    // never written for `dialog-a`. The dialog still lands in renderedKeys via
+    // the useState(activeKeys) initializer.
+    const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+    let allowed = false;
+    const guardedDialogs: DialogMap = {
+      "dialog-a": {
+        Component: MockDialog,
+        canShow: () => allowed,
+      },
+    };
+    const { rerender } = render(
+      <DialogsController
+        activeKeys={["dialog-a"]}
+        search="?dialog=dialog-a&dialog-a.title=Hello"
+        closeDelay={300}
+        dialogs={guardedDialogs}
+        permissions={{}}
+        closeDialog={vi.fn()}
+      />,
+    );
+    // Act — unblock the guard and close the dialog. It stays mounted for the
+    // exit animation, and since the cache is empty, the controller must fall
+    // back to extractDialogProps against the current search.
+    allowed = true;
+    rerender(
+      <DialogsController
+        activeKeys={[]}
+        search="?dialog-a.title=Fallback"
+        closeDelay={300}
+        dialogs={guardedDialogs}
+        permissions={{}}
+        closeDialog={vi.fn()}
+      />,
+    );
+    // Assert
+    const propsAttr = screen.getByTestId("dialog").getAttribute("data-props");
+    const props = JSON.parse(propsAttr!);
+    expect(props.title).toBe("Fallback");
+    errorSpy.mockRestore();
   });
 
   it("skips the canShow guard and renders when permissions prop is not provided", () => {

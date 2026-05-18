@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { extractDialogProps } from "./services";
-import type { DialogMap } from "./types";
+import type { DialogMap, DialogPropValue } from "./types";
 
 // ---------------------------------------------------------------------------
 // Props
@@ -41,6 +41,14 @@ export function DialogsController<
   // - Removals: Synchronized after `closeDelay` via useEffect (smooth exit).
   const [renderedKeys, setRenderedKeys] = useState<TKeys[]>(activeKeys);
 
+  // Cache of last-known props per dialog key. The URL is cleaned the moment
+  // a dialog closes, but we keep the dialog mounted for `closeDelay` so its
+  // exit animation can play. Reading directly from `search` during that window
+  // would yield empty props and visually wipe the dialog's content mid-exit.
+  const propsCacheRef = useRef<
+    Partial<Record<TKeys, Record<string, DialogPropValue>>>
+  >({});
+
   // Synchronously update renderedKeys if new dialogs are opened.
   // This prevents the "one-frame blank gap" when a drawer first appears.
   const hasNewKeys = activeKeys.some((k) => !renderedKeys.includes(k));
@@ -56,6 +64,14 @@ export function DialogsController<
       const timer = setTimeout(() => {
         // After the delay, we sync the DOM state with the URL state.
         setRenderedKeys(activeKeys);
+
+        // Drop cached props for keys that are no longer active so a future
+        // reopen starts from a clean slate.
+        (Object.keys(propsCacheRef.current) as TKeys[]).forEach((cachedKey) => {
+          if (!activeKeys.includes(cachedKey)) {
+            delete propsCacheRef.current[cachedKey];
+          }
+        });
       }, closeDelay);
 
       return () => clearTimeout(timer);
@@ -80,8 +96,16 @@ export function DialogsController<
     }
 
     const { Component } = entry;
-    const dialogProps = extractDialogProps(search, key);
     const isCurrentlyOpen = activeKeys.includes(key);
+
+    let dialogProps: Record<string, DialogPropValue>;
+    if (isCurrentlyOpen) {
+      dialogProps = extractDialogProps(search, key);
+      propsCacheRef.current[key] = dialogProps;
+    } else {
+      dialogProps =
+        propsCacheRef.current[key] ?? extractDialogProps(search, key);
+    }
 
     return (
       <Component

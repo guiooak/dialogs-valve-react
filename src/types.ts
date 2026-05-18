@@ -98,9 +98,9 @@ export type BuildDialogUrlOptions = {
   props?: Record<string, DialogPropValue>;
 
   /**
-   * When `true`, the new dialog params are **added** to any existing
-   * dialog params (allowing multiple dialogs to be open at once).
-   * When `false` (default), existing dialog params are replaced.
+   * When `true` (default), the new dialog params are **added** to any existing
+   * dialog params, allowing multiple dialogs to be open at once.
+   * When `false`, all existing dialog params are replaced.
    */
   overlap?: boolean;
 };
