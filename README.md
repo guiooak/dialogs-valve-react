@@ -196,6 +196,57 @@ declare module "@dialogs-valve/react" {
 
 If `canShow` returns `false`, the dialog is skipped and a `console.warn` is emitted.
 
+### Router-Reactive Search via `locationSearch`
+
+By default the library tracks URL changes through a `popstate` listener and a `MutationObserver` — a reliable heuristic that works with most routers without any extra setup.
+
+If your router exposes a reactive search string (React Router's `useLocation().search`, Next.js's `useSearchParams()`, TanStack Router's `useLocation().searchStr`, etc.), you can pass it directly as `locationSearch`. The library will use it as the controlled source of truth and skip the built-in listener entirely, giving you a tighter, more predictable integration.
+
+**React Router v6:**
+```tsx
+import { useLocation, useNavigate } from "react-router-dom";
+import { DialogsValveProvider } from "@dialogs-valve/react";
+
+function App() {
+  const navigate = useNavigate();
+  const { search } = useLocation();
+
+  return (
+    <DialogsValveProvider
+      dialogs={dialogs}
+      onNavigate={navigate}
+      locationSearch={search}
+    >
+      <MainLayout />
+    </DialogsValveProvider>
+  );
+}
+```
+
+**Next.js App Router:**
+```tsx
+"use client";
+import { useRouter, useSearchParams } from "next/navigation";
+import { DialogsValveProvider } from "@dialogs-valve/react";
+
+function AppShell() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
+  return (
+    <DialogsValveProvider
+      dialogs={dialogs}
+      onNavigate={router.push}
+      locationSearch={searchParams.toString()}
+    >
+      <MainLayout />
+    </DialogsValveProvider>
+  );
+}
+```
+
+When `locationSearch` is omitted, the built-in listener takes over with no configuration required.
+
 ### Global Configuration
 
 Customize the URL param key and animation timing via the `config` prop on `DialogsValveProvider`.
@@ -223,6 +274,7 @@ Import directly from `@dialogs-valve/react`.
 | `onNavigate` | `(url: string) => void` | `history.pushState` | Navigation callback from your router. |
 | `permissions` | `TPermissions` | — | Permissions context forwarded to `canShow` guards. |
 | `config` | `DialogsValveConfig` | — | Override `dialogParamKey` or `closeDelay`. |
+| `locationSearch` | `string` | — | Reactive search string from your router (e.g. `useLocation().search`). When provided, overrides the built-in location listener. |
 | `children` | `ReactNode` | — | Your app content. |
 
 ---
