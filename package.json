@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "description": "A small library to manage dialogs (like modals, drawers, etc) using URL query params.",
   "type": "module",
+  "sideEffects": false,
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -23,6 +24,10 @@
     "README.md",
     "LICENSE"
   ],
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
   "scripts": {
     "build": "tsdown && tsc --emitDeclarationOnly",
     "dev": "tsdown --watch",
@@ -33,14 +38,18 @@
     "format": "prettier --write \"src/**/*.{ts,tsx}\" \"demo-app/src/**/*.{ts,tsx}\"",
     "format:check": "prettier --check \"src/**/*.{ts,tsx}\" \"demo-app/src/**/*.{ts,tsx}\"",
     "typecheck": "tsc --noEmit",
-    "prepublishOnly": "npm run build",
-    "demo:dev": "yarn --cwd demo-app dev"
+    "prepublishOnly": "yarn build",
+    "demo:dev": "yarn --cwd demo-app dev",
+    "changeset": "changeset",
+    "version-packages": "changeset version",
+    "release": "changeset publish"
   },
   "peerDependencies": {
     "react": ">=18",
     "react-dom": ">=18"
   },
   "devDependencies": {
+    "@changesets/cli": "^2.31.0",
     "@eslint/js": "^10.0.1",
     "@testing-library/dom": "^10.0.0",
     "@testing-library/jest-dom": "^6.6.3",
@@ -72,8 +81,12 @@
   ],
   "author": "Guilherme Carvalho",
   "license": "MIT",
+  "homepage": "https://github.com/guiooak/dialogs-valve-react#readme",
+  "bugs": {
+    "url": "https://github.com/guiooak/dialogs-valve-react/issues"
+  },
   "repository": {
     "type": "git",
-    "url": "https://github.com/guiooak/dialogs-valve-react.git"
+    "url": "git+https://github.com/guiooak/dialogs-valve-react.git"
   }
 }
