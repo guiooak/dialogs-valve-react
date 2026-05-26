@@ -7,7 +7,7 @@ While `@dialogs-valve/react` is in `0.x`, only the latest published `0.x` minor 
 | Version | Supported |
 |---|---|
 | Latest `0.x` minor | Yes |
-| Older `0.x` versions | No — please upgrade |
+| Older `0.x` versions | No. Please upgrade |
 
 ## Reporting a vulnerability
 

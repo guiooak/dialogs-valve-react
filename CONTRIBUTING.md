@@ -48,7 +48,7 @@ To add one:
 yarn changeset
 ```
 
-The CLI will ask you to pick a bump type and write a one-line summary. It creates a markdown file under `.changeset/` — commit it with your change.
+The CLI will ask you to pick a bump type and write a one-line summary. It creates a markdown file under `.changeset/`. Commit it with your change.
 
 ### Picking the bump type
 
@@ -76,9 +76,9 @@ This satisfies the CI check without bumping the version.
 
 For most changes, one sentence is fine. For breaking changes, the body should answer:
 
-1. **What changed?** — the API delta
-2. **Why?** — one-clause motivation
-3. **How to migrate?** — a concrete before/after snippet
+1. **What changed?** The API delta
+2. **Why?** One-clause motivation
+3. **How to migrate?** A concrete before/after snippet
 
 Example:
 

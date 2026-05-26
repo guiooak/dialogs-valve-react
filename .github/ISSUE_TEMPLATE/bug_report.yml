@@ -79,7 +79,7 @@ body:
     id: environment
     attributes:
       label: Environment
-      description: Node version, browser, OS — whatever is relevant.
+      description: Node version, browser, OS. Whatever is relevant.
       placeholder: Node 20, Chrome 130, macOS 14
     validations:
       required: false
@@ -88,6 +88,6 @@ body:
     id: additional
     attributes:
       label: Additional context
-      description: Anything else that might help — screenshots, error stack traces, etc.
+      description: Anything else that might help. Screenshots, error stack traces, etc.
     validations:
       required: false
