@@ -68,26 +68,31 @@ declare module "@dialogs-valve/react" {
 
 ### 2. Setup the Provider
 
-Wrap your app (or the sub-tree where dialogs live) with `DialogsValveProvider`, imported directly from the library. Pass your `dialogs` registry as a prop.
+Wrap your app (or the sub-tree where dialogs live) with `DialogsValveProvider`. Pass `onNavigate` and `locationSearch` from your router — this is the recommended setup for reliable, reactive integration.
 
 ```tsx
 // App.tsx
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { DialogsValveProvider } from "@dialogs-valve/react";
 import { dialogs } from "./dialogs-valve-registry";
 
 function App() {
   const navigate = useNavigate();
+  const { search } = useLocation();
 
   return (
-    <DialogsValveProvider dialogs={dialogs} onNavigate={navigate}>
+    <DialogsValveProvider
+      dialogs={dialogs}
+      onNavigate={navigate}
+      locationSearch={search}
+    >
       <MainLayout />
     </DialogsValveProvider>
   );
 }
 ```
 
-The `onNavigate` prop is optional — if omitted, the library falls back to `window.history.pushState` directly.
+Both props are optional — if omitted, the library falls back to `window.history.pushState` for navigation and a built-in `popstate` + `MutationObserver` listener for tracking URL changes. The fallbacks work in most cases but are less reliable than passing values directly from your router.
 
 ### 3. Trigger dialogs anywhere
 
@@ -196,16 +201,13 @@ declare module "@dialogs-valve/react" {
 
 If `canShow` returns `false`, the dialog is skipped and a `console.warn` is emitted.
 
-### Router-Reactive Search via `locationSearch`
+### Router Integration
 
-By default the library tracks URL changes through a `popstate` listener and a `MutationObserver` — a reliable heuristic that works with most routers without any extra setup.
-
-If your router exposes a reactive search string (React Router's `useLocation().search`, Next.js's `useSearchParams()`, TanStack Router's `useLocation().searchStr`, etc.), you can pass it directly as `locationSearch`. The library will use it as the controlled source of truth and skip the built-in listener entirely, giving you a tighter, more predictable integration.
+The recommended way to set up the provider is to pass both `onNavigate` and `locationSearch` from your router. This gives the library a first-class, reactive integration — navigation goes through your router's history API and URL state is read directly from a value your router already tracks.
 
 **React Router v6:**
 ```tsx
 import { useLocation, useNavigate } from "react-router-dom";
-import { DialogsValveProvider } from "@dialogs-valve/react";
 
 function App() {
   const navigate = useNavigate();
@@ -227,7 +229,6 @@ function App() {
 ```tsx
 "use client";
 import { useRouter, useSearchParams } from "next/navigation";
-import { DialogsValveProvider } from "@dialogs-valve/react";
 
 function AppShell() {
   const router = useRouter();
@@ -245,7 +246,37 @@ function AppShell() {
 }
 ```
 
-When `locationSearch` is omitted, the built-in listener takes over with no configuration required.
+**TanStack Router:**
+```tsx
+import { useNavigate, useLocation } from "@tanstack/react-router";
+
+function App() {
+  const navigate = useNavigate();
+  const { searchStr } = useLocation();
+
+  return (
+    <DialogsValveProvider
+      dialogs={dialogs}
+      onNavigate={(url) => navigate({ to: url })}
+      locationSearch={searchStr}
+    >
+      <MainLayout />
+    </DialogsValveProvider>
+  );
+}
+```
+
+**Without a router (fallback mode):**
+
+If you don't have access to router hooks — for example in a plain Vite app without a router, or in a context where the router isn't available — both props can be omitted. The library will fall back to `window.history.pushState` for navigation and a built-in `popstate` + `MutationObserver` listener for tracking URL changes.
+
+```tsx
+<DialogsValveProvider dialogs={dialogs}>
+  <MainLayout />
+</DialogsValveProvider>
+```
+
+This fallback works in most cases, but the router-integrated setup is preferred whenever possible.
 
 ### Global Configuration
 
