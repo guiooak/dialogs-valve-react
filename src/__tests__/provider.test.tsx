@@ -341,6 +341,143 @@ describe("DialogsValveProvider — invalid dialog keys in URL", () => {
 });
 
 // ---------------------------------------------------------------------------
+// locationSearch prop (controlled mode)
+// ---------------------------------------------------------------------------
+
+describe("DialogsValveProvider — locationSearch prop", () => {
+  beforeEach(() => {
+    vi.mocked(getLocationSearch).mockReturnValue("");
+    vi.mocked(addLocationChangeListener).mockClear();
+  });
+
+  it("uses locationSearch as the source of truth instead of getLocationSearch", () => {
+    // getLocationSearch returns nothing, but locationSearch says dialog-a is open
+    const { result } = renderHook(() => useDialogsValve()!, {
+      wrapper: function Wrapper({ children }: { children: React.ReactNode }) {
+        return (
+          <DialogsValveProvider
+            dialogs={dialogs}
+            locationSearch="?dialog=dialog-a"
+          >
+            {children}
+          </DialogsValveProvider>
+        );
+      },
+    });
+    expect(result.current.isOpen("dialog-a")).toBe(true);
+  });
+
+  it("extracts dialog props from locationSearch", () => {
+    const { result } = renderHook(() => useDialogsValve()!, {
+      wrapper: function Wrapper({ children }: { children: React.ReactNode }) {
+        return (
+          <DialogsValveProvider
+            dialogs={dialogs}
+            locationSearch="?dialog=dialog-a&dialog-a.title=Hello&dialog-a.count=number.5"
+          >
+            {children}
+          </DialogsValveProvider>
+        );
+      },
+    });
+    expect(result.current.getDialogProps("dialog-a")).toEqual({
+      title: "Hello",
+      count: 5,
+    });
+  });
+
+  it("updates isOpen when locationSearch prop changes", () => {
+    let locationSearch = "";
+    function Wrapper({ children }: { children: React.ReactNode }) {
+      return (
+        <DialogsValveProvider dialogs={dialogs} locationSearch={locationSearch}>
+          {children}
+        </DialogsValveProvider>
+      );
+    }
+    const { result, rerender } = renderHook(() => useDialogsValve()!, {
+      wrapper: Wrapper,
+    });
+
+    expect(result.current.isOpen("dialog-a")).toBe(false);
+
+    locationSearch = "?dialog=dialog-a";
+    rerender();
+
+    expect(result.current.isOpen("dialog-a")).toBe(true);
+  });
+
+  it("does not register a location change listener when locationSearch is provided", () => {
+    renderHook(() => useDialogsValve()!, {
+      wrapper: function Wrapper({ children }: { children: React.ReactNode }) {
+        return (
+          <DialogsValveProvider
+            dialogs={dialogs}
+            locationSearch="?dialog=dialog-a"
+          >
+            {children}
+          </DialogsValveProvider>
+        );
+      },
+    });
+    expect(vi.mocked(addLocationChangeListener)).not.toHaveBeenCalled();
+  });
+
+  it("does not apply getLocationSearch after navigate — state stays driven by the prop", () => {
+    // locationSearch says dialog-a is open; getLocationSearch returns empty (diverged state)
+    const onNavigate = vi.fn();
+    const { result } = renderHook(() => useDialogsValve()!, {
+      wrapper: function Wrapper({ children }: { children: React.ReactNode }) {
+        return (
+          <DialogsValveProvider
+            dialogs={dialogs}
+            locationSearch="?dialog=dialog-a"
+            onNavigate={onNavigate}
+          >
+            {children}
+          </DialogsValveProvider>
+        );
+      },
+    });
+
+    // Simulate navigate being called; getLocationSearch still returns ""
+    act(() => {
+      result.current.closeDialog("dialog-a");
+    });
+
+    // isOpen should still reflect the locationSearch prop ("?dialog=dialog-a"),
+    // not the internal getLocationSearch() result (""), because the prop is in control
+    expect(result.current.isOpen("dialog-a")).toBe(true);
+    expect(onNavigate).toHaveBeenCalled();
+  });
+
+  it("still calls onNavigate when locationSearch is provided", () => {
+    const onNavigate = vi.fn();
+    const { result } = renderHook(() => useDialogsValve()!, {
+      wrapper: function Wrapper({ children }: { children: React.ReactNode }) {
+        return (
+          <DialogsValveProvider
+            dialogs={dialogs}
+            locationSearch=""
+            onNavigate={onNavigate}
+          >
+            {children}
+          </DialogsValveProvider>
+        );
+      },
+    });
+
+    act(() => {
+      result.current.openDialog("dialog-a");
+    });
+
+    expect(onNavigate).toHaveBeenCalledWith(
+      expect.stringContaining("dialog=dialog-a"),
+    );
+  });
+});
+
+// ---------------------------------------------------------------------------
 // closeDelay config
 // ---------------------------------------------------------------------------
 

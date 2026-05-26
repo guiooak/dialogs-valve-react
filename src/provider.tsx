@@ -53,6 +53,14 @@ export type DialogsValveProviderProps<
   /** Optional configuration overrides. */
   config?: DialogsValveConfig;
 
+  /**
+   * Reactive URL search string supplied by the host router
+   * (e.g. `useLocation().search` from React Router).
+   * When provided, overrides the library's internal location listener.
+   * When omitted, the library falls back to its built-in listener.
+   */
+  locationSearch?: string;
+
   children: ReactNode;
 };
 
@@ -68,6 +76,7 @@ export function DialogsValveProvider<
   dialogs,
   permissions,
   config,
+  locationSearch,
   children,
 }: DialogsValveProviderProps<TKeys, TPermissions>) {
   const dialogParamKey = config?.dialogParamKey ?? DIALOG_MAIN_KEY;
@@ -82,23 +91,28 @@ export function DialogsValveProvider<
   // -----------------------------------------------------------------------
   const [search, setSearch] = useState(() => getLocationSearch());
 
-  // Listen for location change (popstate or router-triggered DOM changes)
+  // Listen for location change (popstate or router-triggered DOM changes).
+  // Skipped when locationSearch is provided — the parent handles reactivity.
   useEffect(() => {
+    if (locationSearch !== undefined) return;
     return addLocationChangeListener(() => {
       const currentSearch = getLocationSearch();
       if (currentSearch !== search) {
         setSearch(currentSearch);
       }
     });
-  }, [search]);
+  }, [search, locationSearch]);
+
+  // When locationSearch is provided it acts as the controlled source of truth.
+  const effectiveSearch = locationSearch ?? search;
 
   const activeKeys = useMemo(
     () =>
       validateDialogKeys<TKeys>(
-        getActiveDialogKeys(search, dialogParamKey),
+        getActiveDialogKeys(effectiveSearch, dialogParamKey),
         validDialogKeys,
       ),
-    [search, dialogParamKey, validDialogKeys],
+    [effectiveSearch, dialogParamKey, validDialogKeys],
   );
 
   // -----------------------------------------------------------------------
@@ -112,11 +126,13 @@ export function DialogsValveProvider<
         pushState(url);
       }
 
-      // Update search immediately so React re-renders without waiting for events
-      // (This is crucial when using pushState as it doesn't trigger observers immediately)
-      setSearch(getLocationSearch());
+      // When locationSearch is not provided, optimistically sync internal state
+      // so React re-renders without waiting for the listener to fire.
+      if (locationSearch === undefined) {
+        setSearch(getLocationSearch());
+      }
     },
-    [onNavigate],
+    [onNavigate, locationSearch],
   );
 
   // -----------------------------------------------------------------------
@@ -147,8 +163,8 @@ export function DialogsValveProvider<
 
   const getDialogProps = useCallback(
     (key: TKeys): Record<string, DialogPropValue> =>
-      extractDialogProps(search, key),
-    [search],
+      extractDialogProps(effectiveSearch, key),
+    [effectiveSearch],
   );
 
   const contextValue: DialogsValveContextValue<TKeys> = useMemo(
@@ -182,7 +198,7 @@ export function DialogsValveProvider<
       {children}
       <DialogsController
         activeKeys={activeKeys}
-        search={search}
+        search={effectiveSearch}
         closeDelay={closeDelay}
         dialogs={dialogs}
         permissions={permissions}
