@@ -106,9 +106,8 @@ export function buildDialogUrl<TKeys extends string = RegisteredDialogKeys>(
 ): string {
   const { props, overlap = true, pathName } = options ?? {};
 
-  // When targeting a different route via `pathName`, start from a clean query
-  // string — merging against the current route's dialog params is meaningless
-  // for a cross-route link. Otherwise build on top of the current location.
+  // For a cross-route `pathName`, start from a clean query; otherwise build on
+  // top of the current location's params.
   const params = new URLSearchParams(
     pathName === undefined ? getLocationSearch() : "",
   );
@@ -131,7 +130,7 @@ export function buildDialogUrl<TKeys extends string = RegisteredDialogKeys>(
   }
 
   const search = params.toString();
-  return pathName === undefined ? `?${search}` : `${pathName}?${search}`;
+  return !pathName ? `?${search}` : `${pathName}?${search}`;
 }
 
 function buildDialogPropParamKey(dialogKey: string, propKey: string): string {
