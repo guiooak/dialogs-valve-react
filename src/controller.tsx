@@ -87,21 +87,23 @@ export function DialogsController<
     const entry = dialogs[key];
     if (!entry) return null;
 
-    // Guard check
-    if (entry.canShow) {
-      // Defer guarded dialogs while permissions are still loading. Evaluating
-      // canShow against not-yet-loaded permissions can flash the dialog or throw
-      // if the guard assumes a shape that isn't populated yet.
-      if (permissionsLoading) {
-        return null;
-      }
+    // Defer guarded dialogs while permissions are still loading. Evaluating
+    // canShow against not-yet-loaded permissions can flash the dialog or throw
+    // if the guard assumes a shape that isn't populated yet.
+    if (entry.canShow && permissionsLoading) {
+      return null;
+    }
 
-      if (permissions !== undefined && !entry.canShow(permissions)) {
-        console.error(
-          `[dialogs-valve] Dialog "${key}" blocked by canShow guard.`,
-        );
-        return null;
-      }
+    // Guard check
+    if (
+      entry.canShow &&
+      permissions !== undefined &&
+      !entry.canShow(permissions)
+    ) {
+      console.error(
+        `[dialogs-valve] Dialog "${key}" blocked by canShow guard.`,
+      );
+      return null;
     }
 
     const { Component } = entry;
