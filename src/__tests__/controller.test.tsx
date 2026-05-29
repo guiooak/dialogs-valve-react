@@ -494,11 +494,11 @@ describe("DialogsController — canShow guard", () => {
 });
 
 // ---------------------------------------------------------------------------
-// permissionsReady gating
+// permissionsLoading gating
 // ---------------------------------------------------------------------------
 
-describe("DialogsController — permissionsReady", () => {
-  it("defers a guarded dialog while permissionsReady is false", () => {
+describe("DialogsController — permissionsLoading", () => {
+  it("defers a guarded dialog while permissionsLoading is true", () => {
     // Arrange
     const guardedDialogs: DialogMap = {
       "guarded-dialog": { Component: MockDialog, canShow: () => true },
@@ -511,7 +511,7 @@ describe("DialogsController — permissionsReady", () => {
         closeDelay={300}
         dialogs={guardedDialogs}
         permissions={{}}
-        permissionsReady={false}
+        permissionsLoading={true}
         closeDialog={vi.fn()}
       />,
     );
@@ -519,7 +519,7 @@ describe("DialogsController — permissionsReady", () => {
     expect(screen.queryByTestId("dialog")).not.toBeInTheDocument();
   });
 
-  it("does not evaluate canShow while permissionsReady is false", () => {
+  it("does not evaluate canShow while permissionsLoading is true", () => {
     // Arrange — a guard that would throw if run against missing permissions
     const canShow = vi.fn(() => true);
     const guardedDialogs: DialogMap = {
@@ -532,7 +532,7 @@ describe("DialogsController — permissionsReady", () => {
         search=""
         closeDelay={300}
         dialogs={guardedDialogs}
-        permissionsReady={false}
+        permissionsLoading={true}
         closeDialog={vi.fn()}
       />,
     );
@@ -540,7 +540,7 @@ describe("DialogsController — permissionsReady", () => {
     expect(canShow).not.toHaveBeenCalled();
   });
 
-  it("renders the guarded dialog once permissionsReady flips to true", () => {
+  it("renders the guarded dialog once permissionsLoading flips to false", () => {
     // Arrange
     const guardedDialogs: DialogMap = {
       "guarded-dialog": { Component: MockDialog, canShow: () => true },
@@ -552,7 +552,7 @@ describe("DialogsController — permissionsReady", () => {
         closeDelay={300}
         dialogs={guardedDialogs}
         permissions={{}}
-        permissionsReady={false}
+        permissionsLoading={true}
         closeDialog={vi.fn()}
       />,
     );
@@ -564,7 +564,7 @@ describe("DialogsController — permissionsReady", () => {
         closeDelay={300}
         dialogs={guardedDialogs}
         permissions={{}}
-        permissionsReady={true}
+        permissionsLoading={false}
         closeDialog={vi.fn()}
       />,
     );
@@ -572,7 +572,7 @@ describe("DialogsController — permissionsReady", () => {
     expect(screen.getByTestId("dialog")).toBeInTheDocument();
   });
 
-  it("still renders an unguarded dialog while permissionsReady is false", () => {
+  it("still renders an unguarded dialog while permissionsLoading is true", () => {
     // Arrange — no canShow, so the dialog is never gated
     const mixedDialogs: DialogMap = {
       "plain-dialog": { Component: MockDialog },
@@ -584,7 +584,7 @@ describe("DialogsController — permissionsReady", () => {
         search=""
         closeDelay={300}
         dialogs={mixedDialogs}
-        permissionsReady={false}
+        permissionsLoading={true}
         closeDialog={vi.fn()}
       />,
     );

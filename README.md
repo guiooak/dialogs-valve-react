@@ -203,7 +203,7 @@ If `canShow` returns `false`, the dialog is skipped and a `console.warn` is emit
 
 #### Async permissions
 
-When permissions load asynchronously (e.g. fetched after mount), the first render would otherwise evaluate guards against incomplete data — a guarded dialog can flash in then disappear, or a guard that reads `permissions.isAdmin` can throw on `undefined`. Pass `permissionsReady` to tell the library when permissions are safe to guard against:
+When permissions load asynchronously (e.g. fetched after mount), the first render would otherwise evaluate guards against incomplete data — a guarded dialog can flash in then disappear, or a guard that reads `permissions.isAdmin` can throw on `undefined`. Pass `permissionsLoading` to tell the library while permissions are not yet safe to guard against:
 
 ```tsx
 function App() {
@@ -213,7 +213,7 @@ function App() {
     <DialogsValveProvider
       dialogs={dialogs}
       permissions={permissions}
-      permissionsReady={!isLoading}
+      permissionsLoading={isLoading}
     >
       <MainLayout />
     </DialogsValveProvider>
@@ -221,7 +221,7 @@ function App() {
 }
 ```
 
-While `permissionsReady` is `false`, dialogs with a `canShow` guard are **deferred** (not rendered) until it flips to `true`. Dialogs without a guard are unaffected and always render. It defaults to `true`, so omitting it leaves behavior unchanged.
+While `permissionsLoading` is `true`, dialogs with a `canShow` guard are **deferred** (not rendered) until it flips back to `false`. Dialogs without a guard are unaffected and always render. It defaults to `false`, so omitting it leaves behavior unchanged.
 
 ### Router Integration
 
@@ -326,7 +326,7 @@ Import directly from `@dialogs-valve/react`.
 | `dialogs` | `DialogMap` | — | **Required.** Your dialog registry map. |
 | `onNavigate` | `(url: string) => void` | `history.pushState` | Navigation callback from your router. |
 | `permissions` | `TPermissions` | — | Permissions context forwarded to `canShow` guards. |
-| `permissionsReady` | `boolean` | `true` | While `false`, dialogs with a `canShow` guard are deferred until permissions resolve. Unguarded dialogs are unaffected. |
+| `permissionsLoading` | `boolean` | `false` | While `true`, dialogs with a `canShow` guard are deferred until permissions resolve. Unguarded dialogs are unaffected. |
 | `config` | `DialogsValveConfig` | — | Override `dialogParamKey` or `closeDelay`. |
 | `locationSearch` | `string` | — | Reactive search string from your router (e.g. `useLocation().search`). When provided, overrides the built-in location listener. |
 | `children` | `ReactNode` | — | Your app content. |
