@@ -1,5 +1,6 @@
 # @dialogs-valve/react
 
+[![npm](https://img.shields.io/npm/v/@dialogs-valve/react.svg)](https://www.npmjs.com/package/@dialogs-valve/react)
 ![CI](https://github.com/guiooak/dialogs-valve-react/actions/workflows/ci.yml/badge.svg?branch=main)
 ![Deploy Demo](https://github.com/guiooak/dialogs-valve-react/actions/workflows/deploy-demo.yml/badge.svg?branch=main)
 [![codecov](https://codecov.io/gh/guiooak/dialogs-valve-react/graph/badge.svg)](https://codecov.io/gh/guiooak/dialogs-valve-react)
