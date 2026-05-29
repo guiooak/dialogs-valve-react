@@ -7,7 +7,7 @@ import {
   DIALOG_BOOLEAN_PREFIX,
   DIALOG_MAIN_KEY,
 } from "./constants";
-import { getLocationSearch } from "./browser";
+import { getLocationSearch, getLocationPathname } from "./browser";
 import type {
   BuildDialogUrlOptions,
   DialogPropValue,
@@ -130,7 +130,7 @@ export function buildDialogUrl<TKeys extends string = RegisteredDialogKeys>(
   }
 
   const search = params.toString();
-  return !pathName ? `?${search}` : `${pathName}?${search}`;
+  return `${pathName ?? getLocationPathname()}?${search}`;
 }
 
 function buildDialogPropParamKey(dialogKey: string, propKey: string): string {
@@ -148,14 +148,15 @@ export function buildCloseDialogUrl<
     .filter((key) => key.includes(dialogKey))
     .forEach((key) => params.delete(key));
 
+  const pathname = getLocationPathname();
   const search = params.toString();
-  return search ? `?${search}` : "";
+  return search ? `${pathname}?${search}` : pathname;
 }
 
 export function buildCloseAllDialogsUrl(
   _dialogParamKey: string = DIALOG_MAIN_KEY,
 ): string {
-  return "";
+  return getLocationPathname();
 }
 
 function serializePropValue(value: DialogPropValue): string {
