@@ -492,3 +492,116 @@ describe("DialogsController — canShow guard", () => {
     expect(screen.getByTestId("dialog")).toBeInTheDocument();
   });
 });
+
+// ---------------------------------------------------------------------------
+// onGuardBlocked callback
+// ---------------------------------------------------------------------------
+
+describe("DialogsController — onGuardBlocked callback", () => {
+  beforeEach(() => {
+    vi.spyOn(console, "error").mockImplementation(() => {});
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it("calls onGuardBlocked with the key and permissions when a guard denies a dialog", () => {
+    // Arrange
+    const onGuardBlocked = vi.fn();
+    const permissions = { isAdmin: false };
+    const guardedDialogs: DialogMap = {
+      "guarded-dialog": { Component: MockDialog, canShow: () => false },
+    };
+    // Act
+    render(
+      <DialogsController
+        activeKeys={["guarded-dialog"]}
+        search=""
+        closeDelay={300}
+        dialogs={guardedDialogs}
+        permissions={permissions}
+        onGuardBlocked={onGuardBlocked}
+        closeDialog={vi.fn()}
+      />,
+    );
+    // Assert
+    expect(onGuardBlocked).toHaveBeenCalledWith("guarded-dialog", permissions);
+  });
+
+  it("does not call onGuardBlocked when the guard passes", () => {
+    // Arrange
+    const onGuardBlocked = vi.fn();
+    const guardedDialogs: DialogMap = {
+      "guarded-dialog": { Component: MockDialog, canShow: () => true },
+    };
+    // Act
+    render(
+      <DialogsController
+        activeKeys={["guarded-dialog"]}
+        search=""
+        closeDelay={300}
+        dialogs={guardedDialogs}
+        permissions={{}}
+        onGuardBlocked={onGuardBlocked}
+        closeDialog={vi.fn()}
+      />,
+    );
+    // Assert
+    expect(onGuardBlocked).not.toHaveBeenCalled();
+  });
+
+  it("does not call onGuardBlocked when permissions are not provided", () => {
+    // Arrange — guard is skipped entirely without permissions, so nothing is blocked
+    const onGuardBlocked = vi.fn();
+    const guardedDialogs: DialogMap = {
+      "guarded-dialog": { Component: MockDialog, canShow: () => false },
+    };
+    // Act
+    render(
+      <DialogsController
+        activeKeys={["guarded-dialog"]}
+        search=""
+        closeDelay={300}
+        dialogs={guardedDialogs}
+        onGuardBlocked={onGuardBlocked}
+        closeDialog={vi.fn()}
+      />,
+    );
+    // Assert
+    expect(onGuardBlocked).not.toHaveBeenCalled();
+  });
+
+  it("does not re-fire onGuardBlocked on a re-render that keeps the same blocked key", () => {
+    // Arrange
+    const onGuardBlocked = vi.fn();
+    const guardedDialogs: DialogMap = {
+      "guarded-dialog": { Component: MockDialog, canShow: () => false },
+    };
+    const { rerender } = render(
+      <DialogsController
+        activeKeys={["guarded-dialog"]}
+        search=""
+        closeDelay={300}
+        dialogs={guardedDialogs}
+        permissions={{}}
+        onGuardBlocked={onGuardBlocked}
+        closeDialog={vi.fn()}
+      />,
+    );
+    // Act — re-render with the same blocked key (only an unrelated prop changes)
+    rerender(
+      <DialogsController
+        activeKeys={["guarded-dialog"]}
+        search="?noise=1"
+        closeDelay={300}
+        dialogs={guardedDialogs}
+        permissions={{}}
+        onGuardBlocked={onGuardBlocked}
+        closeDialog={vi.fn()}
+      />,
+    );
+    // Assert — still only fired once for the single block event
+    expect(onGuardBlocked).toHaveBeenCalledTimes(1);
+  });
+});

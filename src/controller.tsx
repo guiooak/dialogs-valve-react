@@ -16,6 +16,7 @@ type DialogsControllerProps<
   dialogs: DialogMap<TKeys, TPermissions>;
   permissions?: TPermissions;
   closeDialog: (key: string) => void;
+  onGuardBlocked?: (key: TKeys, permissions: TPermissions) => void;
 };
 
 // ---------------------------------------------------------------------------
@@ -32,6 +33,7 @@ export function DialogsController<
   dialogs,
   permissions,
   closeDialog,
+  onGuardBlocked,
 }: DialogsControllerProps<TKeys, TPermissions>) {
   // -------------------------------------------------------------------------
   // Rendered Keys State Machine
@@ -48,6 +50,14 @@ export function DialogsController<
   const propsCacheRef = useRef<
     Partial<Record<TKeys, Record<string, DialogPropValue>>>
   >({});
+
+  // Keep the latest callback and permissions in refs so the guard-blocked
+  // notification effect can read them without firing every time their identity
+  // changes — it should only fire when the set of blocked keys changes.
+  const onGuardBlockedRef = useRef(onGuardBlocked);
+  onGuardBlockedRef.current = onGuardBlocked;
+  const permissionsRef = useRef(permissions);
+  permissionsRef.current = permissions;
 
   // Synchronously update renderedKeys if new dialogs are opened.
   // This prevents the "one-frame blank gap" when a drawer first appears.
@@ -81,16 +91,19 @@ export function DialogsController<
   // -------------------------------------------------------------------------
   // Render dialog components
   // -------------------------------------------------------------------------
-  return renderedKeys.map((key) => {
+  // Keys whose canShow guard denied them this render. Collected here (render
+  // stays pure) and reported afterward in an effect, since canShow may run
+  // multiple times during a render.
+  const blockedKeys: TKeys[] = [];
+
+  const elements = renderedKeys.map((key) => {
     const entry = dialogs[key];
     if (!entry) return null;
 
     // Guard check
     if (entry.canShow && permissions !== undefined) {
       if (!entry.canShow(permissions)) {
-        console.error(
-          `[dialogs-valve] Dialog "${key}" blocked by canShow guard.`,
-        );
+        blockedKeys.push(key);
         return null;
       }
     }
@@ -116,4 +129,21 @@ export function DialogsController<
       />
     );
   });
+
+  // Notify once per "block event": when the set of blocked keys changes, log a
+  // warning and invoke onGuardBlocked. Keyed on a stable signature so it does
+  // not re-fire on unrelated re-renders; the effect closure captures the
+  // blockedKeys from the render that produced this signature.
+  const blockedSignature = blockedKeys.join(",");
+  useEffect(() => {
+    blockedKeys.forEach((key) => {
+      console.error(
+        `[dialogs-valve] Dialog "${key}" blocked by canShow guard.`,
+      );
+      onGuardBlockedRef.current?.(key, permissionsRef.current as TPermissions);
+    });
+    // blockedKeys is intentionally read via closure; blockedSignature gates re-runs.
+  }, [blockedSignature]);
+
+  return elements;
 }

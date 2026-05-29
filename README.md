@@ -199,7 +199,23 @@ declare module "@dialogs-valve/react" {
 </DialogsValveProvider>
 ```
 
-If `canShow` returns `false`, the dialog is skipped and a `console.warn` is emitted.
+If `canShow` returns `false`, the dialog is skipped and an error is logged to the console.
+
+#### Reacting to a blocked dialog
+
+Because dialog state lives in the URL, a user can land directly on a guarded dialog via a shared/deep link they aren't permitted to open — which by default results in *nothing visible*. To surface feedback (a toast, a redirect, an analytics event), pass `onGuardBlocked`:
+
+```tsx
+<DialogsValveProvider
+  dialogs={dialogs}
+  permissions={{ isAdmin: currentUser.role === "admin" }}
+  onGuardBlocked={(key, permissions) => toast.error(`Not authorized: ${key}`)}
+>
+  <App />
+</DialogsValveProvider>
+```
+
+`onGuardBlocked` is invoked from an effect (not during render) and fires once per block event, so it's safe to run side effects inside it — keep your `canShow` guards pure.
 
 ### Router Integration
 
@@ -304,6 +320,7 @@ Import directly from `@dialogs-valve/react`.
 | `dialogs` | `DialogMap` | — | **Required.** Your dialog registry map. |
 | `onNavigate` | `(url: string) => void` | `history.pushState` | Navigation callback from your router. |
 | `permissions` | `TPermissions` | — | Permissions context forwarded to `canShow` guards. |
+| `onGuardBlocked` | `(key, permissions) => void` | — | Called when a `canShow` guard denies a dialog. Fires from an effect, once per block event. |
 | `config` | `DialogsValveConfig` | — | Override `dialogParamKey` or `closeDelay`. |
 | `locationSearch` | `string` | — | Reactive search string from your router (e.g. `useLocation().search`). When provided, overrides the built-in location listener. |
 | `children` | `ReactNode` | — | Your app content. |

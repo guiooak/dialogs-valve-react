@@ -50,6 +50,15 @@ export type DialogsValveProviderProps<
   /** Optional permissions context passed to `canShow` guards. */
   permissions?: TPermissions;
 
+  /**
+   * Called when a `canShow` guard denies a dialog (e.g. a user lands on a
+   * guarded dialog via a deep link they aren't permitted to open). Useful for
+   * surfacing feedback — a toast, a redirect, or an analytics event.
+   *
+   * Invoked from an effect (not during render), once per block event.
+   */
+  onGuardBlocked?: (key: TKeys, permissions: TPermissions) => void;
+
   /** Optional configuration overrides. */
   config?: DialogsValveConfig;
 
@@ -75,6 +84,7 @@ export function DialogsValveProvider<
   onNavigate,
   dialogs,
   permissions,
+  onGuardBlocked,
   config,
   locationSearch,
   children,
@@ -202,6 +212,7 @@ export function DialogsValveProvider<
         closeDelay={closeDelay}
         dialogs={dialogs}
         permissions={permissions}
+        onGuardBlocked={onGuardBlocked}
         closeDialog={closeDialog}
       />
     </DialogsValveContext.Provider>
