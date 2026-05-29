@@ -57,7 +57,7 @@ export type DialogsValveProviderProps<
    *
    * Invoked from an effect (not during render), once per block event.
    */
-  onGuardBlocked?: (key: TKeys, permissions: TPermissions) => void;
+  onGuardBlocked?: (key: TKeys, permissions?: TPermissions) => void;
 
   /** Optional configuration overrides. */
   config?: DialogsValveConfig;

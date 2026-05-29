@@ -16,7 +16,7 @@ type DialogsControllerProps<
   dialogs: DialogMap<TKeys, TPermissions>;
   permissions?: TPermissions;
   closeDialog: (key: string) => void;
-  onGuardBlocked?: (key: TKeys, permissions: TPermissions) => void;
+  onGuardBlocked?: (key: TKeys, permissions?: TPermissions) => void;
 };
 
 // ---------------------------------------------------------------------------
@@ -50,14 +50,6 @@ export function DialogsController<
   const propsCacheRef = useRef<
     Partial<Record<TKeys, Record<string, DialogPropValue>>>
   >({});
-
-  // Keep the latest callback and permissions in refs so the guard-blocked
-  // notification effect can read them without firing every time their identity
-  // changes — it should only fire when the set of blocked keys changes.
-  const onGuardBlockedRef = useRef(onGuardBlocked);
-  onGuardBlockedRef.current = onGuardBlocked;
-  const permissionsRef = useRef(permissions);
-  permissionsRef.current = permissions;
 
   // Synchronously update renderedKeys if new dialogs are opened.
   // This prevents the "one-frame blank gap" when a drawer first appears.
@@ -132,17 +124,19 @@ export function DialogsController<
 
   // Notify once per "block event": when the set of blocked keys changes, log a
   // warning and invoke onGuardBlocked. Keyed on a stable signature so it does
-  // not re-fire on unrelated re-renders; the effect closure captures the
-  // blockedKeys from the render that produced this signature.
+  // not re-fire on unrelated re-renders. blockedKeys, onGuardBlocked and
+  // permissions are read via closure — the effect only runs right after the
+  // commit that produced this signature, so the closure values match the
+  // triggering render. Note: while the same key stays blocked, a later change
+  // to permissions won't re-fire — permissions reflects the block event only.
   const blockedSignature = blockedKeys.join(",");
   useEffect(() => {
     blockedKeys.forEach((key) => {
       console.error(
         `[dialogs-valve] Dialog "${key}" blocked by canShow guard.`,
       );
-      onGuardBlockedRef.current?.(key, permissionsRef.current as TPermissions);
+      onGuardBlocked?.(key, permissions);
     });
-    // blockedKeys is intentionally read via closure; blockedSignature gates re-runs.
   }, [blockedSignature]);
 
   return elements;
