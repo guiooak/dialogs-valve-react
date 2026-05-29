@@ -1,4 +1,5 @@
 import React, { useContext } from "react";
+import { Link } from "react-router-dom";
 import { PermissionsContext } from "../App";
 import { useDialogsValve } from "@dialogs-valve/react";
 import UrlInspector from "../components/UrlInspector/UrlInspector";
@@ -20,6 +21,7 @@ const HomePage: React.FC = () => (
       <ReplacementSection />
       <PropsSection />
       <PermissionsSection />
+      <CrossRouteSection />
       <InstallSection />
     </main>
     <footer className="showcase-footer">
@@ -453,7 +455,65 @@ export const dialogs = {
   );
 };
 
-// ─── Section 6: Installation ──────────────────────────────────────────────────
+// ─── Section 6: Cross-Route & Basename Safety ────────────────────────────────
+
+const CrossRouteSection: React.FC = () => {
+  const code = `// On /sub-route, open a dialog the usual way:
+openDialog('cross-route-drawer');
+// URL → /sub-route?dialog=cross-route-drawer
+
+// Close it:
+closeDialog('cross-route-drawer');
+// URL → /sub-route   (path kept, query cleared)
+
+// Same-route builders return RELATIVE urls
+// (?dialog=…, or ? when empty) so your router
+// resolves them against the current location —
+// the pathname and any basename are preserved,
+// never dropped to "/" and never duplicated.`;
+
+  return (
+    <SectionLayout
+      id="cross-route"
+      label="06"
+      title="Cross-Route & Basename Safety"
+      description={
+        <>
+          Opening and closing dialogs keeps you on whatever route you're on. The
+          same-route URL builders stay <strong>relative</strong>, so the router
+          preserves the current pathname and any configured{" "}
+          <code>basename</code> — closing a dialog never bounces you back to the
+          origin (<code>/</code>).
+        </>
+      }
+      demo={
+        <div className="demo-card">
+          <p className="demo-card-hint">
+            This demo runs under a router <code>basename</code>. Visit a real
+            sub-route, open a dialog there, and confirm closing it keeps you on
+            the sub-route.
+          </p>
+          <div className="demo-actions">
+            <Link to="/sub-route" className="btn btn-primary">
+              Go to /sub-route →
+            </Link>
+          </div>
+          <div className="demo-url-preview">
+            <span className="demo-url-label">URL transition on close</span>
+            <div className="demo-url-transition">
+              <code>/sub-route?dialog=cross-route-drawer</code>
+              <span className="demo-arrow">→</span>
+              <code>/sub-route</code>
+            </div>
+          </div>
+        </div>
+      }
+      code={<CodeBlock code={code} filename="cross-route.tsx" />}
+    />
+  );
+};
+
+// ─── Section 7: Installation ──────────────────────────────────────────────────
 
 const InstallSection: React.FC = () => {
   const installCode = `npm install @dialogs-valve/react
@@ -504,7 +564,7 @@ function SettingsButton() {
   return (
     <section id="installation" className="section section-install">
       <div className="section-meta">
-        <span className="section-number">06</span>
+        <span className="section-number">07</span>
         <h2 className="section-title">Quick Start</h2>
       </div>
       <p className="section-desc">

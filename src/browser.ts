@@ -21,23 +21,6 @@ export function getLocationSearch(): string {
 }
 
 /**
- * Retrieves the current URL pathname (e.g., `"/admin/users"`).
- *
- * Used so the URL builders can return a complete, unambiguous path instead of
- * a search-only relative string. A search-only result (e.g. `"?foo=bar"`, or
- * `""` when no params remain) forces the consumer's router to resolve the
- * destination path, which is inconsistent across routers and commonly bounces
- * the user back to the origin (`"/"`).
- *
- * @returns {string} The current pathname or `"/"` if `window` is not available
- *                   (e.g., during Server-Side Rendering).
- */
-export function getLocationPathname(): string {
-  if (!window) return "/";
-  return window.location.pathname;
-}
-
-/**
  * Subscribes to location changes (both `popstate` and indicative DOM changes).
  *
  * Since many SPA routers use `pushState` and `replaceState` which do not

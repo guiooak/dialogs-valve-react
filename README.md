@@ -174,9 +174,9 @@ const href = buildDialogUrl("user-create", {
 <Link to={href}>Add user</Link>;
 ```
 
-The same option works on `openDialog("user-create", { pathName: "/admin/users" })`. When `pathName` is omitted, the URL is rooted at the current location's pathname (the default). Unlike same-route links, the current route's existing dialog params are **not** merged, since overlapping against another route is meaningless.
+The same option works on `openDialog("user-create", { pathName: "/admin/users" })`. When `pathName` is omitted, the URL is relative to the current location (the default). Unlike same-route links, the current route's existing dialog params are **not** merged, since overlapping against another route is meaningless.
 
-Every URL builder returns a path-rooted URL — `buildDialogUrl`, `buildCloseDialogUrl`, and `buildCloseAllDialogsUrl` all keep the current pathname rather than emitting a search-only string. Closing a dialog therefore keeps you on the page where you opened it (e.g. `/admin/users?dialog=user-view` → `/admin/users`) instead of bouncing back to the origin (`/`).
+Same-route builders (`buildDialogUrl` without `pathName`, `buildCloseDialogUrl`, `buildCloseAllDialogsUrl`) return a **relative**, search-only URL (e.g. `?dialog=user-view`, or `?` when no dialogs remain). The current pathname is intentionally left off so your router resolves it against the current location — preserving both the pathname and any router `basename`. Closing a dialog therefore keeps you on the page where you opened it instead of bouncing back to the origin (`/`); opening one never duplicates a configured `basename`.
 
 ### Dialog Replacement
 

@@ -1,7 +1,8 @@
 import { createContext, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Routes, Route, useNavigate } from "react-router-dom";
 import { DialogsValveProvider } from "@dialogs-valve/react";
 import HomePage from "./pages/HomePage";
+import SubRoutePage from "./pages/SubRoutePage";
 import { dialogs } from "./dialogs-valve-registry";
 
 export type AppPermissionsContextValue = {
@@ -23,7 +24,10 @@ function App() {
         onNavigate={navigate}
         permissions={{ isAdmin }}
       >
-        <HomePage />
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/sub-route" element={<SubRoutePage />} />
+        </Routes>
       </DialogsValveProvider>
     </PermissionsContext.Provider>
   );

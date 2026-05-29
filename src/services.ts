@@ -7,7 +7,7 @@ import {
   DIALOG_BOOLEAN_PREFIX,
   DIALOG_MAIN_KEY,
 } from "./constants";
-import { getLocationSearch, getLocationPathname } from "./browser";
+import { getLocationSearch } from "./browser";
 import type {
   BuildDialogUrlOptions,
   DialogPropValue,
@@ -129,8 +129,14 @@ export function buildDialogUrl<TKeys extends string = RegisteredDialogKeys>(
     );
   }
 
+  // Emit a relative URL (search only) when staying on the current route, so the
+  // consumer's router resolves it against the *current location* — preserving
+  // the pathname and any router `basename`. Returning an absolute pathname here
+  // would double the basename under routers (e.g. react-router) that re-prepend
+  // it on navigate. For a cross-route `pathName`, the consumer supplies the
+  // (basename-relative) target path explicitly.
   const search = params.toString();
-  return `${pathName ?? getLocationPathname()}?${search}`;
+  return pathName === undefined ? `?${search}` : `${pathName}?${search}`;
 }
 
 function buildDialogPropParamKey(dialogKey: string, propKey: string): string {
@@ -148,15 +154,20 @@ export function buildCloseDialogUrl<
     .filter((key) => key.includes(dialogKey))
     .forEach((key) => params.delete(key));
 
-  const pathname = getLocationPathname();
+  // Return a relative URL so the router resolves it against the current
+  // location, keeping the pathname (and any `basename`) intact. When no params
+  // remain we return "?" rather than "" — an empty string leaves the existing
+  // query in place under the `history.pushState` fallback (and resolves to the
+  // origin for `<a href="">`), whereas "?" reliably clears the query on every
+  // navigation path while staying on the current route.
   const search = params.toString();
-  return search ? `${pathname}?${search}` : pathname;
+  return search ? `?${search}` : "?";
 }
 
 export function buildCloseAllDialogsUrl(
   _dialogParamKey: string = DIALOG_MAIN_KEY,
 ): string {
-  return getLocationPathname();
+  return "?";
 }
 
 function serializePropValue(value: DialogPropValue): string {
