@@ -237,6 +237,28 @@ Because dialog state lives in the URL, a user can land directly on a guarded dia
 
 `onUnauthorized` is invoked from an effect (not during render) and fires once per block event, so it's safe to run side effects inside it — keep your `canShow` guards pure.
 
+#### Async permissions
+
+When permissions load asynchronously (e.g. fetched after mount), the first render would otherwise evaluate guards against incomplete data — a guarded dialog can flash in then disappear, or a guard that reads `permissions.isAdmin` can throw on `undefined`. Pass `permissionsLoading` to tell the library while permissions are not yet safe to guard against:
+
+```tsx
+function App() {
+  const { permissions, isLoading } = usePermissions();
+
+  return (
+    <DialogsValveProvider
+      dialogs={dialogs}
+      permissions={permissions}
+      permissionsLoading={isLoading}
+    >
+      <MainLayout />
+    </DialogsValveProvider>
+  );
+}
+```
+
+While `permissionsLoading` is `true`, dialogs with a `canShow` guard are **deferred** (not rendered) until it flips back to `false`. Dialogs without a guard are unaffected and always render. It defaults to `false`, so omitting it leaves behavior unchanged.
+
 ### Router Integration
 
 The recommended way to set up the provider is to pass both `onNavigate` and `locationSearch` from your router. This gives the library a first-class, reactive integration — navigation goes through your router's history API and URL state is read directly from a value your router already tracks.
@@ -340,6 +362,7 @@ Import directly from `@dialogs-valve/react`.
 | `dialogs` | `DialogMap` | — | **Required.** Your dialog registry map. |
 | `onNavigate` | `(url: string) => void` | `history.pushState` | Navigation callback from your router. |
 | `permissions` | `TPermissions` | — | Permissions context forwarded to `canShow` guards. |
+| `permissionsLoading` | `boolean` | `false` | While `true`, dialogs with a `canShow` guard are deferred until permissions resolve. Unguarded dialogs are unaffected. |
 | `onUnauthorized` | `(key, permissions?) => void` | — | Called when a `canShow` guard denies a dialog. Fires from an effect, once per block event. |
 | `config` | `DialogsValveConfig` | — | Override `dialogParamKey` or `closeDelay`. |
 | `locationSearch` | `string` | — | Reactive search string from your router (e.g. `useLocation().search`). When provided, overrides the built-in location listener. |

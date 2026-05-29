@@ -50,6 +50,19 @@ export type DialogsValveProviderProps<
   /** Optional permissions context passed to `canShow` guards. */
   permissions?: TPermissions;
 
+  /**
+   * Whether `permissions` are still loading and not yet safe to guard against.
+   *
+   * Set to `true` while permissions load asynchronously: guarded dialogs
+   * (those with a `canShow`) are deferred — not rendered — until it flips back
+   * to `false`. This prevents a guarded dialog from flashing on first paint, or
+   * a guard throwing when it reads a not-yet-populated permissions shape.
+   * Dialogs without a `canShow` are unaffected and always render.
+   *
+   * @default false
+   */
+  permissionsLoading?: boolean;
+
   /** Called when a `canShow` guard denies a dialog — useful for surfacing
    * feedback (toast, redirect, analytics). Fires from an effect, once per block event. */
   onUnauthorized?: (key: TKeys, permissions?: TPermissions) => void;
@@ -79,6 +92,7 @@ export function DialogsValveProvider<
   onNavigate,
   dialogs,
   permissions,
+  permissionsLoading,
   onUnauthorized,
   config,
   locationSearch,
@@ -207,6 +221,7 @@ export function DialogsValveProvider<
         closeDelay={closeDelay}
         dialogs={dialogs}
         permissions={permissions}
+        permissionsLoading={permissionsLoading}
         onUnauthorized={onUnauthorized}
         closeDialog={closeDialog}
       />

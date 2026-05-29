@@ -15,6 +15,7 @@ type DialogsControllerProps<
   closeDelay: number;
   dialogs: DialogMap<TKeys, TPermissions>;
   permissions?: TPermissions;
+  permissionsLoading?: boolean;
   closeDialog: (key: string) => void;
   onUnauthorized?: (key: TKeys, permissions?: TPermissions) => void;
 };
@@ -32,6 +33,7 @@ export function DialogsController<
   closeDelay,
   dialogs,
   permissions,
+  permissionsLoading = false,
   closeDialog,
   onUnauthorized,
 }: DialogsControllerProps<TKeys, TPermissions>) {
@@ -89,6 +91,13 @@ export function DialogsController<
   const elements = renderedKeys.map((key) => {
     const entry = dialogs[key];
     if (!entry) return null;
+
+    // Defer guarded dialogs while permissions are still loading. Evaluating
+    // canShow against not-yet-loaded permissions can flash the dialog or throw
+    // if the guard assumes a shape that isn't populated yet.
+    if (entry.canShow && permissionsLoading) {
+      return null;
+    }
 
     // Guard check
     if (entry.canShow && !!permissions && !entry.canShow(permissions)) {
