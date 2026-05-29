@@ -1,5 +1,6 @@
 # @dialogs-valve/react
 
+[![npm](https://img.shields.io/npm/v/@dialogs-valve/react.svg)](https://www.npmjs.com/package/@dialogs-valve/react)
 ![CI](https://github.com/guiooak/dialogs-valve-react/actions/workflows/ci.yml/badge.svg?branch=main)
 ![Deploy Demo](https://github.com/guiooak/dialogs-valve-react/actions/workflows/deploy-demo.yml/badge.svg?branch=main)
 [![codecov](https://codecov.io/gh/guiooak/dialogs-valve-react/graph/badge.svg)](https://codecov.io/gh/guiooak/dialogs-valve-react)
@@ -156,6 +157,25 @@ openDialog("settings");
 
 Each dialog only removes itself when closed — the others remain open.
 
+### Cross-Route Dialog Links
+
+To open a dialog on a **different** route — "navigate to another page _and_ open a dialog there" from a single click — pass `pathName`. The helper builds a fresh query string rooted at that path, keeping prop serialization intact.
+
+```tsx
+import { buildDialogUrl } from "@dialogs-valve/react";
+
+// A link on /list that lands on /admin/users with a dialog already open:
+const href = buildDialogUrl("user-create", {
+  props: { tab: "details" },
+  pathName: "/admin/users",
+});
+// → "/admin/users?dialog=user-create&user-create.tab=details"
+
+<Link to={href}>Add user</Link>;
+```
+
+The same option works on `openDialog("user-create", { pathName: "/admin/users" })`. When `pathName` is omitted, the URL is relative to the current location (the default). Unlike same-route links, the current route's existing dialog params are **not** merged, since overlapping against another route is meaningless.
+
 ### Dialog Replacement
 
 Pass `overlap: false` to remove all currently open dialogs and open the new one in their place. Useful for wizard-style flows or exclusive panels.
@@ -199,7 +219,23 @@ declare module "@dialogs-valve/react" {
 </DialogsValveProvider>
 ```
 
-If `canShow` returns `false`, the dialog is skipped and a `console.warn` is emitted.
+If `canShow` returns `false`, the dialog is skipped and an error is logged to the console.
+
+#### Reacting to a blocked dialog
+
+Because dialog state lives in the URL, a user can land directly on a guarded dialog via a shared/deep link they aren't permitted to open — which by default results in *nothing visible*. To surface feedback (a toast, a redirect, an analytics event), pass `onUnauthorized`:
+
+```tsx
+<DialogsValveProvider
+  dialogs={dialogs}
+  permissions={{ isAdmin: currentUser.role === "admin" }}
+  onUnauthorized={(key, permissions) => toast.error(`Not authorized: ${key}`)}
+>
+  <App />
+</DialogsValveProvider>
+```
+
+`onUnauthorized` is invoked from an effect (not during render) and fires once per block event, so it's safe to run side effects inside it — keep your `canShow` guards pure.
 
 #### Async permissions
 
@@ -327,6 +363,7 @@ Import directly from `@dialogs-valve/react`.
 | `onNavigate` | `(url: string) => void` | `history.pushState` | Navigation callback from your router. |
 | `permissions` | `TPermissions` | — | Permissions context forwarded to `canShow` guards. |
 | `permissionsLoading` | `boolean` | `false` | While `true`, dialogs with a `canShow` guard are deferred until permissions resolve. Unguarded dialogs are unaffected. |
+| `onUnauthorized` | `(key, permissions?) => void` | — | Called when a `canShow` guard denies a dialog. Fires from an effect, once per block event. |
 | `config` | `DialogsValveConfig` | — | Override `dialogParamKey` or `closeDelay`. |
 | `locationSearch` | `string` | — | Reactive search string from your router (e.g. `useLocation().search`). When provided, overrides the built-in location listener. |
 | `children` | `ReactNode` | — | Your app content. |
@@ -339,7 +376,7 @@ Import directly from `@dialogs-valve/react`. Must be called within a `DialogsVal
 
 | Method / Property | Signature | Description |
 |-------------------|-----------|-------------|
-| `openDialog` | `(key, options?) => void` | Opens a dialog. Optionally pass `props` or `overlap`. |
+| `openDialog` | `(key, options?) => void` | Opens a dialog. Optionally pass `props`, `overlap`, or `pathName`. |
 | `closeDialog` | `(key) => void` | Closes a specific dialog by key. |
 | `closeAllDialogs` | `() => void` | Closes all currently open dialogs. |
 | `isOpen` | `(key) => boolean` | Returns `true` if the dialog is currently open. |
@@ -382,6 +419,7 @@ Passed as the second argument to `openDialog` or `buildDialogUrl`.
 |--------|------|---------|-------------|
 | `props` | `Record<string, string \| number \| boolean>` | — | Custom props to serialize into the URL. |
 | `overlap` | `boolean` | `true` | `true` to stack on existing dialogs; `false` to replace them. |
+| `pathName` | `string` | current path | Root the URL at this path instead of the current location, for cross-route dialog links. When set, the query is built from scratch (current params are not merged). |
 
 ---
 

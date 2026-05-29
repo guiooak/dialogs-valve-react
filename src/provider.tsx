@@ -63,6 +63,10 @@ export type DialogsValveProviderProps<
    */
   permissionsLoading?: boolean;
 
+  /** Called when a `canShow` guard denies a dialog — useful for surfacing
+   * feedback (toast, redirect, analytics). Fires from an effect, once per block event. */
+  onUnauthorized?: (key: TKeys, permissions?: TPermissions) => void;
+
   /** Optional configuration overrides. */
   config?: DialogsValveConfig;
 
@@ -89,6 +93,7 @@ export function DialogsValveProvider<
   dialogs,
   permissions,
   permissionsLoading,
+  onUnauthorized,
   config,
   locationSearch,
   children,
@@ -217,6 +222,7 @@ export function DialogsValveProvider<
         dialogs={dialogs}
         permissions={permissions}
         permissionsLoading={permissionsLoading}
+        onUnauthorized={onUnauthorized}
         closeDialog={closeDialog}
       />
     </DialogsValveContext.Provider>

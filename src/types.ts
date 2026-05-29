@@ -103,6 +103,17 @@ export type BuildDialogUrlOptions = {
    * When `false`, all existing dialog params are replaced.
    */
   overlap?: boolean;
+
+  /**
+   * Root the URL at this path for cross-route dialog links, building a fresh
+   * query string (current params are not merged). Omit for a URL relative to
+   * the current location.
+   *
+   * @example
+   *   buildDialogUrl("user-create", { pathName: "/admin/users" });
+   *   // → "/admin/users?dialog=user-create"
+   */
+  pathName?: string;
 };
 
 // ---------------------------------------------------------------------------

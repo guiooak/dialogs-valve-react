@@ -17,6 +17,7 @@ type DialogsControllerProps<
   permissions?: TPermissions;
   permissionsLoading?: boolean;
   closeDialog: (key: string) => void;
+  onUnauthorized?: (key: TKeys, permissions?: TPermissions) => void;
 };
 
 // ---------------------------------------------------------------------------
@@ -34,6 +35,7 @@ export function DialogsController<
   permissions,
   permissionsLoading = false,
   closeDialog,
+  onUnauthorized,
 }: DialogsControllerProps<TKeys, TPermissions>) {
   // -------------------------------------------------------------------------
   // Rendered Keys State Machine
@@ -83,7 +85,10 @@ export function DialogsController<
   // -------------------------------------------------------------------------
   // Render dialog components
   // -------------------------------------------------------------------------
-  return renderedKeys.map((key) => {
+  // Keys denied by canShow this render; onUnauthorized fires for them below.
+  const blockedKeys: TKeys[] = [];
+
+  const elements = renderedKeys.map((key) => {
     const entry = dialogs[key];
     if (!entry) return null;
 
@@ -95,14 +100,8 @@ export function DialogsController<
     }
 
     // Guard check
-    if (
-      entry.canShow &&
-      permissions !== undefined &&
-      !entry.canShow(permissions)
-    ) {
-      console.error(
-        `[dialogs-valve] Dialog "${key}" blocked by canShow guard.`,
-      );
+    if (entry.canShow && !!permissions && !entry.canShow(permissions)) {
+      blockedKeys.push(key);
       return null;
     }
 
@@ -110,6 +109,7 @@ export function DialogsController<
     const isCurrentlyOpen = activeKeys.includes(key);
 
     let dialogProps: Record<string, DialogPropValue>;
+
     if (isCurrentlyOpen) {
       dialogProps = extractDialogProps(search, key);
       propsCacheRef.current[key] = dialogProps;
@@ -127,4 +127,18 @@ export function DialogsController<
       />
     );
   });
+
+  // Fire onUnauthorized once per block event: gated on blockedSignature so it
+  // runs only when the blocked-key set changes, not on unrelated re-renders.
+  const blockedSignature = blockedKeys.join(", ");
+  useEffect(() => {
+    blockedKeys.forEach((key) => {
+      console.error(
+        `[dialogs-valve] Dialog "${key}" blocked by canShow guard.`,
+      );
+      onUnauthorized?.(key, permissions);
+    });
+  }, [blockedSignature]);
+
+  return elements;
 }
