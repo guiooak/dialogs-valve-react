@@ -340,7 +340,7 @@ Import directly from `@dialogs-valve/react`.
 | `dialogs` | `DialogMap` | — | **Required.** Your dialog registry map. |
 | `onNavigate` | `(url: string) => void` | `history.pushState` | Navigation callback from your router. |
 | `permissions` | `TPermissions` | — | Permissions context forwarded to `canShow` guards. |
-| `onUnauthorized` | `(key, permissions) => void` | — | Called when a `canShow` guard denies a dialog. Fires from an effect, once per block event. |
+| `onUnauthorized` | `(key, permissions?) => void` | — | Called when a `canShow` guard denies a dialog. Fires from an effect, once per block event. |
 | `config` | `DialogsValveConfig` | — | Override `dialogParamKey` or `closeDelay`. |
 | `locationSearch` | `string` | — | Reactive search string from your router (e.g. `useLocation().search`). When provided, overrides the built-in location listener. |
 | `children` | `ReactNode` | — | Your app content. |
