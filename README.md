@@ -156,6 +156,25 @@ openDialog("settings");
 
 Each dialog only removes itself when closed — the others remain open.
 
+### Cross-Route Dialog Links
+
+To open a dialog on a **different** route — "navigate to another page _and_ open a dialog there" from a single click — pass `pathName`. The helper builds a fresh query string rooted at that path, keeping prop serialization intact.
+
+```tsx
+import { buildDialogUrl } from "@dialogs-valve/react";
+
+// A link on /list that lands on /admin/users with a dialog already open:
+const href = buildDialogUrl("user-create", {
+  props: { tab: "details" },
+  pathName: "/admin/users",
+});
+// → "/admin/users?dialog=user-create&user-create.tab=details"
+
+<Link to={href}>Add user</Link>;
+```
+
+The same option works on `openDialog("user-create", { pathName: "/admin/users" })`. When `pathName` is omitted, the URL is relative to the current location (the default). Unlike same-route links, the current route's existing dialog params are **not** merged, since overlapping against another route is meaningless.
+
 ### Dialog Replacement
 
 Pass `overlap: false` to remove all currently open dialogs and open the new one in their place. Useful for wizard-style flows or exclusive panels.
@@ -316,7 +335,7 @@ Import directly from `@dialogs-valve/react`. Must be called within a `DialogsVal
 
 | Method / Property | Signature | Description |
 |-------------------|-----------|-------------|
-| `openDialog` | `(key, options?) => void` | Opens a dialog. Optionally pass `props` or `overlap`. |
+| `openDialog` | `(key, options?) => void` | Opens a dialog. Optionally pass `props`, `overlap`, or `pathName`. |
 | `closeDialog` | `(key) => void` | Closes a specific dialog by key. |
 | `closeAllDialogs` | `() => void` | Closes all currently open dialogs. |
 | `isOpen` | `(key) => boolean` | Returns `true` if the dialog is currently open. |
@@ -359,6 +378,7 @@ Passed as the second argument to `openDialog` or `buildDialogUrl`.
 |--------|------|---------|-------------|
 | `props` | `Record<string, string \| number \| boolean>` | — | Custom props to serialize into the URL. |
 | `overlap` | `boolean` | `true` | `true` to stack on existing dialogs; `false` to replace them. |
+| `pathName` | `string` | current path | Root the URL at this path instead of the current location, for cross-route dialog links. When set, the query is built from scratch (current params are not merged). |
 
 ---
 

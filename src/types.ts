@@ -103,6 +103,23 @@ export type BuildDialogUrlOptions = {
    * When `false`, all existing dialog params are replaced.
    */
   overlap?: boolean;
+
+  /**
+   * Root the returned URL at this path instead of the current location.
+   *
+   * Useful for "navigate to another route **and** open a dialog there" links,
+   * e.g. a button on `/list` that opens a dialog on `/admin/users`.
+   *
+   * When provided, the query string is built from scratch (the current
+   * location's params are **not** merged, since `overlap` against a different
+   * route is meaningless). When omitted, behavior is unchanged and the URL is
+   * relative to the current location.
+   *
+   * @example
+   *   buildDialogUrl("user-create", { pathName: "/admin/users" });
+   *   // → "/admin/users?dialog=user-create"
+   */
+  pathName?: string;
 };
 
 // ---------------------------------------------------------------------------

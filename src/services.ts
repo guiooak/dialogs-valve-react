@@ -104,9 +104,14 @@ export function buildDialogUrl<TKeys extends string = RegisteredDialogKeys>(
   options?: BuildDialogUrlOptions,
   dialogParamKey: string = DIALOG_MAIN_KEY,
 ): string {
-  const { props, overlap = true } = options ?? {};
+  const { props, overlap = true, pathName } = options ?? {};
 
-  const params = new URLSearchParams(getLocationSearch());
+  // When targeting a different route via `pathName`, start from a clean query
+  // string — merging against the current route's dialog params is meaningless
+  // for a cross-route link. Otherwise build on top of the current location.
+  const params = new URLSearchParams(
+    pathName === undefined ? getLocationSearch() : "",
+  );
 
   const allDialogKeys = params.getAll(dialogParamKey);
 
@@ -125,7 +130,8 @@ export function buildDialogUrl<TKeys extends string = RegisteredDialogKeys>(
     );
   }
 
-  return `?${params.toString()}`;
+  const search = params.toString();
+  return pathName === undefined ? `?${search}` : `${pathName}?${search}`;
 }
 
 function buildDialogPropParamKey(dialogKey: string, propKey: string): string {
