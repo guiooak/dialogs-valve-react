@@ -492,3 +492,103 @@ describe("DialogsController — canShow guard", () => {
     expect(screen.getByTestId("dialog")).toBeInTheDocument();
   });
 });
+
+// ---------------------------------------------------------------------------
+// permissionsReady gating
+// ---------------------------------------------------------------------------
+
+describe("DialogsController — permissionsReady", () => {
+  it("defers a guarded dialog while permissionsReady is false", () => {
+    // Arrange
+    const guardedDialogs: DialogMap = {
+      "guarded-dialog": { Component: MockDialog, canShow: () => true },
+    };
+    // Act
+    render(
+      <DialogsController
+        activeKeys={["guarded-dialog"]}
+        search=""
+        closeDelay={300}
+        dialogs={guardedDialogs}
+        permissions={{}}
+        permissionsReady={false}
+        closeDialog={vi.fn()}
+      />,
+    );
+    // Assert — not rendered yet
+    expect(screen.queryByTestId("dialog")).not.toBeInTheDocument();
+  });
+
+  it("does not evaluate canShow while permissionsReady is false", () => {
+    // Arrange — a guard that would throw if run against missing permissions
+    const canShow = vi.fn(() => true);
+    const guardedDialogs: DialogMap = {
+      "guarded-dialog": { Component: MockDialog, canShow },
+    };
+    // Act
+    render(
+      <DialogsController
+        activeKeys={["guarded-dialog"]}
+        search=""
+        closeDelay={300}
+        dialogs={guardedDialogs}
+        permissionsReady={false}
+        closeDialog={vi.fn()}
+      />,
+    );
+    // Assert — the guard was never called
+    expect(canShow).not.toHaveBeenCalled();
+  });
+
+  it("renders the guarded dialog once permissionsReady flips to true", () => {
+    // Arrange
+    const guardedDialogs: DialogMap = {
+      "guarded-dialog": { Component: MockDialog, canShow: () => true },
+    };
+    const { rerender } = render(
+      <DialogsController
+        activeKeys={["guarded-dialog"]}
+        search=""
+        closeDelay={300}
+        dialogs={guardedDialogs}
+        permissions={{}}
+        permissionsReady={false}
+        closeDialog={vi.fn()}
+      />,
+    );
+    // Act — permissions resolve
+    rerender(
+      <DialogsController
+        activeKeys={["guarded-dialog"]}
+        search=""
+        closeDelay={300}
+        dialogs={guardedDialogs}
+        permissions={{}}
+        permissionsReady={true}
+        closeDialog={vi.fn()}
+      />,
+    );
+    // Assert — now visible
+    expect(screen.getByTestId("dialog")).toBeInTheDocument();
+  });
+
+  it("still renders an unguarded dialog while permissionsReady is false", () => {
+    // Arrange — no canShow, so the dialog is never gated
+    const mixedDialogs: DialogMap = {
+      "plain-dialog": { Component: MockDialog },
+    };
+    // Act
+    render(
+      <DialogsController
+        activeKeys={["plain-dialog"]}
+        search=""
+        closeDelay={300}
+        dialogs={mixedDialogs}
+        permissionsReady={false}
+        closeDialog={vi.fn()}
+      />,
+    );
+    // Assert
+    expect(screen.getByTestId("dialog")).toBeInTheDocument();
+  });
+});

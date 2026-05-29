@@ -50,6 +50,19 @@ export type DialogsValveProviderProps<
   /** Optional permissions context passed to `canShow` guards. */
   permissions?: TPermissions;
 
+  /**
+   * Whether `permissions` are fully resolved and safe to guard against.
+   *
+   * Set to `false` while permissions load asynchronously: guarded dialogs
+   * (those with a `canShow`) are deferred — not rendered — until it flips to
+   * `true`. This prevents a guarded dialog from flashing on first paint, or a
+   * guard throwing when it reads a not-yet-populated permissions shape. Dialogs
+   * without a `canShow` are unaffected and always render.
+   *
+   * @default true
+   */
+  permissionsReady?: boolean;
+
   /** Optional configuration overrides. */
   config?: DialogsValveConfig;
 
@@ -75,6 +88,7 @@ export function DialogsValveProvider<
   onNavigate,
   dialogs,
   permissions,
+  permissionsReady,
   config,
   locationSearch,
   children,
@@ -202,6 +216,7 @@ export function DialogsValveProvider<
         closeDelay={closeDelay}
         dialogs={dialogs}
         permissions={permissions}
+        permissionsReady={permissionsReady}
         closeDialog={closeDialog}
       />
     </DialogsValveContext.Provider>

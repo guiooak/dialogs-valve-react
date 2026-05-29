@@ -201,6 +201,28 @@ declare module "@dialogs-valve/react" {
 
 If `canShow` returns `false`, the dialog is skipped and a `console.warn` is emitted.
 
+#### Async permissions
+
+When permissions load asynchronously (e.g. fetched after mount), the first render would otherwise evaluate guards against incomplete data — a guarded dialog can flash in then disappear, or a guard that reads `permissions.isAdmin` can throw on `undefined`. Pass `permissionsReady` to tell the library when permissions are safe to guard against:
+
+```tsx
+function App() {
+  const { permissions, isLoading } = usePermissions();
+
+  return (
+    <DialogsValveProvider
+      dialogs={dialogs}
+      permissions={permissions}
+      permissionsReady={!isLoading}
+    >
+      <MainLayout />
+    </DialogsValveProvider>
+  );
+}
+```
+
+While `permissionsReady` is `false`, dialogs with a `canShow` guard are **deferred** (not rendered) until it flips to `true`. Dialogs without a guard are unaffected and always render. It defaults to `true`, so omitting it leaves behavior unchanged.
+
 ### Router Integration
 
 The recommended way to set up the provider is to pass both `onNavigate` and `locationSearch` from your router. This gives the library a first-class, reactive integration — navigation goes through your router's history API and URL state is read directly from a value your router already tracks.
@@ -304,6 +326,7 @@ Import directly from `@dialogs-valve/react`.
 | `dialogs` | `DialogMap` | — | **Required.** Your dialog registry map. |
 | `onNavigate` | `(url: string) => void` | `history.pushState` | Navigation callback from your router. |
 | `permissions` | `TPermissions` | — | Permissions context forwarded to `canShow` guards. |
+| `permissionsReady` | `boolean` | `true` | While `false`, dialogs with a `canShow` guard are deferred until permissions resolve. Unguarded dialogs are unaffected. |
 | `config` | `DialogsValveConfig` | — | Override `dialogParamKey` or `closeDelay`. |
 | `locationSearch` | `string` | — | Reactive search string from your router (e.g. `useLocation().search`). When provided, overrides the built-in location listener. |
 | `children` | `ReactNode` | — | Your app content. |

@@ -15,6 +15,7 @@ type DialogsControllerProps<
   closeDelay: number;
   dialogs: DialogMap<TKeys, TPermissions>;
   permissions?: TPermissions;
+  permissionsReady?: boolean;
   closeDialog: (key: string) => void;
 };
 
@@ -31,6 +32,7 @@ export function DialogsController<
   closeDelay,
   dialogs,
   permissions,
+  permissionsReady = true,
   closeDialog,
 }: DialogsControllerProps<TKeys, TPermissions>) {
   // -------------------------------------------------------------------------
@@ -86,8 +88,15 @@ export function DialogsController<
     if (!entry) return null;
 
     // Guard check
-    if (entry.canShow && permissions !== undefined) {
-      if (!entry.canShow(permissions)) {
+    if (entry.canShow) {
+      // Defer guarded dialogs until permissions are ready. Evaluating canShow
+      // against not-yet-loaded permissions can flash the dialog or throw if the
+      // guard assumes a shape that isn't populated yet.
+      if (!permissionsReady) {
+        return null;
+      }
+
+      if (permissions !== undefined && !entry.canShow(permissions)) {
         console.error(
           `[dialogs-valve] Dialog "${key}" blocked by canShow guard.`,
         );
