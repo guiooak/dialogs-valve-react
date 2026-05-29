@@ -33,6 +33,15 @@ const HomePage: React.FC = () => (
             className="footer-link"
           >
             GitHub
+          </a>{" "}
+          —{" "}
+          <a
+            href="https://www.npmjs.com/package/@dialogs-valve/react"
+            target="_blank"
+            rel="noreferrer"
+            className="footer-link"
+          >
+            npm
           </a>
         </p>
       </div>
