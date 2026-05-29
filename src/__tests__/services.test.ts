@@ -437,6 +437,43 @@ describe("buildDialogUrl", () => {
     expect(url.searchParams.get("dlg")).toBe("my-dialog");
     expect(url.searchParams.has("dialog")).toBe(false);
   });
+
+  it("roots the URL at pathName when provided", () => {
+    // Arrange / Act
+    const result = buildDialogUrl("user-create", { pathName: "/admin/users" });
+    // Assert
+    expect(result).toBe("/admin/users?dialog=user-create");
+  });
+
+  it("serializes props onto a pathName-rooted URL", () => {
+    // Arrange / Act
+    const result = buildDialogUrl("user-create", {
+      props: { tab: "details" },
+      pathName: "/admin/users",
+    });
+    // Assert
+    expect(result).toBe(
+      "/admin/users?dialog=user-create&user-create.tab=details",
+    );
+  });
+
+  it("does not merge the current location's params when pathName is provided", () => {
+    // Arrange — the current route already has an open dialog
+    vi.mocked(getLocationSearch).mockReturnValue("?dialog=existing");
+    // Act — building a cross-route link should start from a clean query
+    const result = buildDialogUrl("user-create", { pathName: "/admin/users" });
+    // Assert
+    const url = new URL(result, "http://x");
+    expect(url.pathname).toBe("/admin/users");
+    expect(url.searchParams.getAll("dialog")).toEqual(["user-create"]);
+  });
+
+  it("combines pathName with a custom dialogParamKey", () => {
+    // Arrange / Act
+    const result = buildDialogUrl("user-create", { pathName: "/admin" }, "dlg");
+    // Assert
+    expect(result).toBe("/admin?dlg=user-create");
+  });
 });
 
 // ---------------------------------------------------------------------------
