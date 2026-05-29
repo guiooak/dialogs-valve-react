@@ -93,11 +93,6 @@ export function DialogsController<
     // Guard check
     if (entry.canShow && !!permissions && !entry.canShow(permissions)) {
       blockedKeys.push(key);
-
-      console.error(
-        `[dialogs-valve] Dialog "${key}" blocked by canShow guard.`,
-      );
-
       return null;
     }
 
@@ -126,7 +121,7 @@ export function DialogsController<
 
   // Fire onUnauthorized once per block event: gated on blockedSignature so it
   // runs only when the blocked-key set changes, not on unrelated re-renders.
-  const blockedSignature = blockedKeys.join(",");
+  const blockedSignature = blockedKeys.join(", ");
   useEffect(() => {
     blockedKeys.forEach((key) => {
       console.error(
