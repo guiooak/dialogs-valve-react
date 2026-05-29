@@ -50,13 +50,8 @@ export type DialogsValveProviderProps<
   /** Optional permissions context passed to `canShow` guards. */
   permissions?: TPermissions;
 
-  /**
-   * Called when a `canShow` guard denies a dialog (e.g. a user lands on a
-   * guarded dialog via a deep link they aren't permitted to open). Useful for
-   * surfacing feedback — a toast, a redirect, or an analytics event.
-   *
-   * Invoked from an effect (not during render), once per block event.
-   */
+  /** Called when a `canShow` guard denies a dialog — useful for surfacing
+   * feedback (toast, redirect, analytics). Fires from an effect, once per block event. */
   onGuardBlocked?: (key: TKeys, permissions?: TPermissions) => void;
 
   /** Optional configuration overrides. */

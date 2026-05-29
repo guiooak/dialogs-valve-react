@@ -83,9 +83,7 @@ export function DialogsController<
   // -------------------------------------------------------------------------
   // Render dialog components
   // -------------------------------------------------------------------------
-  // Keys whose canShow guard denied them this render. Collected here (render
-  // stays pure) and reported afterward in an effect, since canShow may run
-  // multiple times during a render.
+  // Keys denied by canShow this render; onGuardBlocked fires for them below.
   const blockedKeys: TKeys[] = [];
 
   const elements = renderedKeys.map((key) => {
@@ -126,13 +124,8 @@ export function DialogsController<
     );
   });
 
-  // Notify once per "block event": when the set of blocked keys changes, log a
-  // warning and invoke onGuardBlocked. Keyed on a stable signature so it does
-  // not re-fire on unrelated re-renders. blockedKeys, onGuardBlocked and
-  // permissions are read via closure — the effect only runs right after the
-  // commit that produced this signature, so the closure values match the
-  // triggering render. Note: while the same key stays blocked, a later change
-  // to permissions won't re-fire — permissions reflects the block event only.
+  // Fire onGuardBlocked once per block event: gated on blockedSignature so it
+  // runs only when the blocked-key set changes, not on unrelated re-renders.
   const blockedSignature = blockedKeys.join(",");
   useEffect(() => {
     blockedKeys.forEach((key) => {
