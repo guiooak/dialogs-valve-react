@@ -93,17 +93,21 @@ export function DialogsController<
     if (!entry) return null;
 
     // Guard check
-    if (entry.canShow && permissions !== undefined) {
-      if (!entry.canShow(permissions)) {
-        blockedKeys.push(key);
-        return null;
-      }
+    if (entry.canShow && !!permissions && !entry.canShow(permissions)) {
+      blockedKeys.push(key);
+
+      console.error(
+        `[dialogs-valve] Dialog "${key}" blocked by canShow guard.`,
+      );
+
+      return null;
     }
 
     const { Component } = entry;
     const isCurrentlyOpen = activeKeys.includes(key);
 
     let dialogProps: Record<string, DialogPropValue>;
+
     if (isCurrentlyOpen) {
       dialogProps = extractDialogProps(search, key);
       propsCacheRef.current[key] = dialogProps;
