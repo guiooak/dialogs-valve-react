@@ -492,3 +492,116 @@ describe("DialogsController — canShow guard", () => {
     expect(screen.getByTestId("dialog")).toBeInTheDocument();
   });
 });
+
+// ---------------------------------------------------------------------------
+// onUnauthorized callback
+// ---------------------------------------------------------------------------
+
+describe("DialogsController — onUnauthorized callback", () => {
+  beforeEach(() => {
+    vi.spyOn(console, "error").mockImplementation(() => {});
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it("calls onUnauthorized with the key and permissions when a guard denies a dialog", () => {
+    // Arrange
+    const onUnauthorized = vi.fn();
+    const permissions = { isAdmin: false };
+    const guardedDialogs: DialogMap = {
+      "guarded-dialog": { Component: MockDialog, canShow: () => false },
+    };
+    // Act
+    render(
+      <DialogsController
+        activeKeys={["guarded-dialog"]}
+        search=""
+        closeDelay={300}
+        dialogs={guardedDialogs}
+        permissions={permissions}
+        onUnauthorized={onUnauthorized}
+        closeDialog={vi.fn()}
+      />,
+    );
+    // Assert
+    expect(onUnauthorized).toHaveBeenCalledWith("guarded-dialog", permissions);
+  });
+
+  it("does not call onUnauthorized when the guard passes", () => {
+    // Arrange
+    const onUnauthorized = vi.fn();
+    const guardedDialogs: DialogMap = {
+      "guarded-dialog": { Component: MockDialog, canShow: () => true },
+    };
+    // Act
+    render(
+      <DialogsController
+        activeKeys={["guarded-dialog"]}
+        search=""
+        closeDelay={300}
+        dialogs={guardedDialogs}
+        permissions={{}}
+        onUnauthorized={onUnauthorized}
+        closeDialog={vi.fn()}
+      />,
+    );
+    // Assert
+    expect(onUnauthorized).not.toHaveBeenCalled();
+  });
+
+  it("does not call onUnauthorized when permissions are not provided", () => {
+    // Arrange — guard is skipped entirely without permissions, so nothing is blocked
+    const onUnauthorized = vi.fn();
+    const guardedDialogs: DialogMap = {
+      "guarded-dialog": { Component: MockDialog, canShow: () => false },
+    };
+    // Act
+    render(
+      <DialogsController
+        activeKeys={["guarded-dialog"]}
+        search=""
+        closeDelay={300}
+        dialogs={guardedDialogs}
+        onUnauthorized={onUnauthorized}
+        closeDialog={vi.fn()}
+      />,
+    );
+    // Assert
+    expect(onUnauthorized).not.toHaveBeenCalled();
+  });
+
+  it("does not re-fire onUnauthorized on a re-render that keeps the same blocked key", () => {
+    // Arrange
+    const onUnauthorized = vi.fn();
+    const guardedDialogs: DialogMap = {
+      "guarded-dialog": { Component: MockDialog, canShow: () => false },
+    };
+    const { rerender } = render(
+      <DialogsController
+        activeKeys={["guarded-dialog"]}
+        search=""
+        closeDelay={300}
+        dialogs={guardedDialogs}
+        permissions={{}}
+        onUnauthorized={onUnauthorized}
+        closeDialog={vi.fn()}
+      />,
+    );
+    // Act — re-render with the same blocked key (only an unrelated prop changes)
+    rerender(
+      <DialogsController
+        activeKeys={["guarded-dialog"]}
+        search="?noise=1"
+        closeDelay={300}
+        dialogs={guardedDialogs}
+        permissions={{}}
+        onUnauthorized={onUnauthorized}
+        closeDialog={vi.fn()}
+      />,
+    );
+    // Assert — still only fired once for the single block event
+    expect(onUnauthorized).toHaveBeenCalledTimes(1);
+  });
+});
