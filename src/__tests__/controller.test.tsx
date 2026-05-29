@@ -494,10 +494,10 @@ describe("DialogsController — canShow guard", () => {
 });
 
 // ---------------------------------------------------------------------------
-// onGuardBlocked callback
+// onUnauthorized callback
 // ---------------------------------------------------------------------------
 
-describe("DialogsController — onGuardBlocked callback", () => {
+describe("DialogsController — onUnauthorized callback", () => {
   beforeEach(() => {
     vi.spyOn(console, "error").mockImplementation(() => {});
   });
@@ -506,9 +506,9 @@ describe("DialogsController — onGuardBlocked callback", () => {
     vi.restoreAllMocks();
   });
 
-  it("calls onGuardBlocked with the key and permissions when a guard denies a dialog", () => {
+  it("calls onUnauthorized with the key and permissions when a guard denies a dialog", () => {
     // Arrange
-    const onGuardBlocked = vi.fn();
+    const onUnauthorized = vi.fn();
     const permissions = { isAdmin: false };
     const guardedDialogs: DialogMap = {
       "guarded-dialog": { Component: MockDialog, canShow: () => false },
@@ -521,17 +521,17 @@ describe("DialogsController — onGuardBlocked callback", () => {
         closeDelay={300}
         dialogs={guardedDialogs}
         permissions={permissions}
-        onGuardBlocked={onGuardBlocked}
+        onUnauthorized={onUnauthorized}
         closeDialog={vi.fn()}
       />,
     );
     // Assert
-    expect(onGuardBlocked).toHaveBeenCalledWith("guarded-dialog", permissions);
+    expect(onUnauthorized).toHaveBeenCalledWith("guarded-dialog", permissions);
   });
 
-  it("does not call onGuardBlocked when the guard passes", () => {
+  it("does not call onUnauthorized when the guard passes", () => {
     // Arrange
-    const onGuardBlocked = vi.fn();
+    const onUnauthorized = vi.fn();
     const guardedDialogs: DialogMap = {
       "guarded-dialog": { Component: MockDialog, canShow: () => true },
     };
@@ -543,17 +543,17 @@ describe("DialogsController — onGuardBlocked callback", () => {
         closeDelay={300}
         dialogs={guardedDialogs}
         permissions={{}}
-        onGuardBlocked={onGuardBlocked}
+        onUnauthorized={onUnauthorized}
         closeDialog={vi.fn()}
       />,
     );
     // Assert
-    expect(onGuardBlocked).not.toHaveBeenCalled();
+    expect(onUnauthorized).not.toHaveBeenCalled();
   });
 
-  it("does not call onGuardBlocked when permissions are not provided", () => {
+  it("does not call onUnauthorized when permissions are not provided", () => {
     // Arrange — guard is skipped entirely without permissions, so nothing is blocked
-    const onGuardBlocked = vi.fn();
+    const onUnauthorized = vi.fn();
     const guardedDialogs: DialogMap = {
       "guarded-dialog": { Component: MockDialog, canShow: () => false },
     };
@@ -564,17 +564,17 @@ describe("DialogsController — onGuardBlocked callback", () => {
         search=""
         closeDelay={300}
         dialogs={guardedDialogs}
-        onGuardBlocked={onGuardBlocked}
+        onUnauthorized={onUnauthorized}
         closeDialog={vi.fn()}
       />,
     );
     // Assert
-    expect(onGuardBlocked).not.toHaveBeenCalled();
+    expect(onUnauthorized).not.toHaveBeenCalled();
   });
 
-  it("does not re-fire onGuardBlocked on a re-render that keeps the same blocked key", () => {
+  it("does not re-fire onUnauthorized on a re-render that keeps the same blocked key", () => {
     // Arrange
-    const onGuardBlocked = vi.fn();
+    const onUnauthorized = vi.fn();
     const guardedDialogs: DialogMap = {
       "guarded-dialog": { Component: MockDialog, canShow: () => false },
     };
@@ -585,7 +585,7 @@ describe("DialogsController — onGuardBlocked callback", () => {
         closeDelay={300}
         dialogs={guardedDialogs}
         permissions={{}}
-        onGuardBlocked={onGuardBlocked}
+        onUnauthorized={onUnauthorized}
         closeDialog={vi.fn()}
       />,
     );
@@ -597,11 +597,11 @@ describe("DialogsController — onGuardBlocked callback", () => {
         closeDelay={300}
         dialogs={guardedDialogs}
         permissions={{}}
-        onGuardBlocked={onGuardBlocked}
+        onUnauthorized={onUnauthorized}
         closeDialog={vi.fn()}
       />,
     );
     // Assert — still only fired once for the single block event
-    expect(onGuardBlocked).toHaveBeenCalledTimes(1);
+    expect(onUnauthorized).toHaveBeenCalledTimes(1);
   });
 });

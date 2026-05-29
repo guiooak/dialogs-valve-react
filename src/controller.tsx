@@ -16,7 +16,7 @@ type DialogsControllerProps<
   dialogs: DialogMap<TKeys, TPermissions>;
   permissions?: TPermissions;
   closeDialog: (key: string) => void;
-  onGuardBlocked?: (key: TKeys, permissions?: TPermissions) => void;
+  onUnauthorized?: (key: TKeys, permissions?: TPermissions) => void;
 };
 
 // ---------------------------------------------------------------------------
@@ -33,7 +33,7 @@ export function DialogsController<
   dialogs,
   permissions,
   closeDialog,
-  onGuardBlocked,
+  onUnauthorized,
 }: DialogsControllerProps<TKeys, TPermissions>) {
   // -------------------------------------------------------------------------
   // Rendered Keys State Machine
@@ -83,7 +83,7 @@ export function DialogsController<
   // -------------------------------------------------------------------------
   // Render dialog components
   // -------------------------------------------------------------------------
-  // Keys denied by canShow this render; onGuardBlocked fires for them below.
+  // Keys denied by canShow this render; onUnauthorized fires for them below.
   const blockedKeys: TKeys[] = [];
 
   const elements = renderedKeys.map((key) => {
@@ -124,7 +124,7 @@ export function DialogsController<
     );
   });
 
-  // Fire onGuardBlocked once per block event: gated on blockedSignature so it
+  // Fire onUnauthorized once per block event: gated on blockedSignature so it
   // runs only when the blocked-key set changes, not on unrelated re-renders.
   const blockedSignature = blockedKeys.join(",");
   useEffect(() => {
@@ -132,7 +132,7 @@ export function DialogsController<
       console.error(
         `[dialogs-valve] Dialog "${key}" blocked by canShow guard.`,
       );
-      onGuardBlocked?.(key, permissions);
+      onUnauthorized?.(key, permissions);
     });
   }, [blockedSignature]);
 
