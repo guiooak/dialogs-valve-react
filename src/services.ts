@@ -108,9 +108,7 @@ export function buildDialogUrl<TKeys extends string = RegisteredDialogKeys>(
 
   // For a cross-route `pathName`, start from a clean query; otherwise build on
   // top of the current location's params.
-  const params = new URLSearchParams(
-    pathName === undefined ? getLocationSearch() : "",
-  );
+  const params = new URLSearchParams(!pathName ? getLocationSearch() : "");
 
   const allDialogKeys = params.getAll(dialogParamKey);
 
@@ -136,7 +134,7 @@ export function buildDialogUrl<TKeys extends string = RegisteredDialogKeys>(
   // it on navigate. For a cross-route `pathName`, the consumer supplies the
   // (basename-relative) target path explicitly.
   const search = params.toString();
-  return pathName === undefined ? `?${search}` : `${pathName}?${search}`;
+  return !pathName ? `?${search}` : `${pathName}?${search}`;
 }
 
 function buildDialogPropParamKey(dialogKey: string, propKey: string): string {
