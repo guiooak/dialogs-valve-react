@@ -55,9 +55,9 @@ export function cleanUpQueryParams<TKeys extends string = RegisteredDialogKeys>(
 
   params.delete(dialogParamKey, dialogKey);
 
-  Array.from(params.keys())
-    .filter((key) => key.includes(dialogKey))
-    .forEach((key) => params.delete(key));
+  // Match the exact prop prefix so unrelated query params are preserved (see
+  // `deleteDialogPropParams`).
+  deleteDialogPropParams(params, dialogKey);
 
   return params.toString();
 }
@@ -150,9 +150,13 @@ export function buildCloseDialogUrl<
 
   params.delete(dialogParamKey, dialogKey);
 
-  Array.from(params.keys())
-    .filter((key) => key.includes(dialogKey))
-    .forEach((key) => params.delete(key));
+  // Strip only this dialog's serialized props (keys prefixed with
+  // `dialogKey + separator`). A loose `includes(dialogKey)` substring match
+  // would wipe unrelated params that merely contain the key (e.g. closing
+  // "user" deleting "username") and even the `dialog` param itself when the key
+  // is a substring of "dialog" — every query param unrelated to dialogs-valve
+  // must survive the close.
+  deleteDialogPropParams(params, dialogKey);
 
   // Return a relative URL so the router resolves it against the current
   // location, keeping the pathname (and any `basename`) intact. When no params
@@ -165,9 +169,35 @@ export function buildCloseDialogUrl<
 }
 
 export function buildCloseAllDialogsUrl(
-  _dialogParamKey: string = DIALOG_MAIN_KEY,
+  dialogParamKey: string = DIALOG_MAIN_KEY,
 ): string {
-  return "?";
+  const params = new URLSearchParams(getLocationSearch());
+
+  // Remove every open dialog's key and its serialized props, but leave any
+  // unrelated query params (e.g. `utm_source`, filters, tabs) untouched.
+  const activeDialogKeys = params.getAll(dialogParamKey);
+  params.delete(dialogParamKey);
+  activeDialogKeys.forEach((dialogKey) =>
+    deleteDialogPropParams(params, dialogKey),
+  );
+
+  const search = params.toString();
+  return search ? `?${search}` : "?";
+}
+
+/**
+ * Deletes the serialized prop params belonging to `dialogKey` from `params`,
+ * matching on the exact `dialogKey + separator` prefix so unrelated params are
+ * never removed. Mutates `params` in place.
+ */
+function deleteDialogPropParams(
+  params: URLSearchParams,
+  dialogKey: string,
+): void {
+  const propPrefix = `${dialogKey}${DIALOG_PROP_PREFIX_SEPARATOR}`;
+  Array.from(params.keys())
+    .filter((key) => key.startsWith(propPrefix))
+    .forEach((key) => params.delete(key));
 }
 
 function serializePropValue(value: DialogPropValue): string {

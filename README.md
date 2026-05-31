@@ -178,6 +178,8 @@ The same option works on `openDialog("user-create", { pathName: "/admin/users" }
 
 Same-route builders (`buildDialogUrl` without `pathName`, `buildCloseDialogUrl`, `buildCloseAllDialogsUrl`) return a **relative**, search-only URL (e.g. `?dialog=user-view`, or `?` when no dialogs remain). The current pathname is intentionally left off so your router resolves it against the current location — preserving both the pathname and any router `basename`. Closing a dialog therefore keeps you on the page where you opened it instead of bouncing back to the origin (`/`); opening one never duplicates a configured `basename`.
 
+Closing dialogs only strips dialog state — each dialog's key plus its serialized props (`<key>.<prop>`). Any **unrelated query params** you keep in the URL (e.g. `utm_source`, list filters, pagination) are left untouched, so closing a dialog never wipes the rest of your query string.
+
 ### Dialog Replacement
 
 Pass `overlap: false` to remove all currently open dialogs and open the new one in their place. Useful for wizard-style flows or exclusive panels.
