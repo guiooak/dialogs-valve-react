@@ -11,7 +11,9 @@ const SubRoutePage: React.FC = () => {
       <main className="showcase-inner showcase-main">
         <section className="section">
           <div className="section-meta">
-            <span className="section-number">↩</span>
+            <Link to="/" className="btn btn-ghost">
+              <span className="section-number">↩</span>
+            </Link>
             <h2 className="section-title">You are on a sub-route</h2>
           </div>
           <p className="section-desc">
@@ -19,8 +21,8 @@ const SubRoutePage: React.FC = () => {
             router <code>basename</code>). Open the drawer, then close it and
             watch the Live URL: the dialog query is added and removed, but the
             path stays on <code>/sub-route</code> the whole time — no bounce
-            back to the origin (<code>/</code>), and the <code>basename</code>{" "}
-            is never duplicated.
+            back to the origin (<code>/</code>). The builders return relative
+            URLs, so the router preserves the path and basename on its own.
           </p>
 
           <div className="url-inspector-sticky">

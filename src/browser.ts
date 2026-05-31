@@ -21,22 +21,6 @@ export function getLocationSearch(): string {
 }
 
 /**
- * Retrieves the current URL pathname (e.g., `"/admin/users"`).
- *
- * The URL builders prepend this so the returned URL is rooted at the current
- * path. Note this is the *full* `window.location.pathname`, which includes any
- * router `basename`; consumers whose router re-prepends a basename on
- * navigation should strip it before navigating.
- *
- * @returns {string} The current pathname or `"/"` if `window` is not available
- *                   (e.g., during Server-Side Rendering).
- */
-export function getLocationPathname(): string {
-  if (typeof window === "undefined") return "/";
-  return window.location.pathname;
-}
-
-/**
  * Subscribes to location changes (both `popstate` and indicative DOM changes).
  *
  * Since many SPA routers use `pushState` and `replaceState` which do not
@@ -71,12 +55,15 @@ export function addLocationChangeListener(callback: () => void): () => void {
  * Perform a browser navigation using the generic `history.pushState` API.
  * This is used as the fallback navigation logic when no custom router is provided.
  *
- * The URL builders return absolute, path-rooted URLs, so the value is pushed
- * as-is.
+ * The builders return relative, search-only URLs. We resolve them against the
+ * current location and push `pathname + search + hash`, so a query-clearing
+ * `"?"` doesn't leave a bare `"?"` lingering in the address bar (which
+ * `history.pushState` would otherwise keep).
  *
  * @param {string} url - The URL to navigate to.
  */
 export function pushState(url: string): void {
   if (typeof window === "undefined") return;
-  window.history.pushState(null, "", url);
+  const { pathname, search, hash } = new URL(url, window.location.href);
+  window.history.pushState(null, "", `${pathname}${search}${hash}`);
 }
