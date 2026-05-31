@@ -55,9 +55,16 @@ export function addLocationChangeListener(callback: () => void): () => void {
  * Perform a browser navigation using the generic `history.pushState` API.
  * This is used as the fallback navigation logic when no custom router is provided.
  *
+ * The URL is resolved against the current location and pushed as
+ * `pathname + search + hash`. This normalizes a query-clearing `"?"` (returned
+ * by the close builders when no dialog params remain) so it does not leave a
+ * bare `"?"` lingering in the address bar — `history.pushState` would otherwise
+ * keep the trailing question mark.
+ *
  * @param {string} url - The URL to navigate to.
  */
 export function pushState(url: string): void {
   if (!window) return;
-  window.history.pushState({}, "", url);
+  const { pathname, search, hash } = new URL(url, window.location.href);
+  window.history.pushState({}, "", `${pathname}${search}${hash}`);
 }
