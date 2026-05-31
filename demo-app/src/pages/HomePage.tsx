@@ -59,7 +59,7 @@ const HeroSection: React.FC = () => (
     <div className="hero-glow" aria-hidden="true" />
     <div className="showcase-inner hero-inner">
       <div className="hero-badges">
-        <span className="badge badge-primary">v0.1</span>
+        <span className="badge badge-primary">v0.2</span>
         <span className="badge badge-muted">MIT</span>
         <span className="badge badge-muted">TypeScript</span>
       </div>
