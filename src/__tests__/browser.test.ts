@@ -150,7 +150,7 @@ describe("pushState", () => {
     // Act
     pushState("/new-path?dialog=test");
     // Assert
-    expect(pushStateSpy).toHaveBeenCalledWith({}, "", "/new-path?dialog=test");
+    expect(pushStateSpy).toHaveBeenCalledWith(null, "", "/new-path?dialog=test");
     pushStateSpy.mockRestore();
   });
 

@@ -16,7 +16,7 @@
  *                   is not available (e.g., during Server-Side Rendering).
  */
 export function getLocationSearch(): string {
-  if (!window) return "";
+  if (typeof window === "undefined") return "";
   return window.location.search;
 }
 
@@ -32,7 +32,7 @@ export function getLocationSearch(): string {
  *                   (e.g., during Server-Side Rendering).
  */
 export function getLocationPathname(): string {
-  if (!window) return "/";
+  if (typeof window === "undefined") return "/";
   return window.location.pathname;
 }
 
@@ -77,6 +77,6 @@ export function addLocationChangeListener(callback: () => void): () => void {
  * @param {string} url - The URL to navigate to.
  */
 export function pushState(url: string): void {
-  if (!window) return;
-  window.history.pushState({}, "", url);
+  if (typeof window === "undefined") return;
+  window.history.pushState(null, "", url);
 }
