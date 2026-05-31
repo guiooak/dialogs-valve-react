@@ -7,7 +7,7 @@ import {
   DIALOG_BOOLEAN_PREFIX,
   DIALOG_MAIN_KEY,
 } from "./constants";
-import { getLocationSearch, getLocationPathname } from "./browser";
+import { getLocationSearch } from "./browser";
 import type {
   BuildDialogUrlOptions,
   DialogPropValue,
@@ -55,9 +55,9 @@ export function cleanUpQueryParams<TKeys extends string = RegisteredDialogKeys>(
 
   params.delete(dialogParamKey, dialogKey);
 
-  Array.from(params.keys())
-    .filter((key) => key.includes(dialogKey))
-    .forEach((key) => params.delete(key));
+  // Match the exact prop prefix so unrelated query params are preserved (see
+  // `deleteDialogPropParams`).
+  deleteDialogPropParams(params, dialogKey);
 
   return params.toString();
 }
@@ -108,9 +108,7 @@ export function buildDialogUrl<TKeys extends string = RegisteredDialogKeys>(
 
   // For a cross-route `pathName`, start from a clean query; otherwise build on
   // top of the current location's params.
-  const params = new URLSearchParams(
-    pathName === undefined ? getLocationSearch() : "",
-  );
+  const params = new URLSearchParams(!pathName ? getLocationSearch() : "");
 
   const allDialogKeys = params.getAll(dialogParamKey);
 
@@ -129,8 +127,13 @@ export function buildDialogUrl<TKeys extends string = RegisteredDialogKeys>(
     );
   }
 
+  // Return a relative, search-only URL when staying on the current route so the
+  // consumer's router resolves it against the current location — preserving the
+  // pathname and any router `basename` with no work on the consumer's side.
+  // Pre-existing query params are kept (we built on top of the current search).
+  // For a cross-route `pathName`, the consumer supplies the target path.
   const search = params.toString();
-  return `${pathName ?? getLocationPathname()}?${search}`;
+  return pathName ? `${pathName}?${search}` : `?${search}`;
 }
 
 function buildDialogPropParamKey(dialogKey: string, propKey: string): string {
@@ -144,19 +147,52 @@ export function buildCloseDialogUrl<
 
   params.delete(dialogParamKey, dialogKey);
 
-  Array.from(params.keys())
-    .filter((key) => key.includes(dialogKey))
-    .forEach((key) => params.delete(key));
+  // Strip only this dialog's serialized props (keys prefixed with
+  // `dialogKey + separator`). A loose `includes(dialogKey)` substring match
+  // would wipe unrelated params that merely contain the key (e.g. closing
+  // "user" deleting "username") and even the `dialog` param itself when the key
+  // is a substring of "dialog" — every query param unrelated to dialogs-valve
+  // must survive the close.
+  deleteDialogPropParams(params, dialogKey);
 
-  const pathname = getLocationPathname();
+  // Return a relative URL so the router keeps the current path and `basename`.
+  // Pre-existing, non-dialog params remain in `search`. When nothing is left we
+  // return "?" rather than "" — an empty string leaves the query untouched
+  // under the `history.pushState` fallback, whereas "?" reliably clears it.
   const search = params.toString();
-  return search ? `${pathname}?${search}` : pathname;
+  return search ? `?${search}` : "?";
 }
 
 export function buildCloseAllDialogsUrl(
-  _dialogParamKey: string = DIALOG_MAIN_KEY,
+  dialogParamKey: string = DIALOG_MAIN_KEY,
 ): string {
-  return getLocationPathname();
+  const params = new URLSearchParams(getLocationSearch());
+
+  // Remove every open dialog's key and its serialized props, but leave any
+  // unrelated query params (e.g. `utm_source`, filters, tabs) untouched.
+  const activeDialogKeys = params.getAll(dialogParamKey);
+  params.delete(dialogParamKey);
+  activeDialogKeys.forEach((dialogKey) =>
+    deleteDialogPropParams(params, dialogKey),
+  );
+
+  const search = params.toString();
+  return search ? `?${search}` : "?";
+}
+
+/**
+ * Deletes the serialized prop params belonging to `dialogKey` from `params`,
+ * matching on the exact `dialogKey + separator` prefix so unrelated params are
+ * never removed. Mutates `params` in place.
+ */
+function deleteDialogPropParams(
+  params: URLSearchParams,
+  dialogKey: string,
+): void {
+  const propPrefix = `${dialogKey}${DIALOG_PROP_PREFIX_SEPARATOR}`;
+  Array.from(params.keys())
+    .filter((key) => key.startsWith(propPrefix))
+    .forEach((key) => params.delete(key));
 }
 
 function serializePropValue(value: DialogPropValue): string {

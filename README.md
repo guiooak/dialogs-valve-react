@@ -174,9 +174,11 @@ const href = buildDialogUrl("user-create", {
 <Link to={href}>Add user</Link>;
 ```
 
-The same option works on `openDialog("user-create", { pathName: "/admin/users" })`. When `pathName` is omitted, the URL is rooted at the current location's pathname (the default). Unlike same-route links, the current route's existing dialog params are **not** merged, since overlapping against another route is meaningless.
+The same option works on `openDialog("user-create", { pathName: "/admin/users" })`. When `pathName` is omitted, the URL is relative to the current location (the default). Unlike same-route links, the current route's existing dialog params are **not** merged, since overlapping against another route is meaningless.
 
-Every URL builder returns a path-rooted URL — `buildDialogUrl`, `buildCloseDialogUrl`, and `buildCloseAllDialogsUrl` all keep the current pathname rather than emitting a search-only string. Closing a dialog therefore keeps you on the page where you opened it (e.g. `/admin/users?dialog=user-view` → `/admin/users`) instead of bouncing back to the origin (`/`).
+Same-route builders (`buildDialogUrl` without `pathName`, `buildCloseDialogUrl`, `buildCloseAllDialogsUrl`) return a **relative**, search-only URL (e.g. `?dialog=user-view`, or `?` when no dialogs remain). The current pathname is intentionally left off so your router resolves it against the current location — preserving both the pathname and any router `basename`, with no work on your side. So `onNavigate={navigate}` works as-is even under a `basename`: closing a dialog keeps you on the page where you opened it instead of bouncing back to the origin (`/`).
+
+Closing dialogs only strips dialog state — each dialog's key plus its serialized props (`<key>.<prop>`). Any **unrelated query params** you keep in the URL (e.g. `utm_source`, list filters, pagination) are left untouched, so opening or closing a dialog never wipes the rest of your query string.
 
 ### Dialog Replacement
 

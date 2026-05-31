@@ -10,6 +10,8 @@ import ReplacementDrawerB from "./dialogs/replacement/ReplacementDrawerB";
 import UserProfileDrawer from "./dialogs/props/UserProfileDrawer";
 import PublicInfoDrawer from "./dialogs/permissions/PublicInfoDrawer";
 import AdminPanelDrawer from "./dialogs/permissions/AdminPanelDrawer";
+import CrossRouteDrawer from "./dialogs/cross-route/CrossRouteDrawer";
+import QueryParamsDrawer from "./dialogs/query-params/QueryParamsDrawer";
 
 export type AppPermissions = { isAdmin: boolean };
 
@@ -27,6 +29,8 @@ export const dialogs = {
     Component: AdminPanelDrawer,
     canShow: (p: AppPermissions) => p.isAdmin,
   },
+  "cross-route-drawer": { Component: CrossRouteDrawer },
+  "query-params-drawer": { Component: QueryParamsDrawer },
 } as const satisfies DialogMap<string, AppPermissions>;
 
 declare module "@dialogs-valve/react" {

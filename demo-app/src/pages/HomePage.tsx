@@ -1,4 +1,5 @@
 import React, { useContext } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { PermissionsContext } from "../App";
 import { useDialogsValve } from "@dialogs-valve/react";
 import UrlInspector from "../components/UrlInspector/UrlInspector";
@@ -20,6 +21,8 @@ const HomePage: React.FC = () => (
       <ReplacementSection />
       <PropsSection />
       <PermissionsSection />
+      <CrossRouteSection />
+      <QueryParamsSection />
       <InstallSection />
     </main>
     <footer className="showcase-footer">
@@ -56,7 +59,7 @@ const HeroSection: React.FC = () => (
     <div className="hero-glow" aria-hidden="true" />
     <div className="showcase-inner hero-inner">
       <div className="hero-badges">
-        <span className="badge badge-primary">v0.1</span>
+        <span className="badge badge-primary">v0.2</span>
         <span className="badge badge-muted">MIT</span>
         <span className="badge badge-muted">TypeScript</span>
       </div>
@@ -453,7 +456,132 @@ export const dialogs = {
   );
 };
 
-// ─── Section 6: Installation ──────────────────────────────────────────────────
+// ─── Section 6: Cross-Route Navigation ───────────────────────────────────────
+
+const CrossRouteSection: React.FC = () => {
+  const code = `// On /sub-route, open a dialog the usual way:
+openDialog('cross-route-drawer');
+// URL → /sub-route?dialog=cross-route-drawer
+
+// Close it:
+closeDialog('cross-route-drawer');
+// URL → /sub-route   (path kept, query cleared)
+
+// The builders return relative URLs (?dialog=…),
+// so the router resolves them against the current
+// location — the pathname and any basename are
+// preserved automatically. onNavigate={navigate}
+// works as-is; no consumer-side workaround needed.`;
+
+  return (
+    <SectionLayout
+      id="cross-route"
+      label="06"
+      title="Cross-Route Navigation"
+      description={
+        <>
+          Opening and closing dialogs keeps you on whatever route you're on. The
+          builders return <strong>relative</strong> URLs, so the router keeps
+          the current pathname (and this demo's <code>basename</code>) on its
+          own — closing a dialog never bounces you back to the origin (
+          <code>/</code>).
+        </>
+      }
+      demo={
+        <div className="demo-card">
+          <p className="demo-card-hint">
+            Visit a real sub-route, open a dialog there, and confirm closing it
+            keeps you on the sub-route.
+          </p>
+          <div className="demo-actions">
+            <Link to="/sub-route" className="btn btn-primary">
+              Go to /sub-route →
+            </Link>
+          </div>
+          <div className="demo-url-preview">
+            <span className="demo-url-label">URL transition on close</span>
+            <div className="demo-url-transition">
+              <code>/sub-route?dialog=cross-route-drawer</code>
+              <span className="demo-arrow">→</span>
+              <code>/sub-route</code>
+            </div>
+          </div>
+        </div>
+      }
+      code={<CodeBlock code={code} filename="cross-route.tsx" />}
+    />
+  );
+};
+
+// ─── Section 7: Preserving Query Params ──────────────────────────────────────
+
+const QueryParamsSection: React.FC = () => {
+  const { openDialog, closeDialog, isOpen } = useDialogsValve()!;
+  const navigate = useNavigate();
+  const open = isOpen("query-params-drawer");
+
+  const code = `// The URL already has unrelated params:
+// ?ref=newsletter&sort=desc
+
+openDialog('query-params-drawer');
+// → ?ref=newsletter&sort=desc&dialog=query-params-drawer
+
+closeDialog('query-params-drawer');
+// → ?ref=newsletter&sort=desc
+
+// The library only adds/removes its own dialog
+// keys (and <key>.<prop> values). Any params it
+// doesn't own are never touched.`;
+
+  return (
+    <SectionLayout
+      id="query-params"
+      label="07"
+      title="Preserving Query Params"
+      description={
+        <>
+          Dialog state lives alongside whatever else is in your query string.
+          Opening or closing a dialog only touches its own keys — tracking
+          params, filters, and sort orders you put in the URL stay exactly where
+          they are.
+        </>
+      }
+      demo={
+        <div className="demo-card">
+          <p className="demo-card-hint">
+            Seed some unrelated params, then open and close the dialog. Watch{" "}
+            <code>ref</code> and <code>sort</code> survive the whole time.
+          </p>
+          <div className="demo-actions">
+            <button
+              className="btn btn-secondary"
+              onClick={() => navigate("?ref=newsletter&sort=desc")}
+            >
+              Seed ?ref&amp;sort
+            </button>
+            <button
+              className="btn btn-primary"
+              onClick={() => openDialog("query-params-drawer")}
+            >
+              Open dialog
+            </button>
+            <button
+              className="btn btn-ghost"
+              onClick={() => closeDialog("query-params-drawer")}
+              disabled={!open}
+            >
+              Close dialog
+            </button>
+          </div>
+          <UrlInspector />
+        </div>
+      }
+      code={<CodeBlock code={code} filename="query-params.tsx" />}
+    />
+  );
+};
+
+// ─── Section 8: Installation ──────────────────────────────────────────────────
 
 const InstallSection: React.FC = () => {
   const installCode = `npm install @dialogs-valve/react
@@ -504,7 +632,7 @@ function SettingsButton() {
   return (
     <section id="installation" className="section section-install">
       <div className="section-meta">
-        <span className="section-number">06</span>
+        <span className="section-number">08</span>
         <h2 className="section-title">Quick Start</h2>
       </div>
       <p className="section-desc">

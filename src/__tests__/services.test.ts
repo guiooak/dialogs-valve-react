@@ -12,10 +12,9 @@ import {
 
 vi.mock("../browser", () => ({
   getLocationSearch: vi.fn(() => ""),
-  getLocationPathname: vi.fn(() => "/"),
 }));
 
-import { getLocationSearch, getLocationPathname } from "../browser";
+import { getLocationSearch } from "../browser";
 
 // ---------------------------------------------------------------------------
 // parsePropValue
@@ -244,13 +243,34 @@ describe("cleanUpQueryParams", () => {
   });
 
   it("removes only the targeted key, leaving other dialog keys intact", () => {
-    // Arrange — uses realistic keys to avoid the substring-match edge case in prop cleanup
+    // Arrange
     const search = "?dialog=dialog-a&dialog=dialog-b";
     // Act
     const result = cleanUpQueryParams(search, "dialog", "dialog-a");
     // Assert
     const params = new URLSearchParams(result);
     expect(params.getAll("dialog")).toEqual(["dialog-b"]);
+  });
+
+  it("keeps other dialog keys even when the closed key is a substring of 'dialog'", () => {
+    // Arrange — closing single-char "a": a naive includes() match would also drop
+    // the "dialog" param ("dialog".includes("a")) and wipe "dialog=b"
+    const search = "?dialog=a&dialog=b";
+    // Act
+    const result = cleanUpQueryParams(search, "dialog", "a");
+    // Assert
+    const params = new URLSearchParams(result);
+    expect(params.getAll("dialog")).toEqual(["b"]);
+  });
+
+  it("preserves an unrelated param whose name merely contains the dialog key", () => {
+    // Arrange — closing "user" must not delete "username"
+    const search = "?dialog=user&username=bob";
+    // Act
+    const result = cleanUpQueryParams(search, "dialog", "user");
+    // Assert
+    const params = new URLSearchParams(result);
+    expect(params.get("username")).toBe("bob");
   });
 
   it("removes prop params that are prefixed with the dialog key", () => {
@@ -347,23 +367,25 @@ describe("validateDialogKeys", () => {
 describe("buildDialogUrl", () => {
   beforeEach(() => {
     vi.mocked(getLocationSearch).mockReturnValue("");
-    vi.mocked(getLocationPathname).mockReturnValue("/");
   });
 
-  it("roots the URL at the current pathname with the dialog key in the query string", () => {
+  it("builds a relative (search-only) URL so the router keeps the current path and basename", () => {
     // Arrange / Act
     const result = buildDialogUrl("my-dialog");
-    // Assert
-    expect(result).toBe("/?dialog=my-dialog");
+    // Assert — relative, not an absolute pathname (which would double a basename)
+    expect(result).toBe("?dialog=my-dialog");
   });
 
-  it("roots the URL at the current pathname rather than returning a search-only string", () => {
-    // Arrange — open a dialog from a sub-route
-    vi.mocked(getLocationPathname).mockReturnValue("/admin/users");
+  it("preserves pre-existing query params and appends the dialog key", () => {
+    // Arrange — the URL already carries unrelated params
+    vi.mocked(getLocationSearch).mockReturnValue("?ref=newsletter&sort=desc");
     // Act
     const result = buildDialogUrl("user-view");
-    // Assert
-    expect(result).toBe("/admin/users?dialog=user-view");
+    // Assert — the unrelated params stay, the dialog key is added
+    const url = new URL(result, "http://x");
+    expect(url.searchParams.get("ref")).toBe("newsletter");
+    expect(url.searchParams.get("sort")).toBe("desc");
+    expect(url.searchParams.getAll("dialog")).toEqual(["user-view"]);
   });
 
   it("serializes a string prop into the query string", () => {
@@ -492,43 +514,29 @@ describe("buildDialogUrl", () => {
 // ---------------------------------------------------------------------------
 
 describe("buildCloseDialogUrl", () => {
-  beforeEach(() => {
-    vi.mocked(getLocationPathname).mockReturnValue("/");
-  });
-
-  it("returns the current pathname (no query) when the closed dialog was the only param", () => {
+  it('returns "?" (clearing the query, not "") when the closed dialog was the only param', () => {
     // Arrange
     vi.mocked(getLocationSearch).mockReturnValue("?dialog=my-dialog");
     // Act
     const result = buildCloseDialogUrl("my-dialog");
-    // Assert
-    expect(result).toBe("/");
+    // Assert — "?" clears the query on every navigation path (navigate, Link,
+    // pushState); "" would leave the query in place under the pushState fallback
+    expect(result).toBe("?");
   });
 
-  it("keeps the user on the current sub-route when closing the only dialog", () => {
-    // Arrange — closing a dialog opened on a sub-route must not bounce to "/"
-    vi.mocked(getLocationPathname).mockReturnValue("/admin/users");
-    vi.mocked(getLocationSearch).mockReturnValue("?dialog=user-view");
-    // Act
-    const result = buildCloseDialogUrl("user-view");
-    // Assert
-    expect(result).toBe("/admin/users");
-  });
-
-  it("prefixes the remaining query string with the current pathname", () => {
-    // Arrange — realistic keys avoid the substring-match edge case in prop cleanup
-    vi.mocked(getLocationPathname).mockReturnValue("/admin/users");
+  it("returns a relative query so the router keeps the current path and basename", () => {
+    // Arrange
     vi.mocked(getLocationSearch).mockReturnValue(
       "?dialog=dialog-a&dialog=dialog-b",
     );
     // Act
     const result = buildCloseDialogUrl("dialog-a");
     // Assert
-    expect(result).toBe("/admin/users?dialog=dialog-b");
+    expect(result).toBe("?dialog=dialog-b");
   });
 
   it("removes only the target dialog key, leaving others in place", () => {
-    // Arrange — uses realistic keys to avoid the substring-match edge case in prop cleanup
+    // Arrange
     vi.mocked(getLocationSearch).mockReturnValue(
       "?dialog=dialog-a&dialog=dialog-b",
     );
@@ -537,6 +545,32 @@ describe("buildCloseDialogUrl", () => {
     // Assert
     const url = new URL(result, "http://x");
     expect(url.searchParams.getAll("dialog")).toEqual(["dialog-b"]);
+  });
+
+  it("preserves unrelated query params, including names that contain the dialog key", () => {
+    // Arrange — closing "user" must keep both "utm_source" and "username"
+    vi.mocked(getLocationSearch).mockReturnValue(
+      "?dialog=user&user.id=number.9&utm_source=google&username=bob",
+    );
+    // Act
+    const result = buildCloseDialogUrl("user");
+    // Assert
+    const url = new URL(result, "http://x");
+    expect(url.searchParams.get("utm_source")).toBe("google");
+    expect(url.searchParams.get("username")).toBe("bob");
+    expect(url.searchParams.has("user.id")).toBe(false);
+    expect(url.searchParams.has("dialog")).toBe(false);
+  });
+
+  it("does not drop other dialog keys when the closed key is a substring of 'dialog'", () => {
+    // Arrange — single-char "a"; a naive includes() match would wipe "dialog=b"
+    vi.mocked(getLocationSearch).mockReturnValue("?dialog=a&dialog=b&keep=1");
+    // Act
+    const result = buildCloseDialogUrl("a");
+    // Assert
+    const url = new URL(result, "http://x");
+    expect(url.searchParams.getAll("dialog")).toEqual(["b"]);
+    expect(url.searchParams.get("keep")).toBe("1");
   });
 
   it("removes prop params associated with the closed dialog", () => {
@@ -570,7 +604,7 @@ describe("buildCloseDialogUrl", () => {
     // Act
     const result = buildCloseDialogUrl("my-dialog", "dlg");
     // Assert
-    expect(result).toBe("/");
+    expect(result).toBe("?");
   });
 });
 
@@ -579,56 +613,50 @@ describe("buildCloseDialogUrl", () => {
 // ---------------------------------------------------------------------------
 
 describe("buildCloseAllDialogsUrl", () => {
-  beforeEach(() => {
-    vi.mocked(getLocationPathname).mockReturnValue("/");
+  it('returns "?" when only dialog params are present', () => {
+    // Arrange
+    vi.mocked(getLocationSearch).mockReturnValue("?dialog=a&dialog=b");
+    // Act
+    const result = buildCloseAllDialogsUrl();
+    // Assert — relative "?" keeps the current path/basename and clears the query
+    expect(result).toBe("?");
   });
 
-  it("returns the current pathname, stripping all query params", () => {
-    // Arrange
+  it("removes every dialog key and its props but keeps unrelated query params", () => {
+    // Arrange — two open dialogs with props, alongside unrelated params
     vi.mocked(getLocationSearch).mockReturnValue(
-      "?dialog=a&dialog=b&a.title=Hi",
+      "?dialog=a&dialog=b&a.id=number.1&b.title=Hi&utm_source=google&tab=2",
     );
     // Act
     const result = buildCloseAllDialogsUrl();
     // Assert
-    expect(result).toBe("/");
+    const url = new URL(result, "http://x");
+    expect(url.searchParams.has("dialog")).toBe(false);
+    expect(url.searchParams.has("a.id")).toBe(false);
+    expect(url.searchParams.has("b.title")).toBe(false);
+    expect(url.searchParams.get("utm_source")).toBe("google");
+    expect(url.searchParams.get("tab")).toBe("2");
   });
 
-  it("keeps the user on the current sub-route instead of bouncing to the origin", () => {
-    // Arrange — closing all dialogs from a sub-route must stay on that route
-    vi.mocked(getLocationPathname).mockReturnValue("/admin/users");
-    vi.mocked(getLocationSearch).mockReturnValue("?dialog=a&dialog=b");
+  it("preserves an unrelated param whose name contains a dialog key", () => {
+    // Arrange — closing the "user" dialog must keep "username"
+    vi.mocked(getLocationSearch).mockReturnValue("?dialog=user&username=bob");
     // Act
     const result = buildCloseAllDialogsUrl();
     // Assert
-    expect(result).toBe("/admin/users");
-  });
-
-  it("returns the current pathname when there are no params to begin with", () => {
-    // Arrange
-    vi.mocked(getLocationSearch).mockReturnValue("");
-    // Act
-    const result = buildCloseAllDialogsUrl();
-    // Assert
-    expect(result).toBe("/");
-  });
-
-  it("strips unrelated query params too — total query cleanup behaviour", () => {
-    // Arrange — buildCloseAllDialogsUrl drops the whole query, not just dialog params
-    vi.mocked(getLocationPathname).mockReturnValue("/admin/users");
-    vi.mocked(getLocationSearch).mockReturnValue("?dialog=a&utm_source=google");
-    // Act
-    const result = buildCloseAllDialogsUrl();
-    // Assert
-    expect(result).toBe("/admin/users");
+    const url = new URL(result, "http://x");
+    expect(url.searchParams.has("dialog")).toBe(false);
+    expect(url.searchParams.get("username")).toBe("bob");
   });
 
   it("uses a custom dialogParamKey", () => {
     // Arrange
-    vi.mocked(getLocationSearch).mockReturnValue("?dlg=a&dlg=b");
+    vi.mocked(getLocationSearch).mockReturnValue("?dlg=a&dlg=b&keep=1");
     // Act
     const result = buildCloseAllDialogsUrl("dlg");
-    // Assert
-    expect(result).toBe("/");
+    // Assert — only the custom-keyed dialog params are stripped
+    const url = new URL(result, "http://x");
+    expect(url.searchParams.has("dlg")).toBe(false);
+    expect(url.searchParams.get("keep")).toBe("1");
   });
 });

@@ -16,25 +16,8 @@
  *                   is not available (e.g., during Server-Side Rendering).
  */
 export function getLocationSearch(): string {
-  if (!window) return "";
+  if (typeof window === "undefined") return "";
   return window.location.search;
-}
-
-/**
- * Retrieves the current URL pathname (e.g., `"/admin/users"`).
- *
- * Used so the URL builders can return a complete, unambiguous path instead of
- * a search-only relative string. A search-only result (e.g. `"?foo=bar"`, or
- * `""` when no params remain) forces the consumer's router to resolve the
- * destination path, which is inconsistent across routers and commonly bounces
- * the user back to the origin (`"/"`).
- *
- * @returns {string} The current pathname or `"/"` if `window` is not available
- *                   (e.g., during Server-Side Rendering).
- */
-export function getLocationPathname(): string {
-  if (!window) return "/";
-  return window.location.pathname;
 }
 
 /**
@@ -72,9 +55,15 @@ export function addLocationChangeListener(callback: () => void): () => void {
  * Perform a browser navigation using the generic `history.pushState` API.
  * This is used as the fallback navigation logic when no custom router is provided.
  *
+ * The builders return relative, search-only URLs. We resolve them against the
+ * current location and push `pathname + search + hash`, so a query-clearing
+ * `"?"` doesn't leave a bare `"?"` lingering in the address bar (which
+ * `history.pushState` would otherwise keep).
+ *
  * @param {string} url - The URL to navigate to.
  */
 export function pushState(url: string): void {
-  if (!window) return;
-  window.history.pushState({}, "", url);
+  if (typeof window === "undefined") return;
+  const { pathname, search, hash } = new URL(url, window.location.href);
+  window.history.pushState(null, "", `${pathname}${search}${hash}`);
 }
