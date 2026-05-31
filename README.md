@@ -174,11 +174,13 @@ const href = buildDialogUrl("user-create", {
 <Link to={href}>Add user</Link>;
 ```
 
-The same option works on `openDialog("user-create", { pathName: "/admin/users" })`. When `pathName` is omitted, the URL is relative to the current location (the default). Unlike same-route links, the current route's existing dialog params are **not** merged, since overlapping against another route is meaningless.
+The same option works on `openDialog("user-create", { pathName: "/admin/users" })`. When `pathName` is omitted, the URL is rooted at the current location's pathname (the default). Unlike same-route links, the current route's existing dialog params are **not** merged, since overlapping against another route is meaningless.
 
-Same-route builders (`buildDialogUrl` without `pathName`, `buildCloseDialogUrl`, `buildCloseAllDialogsUrl`) return a **relative**, search-only URL (e.g. `?dialog=user-view`, or `?` when no dialogs remain). The current pathname is intentionally left off so your router resolves it against the current location — preserving both the pathname and any router `basename`. Closing a dialog therefore keeps you on the page where you opened it instead of bouncing back to the origin (`/`); opening one never duplicates a configured `basename`.
+Every URL builder returns an **absolute, path-rooted** URL. `buildDialogUrl` roots at the cross-route `pathName` when given, otherwise the current pathname; `buildCloseDialogUrl` and `buildCloseAllDialogsUrl` root at the current pathname (e.g. `/admin/users?dialog=user-view` → `/admin/users` on close, with no trailing `?`). Closing a dialog therefore keeps you on the page where you opened it instead of bouncing back to the origin (`/`).
 
 Closing dialogs only strips dialog state — each dialog's key plus its serialized props (`<key>.<prop>`). Any **unrelated query params** you keep in the URL (e.g. `utm_source`, list filters, pagination) are left untouched, so closing a dialog never wipes the rest of your query string.
+
+> **Router `basename`:** the builders return the full `window.location.pathname`, which includes any router `basename`. If your router re-prepends the basename on navigation (react-router does), strip it in `onNavigate` so the path isn't doubled — e.g. `onNavigate={(url) => navigate(url.replace(/^\/my-base/, "") || "/")}`. See the demo's `App.tsx` for a working example.
 
 ### Dialog Replacement
 

@@ -12,9 +12,10 @@ import {
 
 vi.mock("../browser", () => ({
   getLocationSearch: vi.fn(() => ""),
+  getLocationPathname: vi.fn(() => "/"),
 }));
 
-import { getLocationSearch } from "../browser";
+import { getLocationSearch, getLocationPathname } from "../browser";
 
 // ---------------------------------------------------------------------------
 // parsePropValue
@@ -367,13 +368,23 @@ describe("validateDialogKeys", () => {
 describe("buildDialogUrl", () => {
   beforeEach(() => {
     vi.mocked(getLocationSearch).mockReturnValue("");
+    vi.mocked(getLocationPathname).mockReturnValue("/");
   });
 
-  it("builds a relative (search-only) URL so the router keeps the current path and basename", () => {
+  it("roots the URL at the current pathname with the dialog key in the query string", () => {
     // Arrange / Act
     const result = buildDialogUrl("my-dialog");
-    // Assert — relative, not an absolute pathname (which would double a basename)
-    expect(result).toBe("?dialog=my-dialog");
+    // Assert
+    expect(result).toBe("/?dialog=my-dialog");
+  });
+
+  it("roots the URL at the current pathname when opening from a sub-route", () => {
+    // Arrange
+    vi.mocked(getLocationPathname).mockReturnValue("/admin/users");
+    // Act
+    const result = buildDialogUrl("user-view");
+    // Assert
+    expect(result).toBe("/admin/users?dialog=user-view");
   });
 
   it("serializes a string prop into the query string", () => {
@@ -502,25 +513,30 @@ describe("buildDialogUrl", () => {
 // ---------------------------------------------------------------------------
 
 describe("buildCloseDialogUrl", () => {
-  it('returns "?" (clearing the query, not "") when the closed dialog was the only param', () => {
+  beforeEach(() => {
+    vi.mocked(getLocationPathname).mockReturnValue("/");
+  });
+
+  it("returns the current pathname alone (no trailing ?) when the closed dialog was the only param", () => {
     // Arrange
+    vi.mocked(getLocationPathname).mockReturnValue("/admin/users");
     vi.mocked(getLocationSearch).mockReturnValue("?dialog=my-dialog");
     // Act
     const result = buildCloseDialogUrl("my-dialog");
-    // Assert — "?" clears the query on every navigation path (navigate, Link,
-    // pushState); "" would leave the query in place under the pushState fallback
-    expect(result).toBe("?");
+    // Assert — stays on the current route, query fully cleared
+    expect(result).toBe("/admin/users");
   });
 
-  it("returns a relative query so the router keeps the current path and basename", () => {
+  it("roots the remaining query at the current pathname", () => {
     // Arrange
+    vi.mocked(getLocationPathname).mockReturnValue("/admin/users");
     vi.mocked(getLocationSearch).mockReturnValue(
       "?dialog=dialog-a&dialog=dialog-b",
     );
     // Act
     const result = buildCloseDialogUrl("dialog-a");
     // Assert
-    expect(result).toBe("?dialog=dialog-b");
+    expect(result).toBe("/admin/users?dialog=dialog-b");
   });
 
   it("removes only the target dialog key, leaving others in place", () => {
@@ -592,7 +608,7 @@ describe("buildCloseDialogUrl", () => {
     // Act
     const result = buildCloseDialogUrl("my-dialog", "dlg");
     // Assert
-    expect(result).toBe("?");
+    expect(result).toBe("/");
   });
 });
 
@@ -601,15 +617,18 @@ describe("buildCloseDialogUrl", () => {
 // ---------------------------------------------------------------------------
 
 describe("buildCloseAllDialogsUrl", () => {
-  it('returns "?" when only dialog params are present', () => {
+  beforeEach(() => {
+    vi.mocked(getLocationPathname).mockReturnValue("/");
+  });
+
+  it("returns the current pathname alone (no trailing ?) when only dialog params are present", () => {
     // Arrange
+    vi.mocked(getLocationPathname).mockReturnValue("/admin/users");
     vi.mocked(getLocationSearch).mockReturnValue("?dialog=a&dialog=b");
     // Act
     const result = buildCloseAllDialogsUrl();
-    // Assert — relative "?" so the router stays on the current path/basename and
-    // the query is reliably cleared (unlike "", which the pushState fallback and
-    // `<a href="">` resolve to the current/origin URL with the query intact)
-    expect(result).toBe("?");
+    // Assert — stays on the current route, query fully cleared
+    expect(result).toBe("/admin/users");
   });
 
   it("removes every dialog key and its props but keeps unrelated query params", () => {

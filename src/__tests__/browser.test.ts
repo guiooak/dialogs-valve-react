@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, afterEach } from "vitest";
 import {
   getLocationSearch,
+  getLocationPathname,
   addLocationChangeListener,
   pushState,
 } from "../browser";
@@ -30,6 +31,30 @@ describe("getLocationSearch", () => {
     const result = getLocationSearch();
     // Assert
     expect(result).toBe("");
+  });
+});
+
+// ---------------------------------------------------------------------------
+// getLocationPathname
+// ---------------------------------------------------------------------------
+
+describe("getLocationPathname", () => {
+  it("returns window.location.pathname in a browser environment", () => {
+    // Arrange — navigate to a known sub-route
+    window.history.pushState({}, "", "/admin/users?dialog=user-view");
+    // Act
+    const result = getLocationPathname();
+    // Assert
+    expect(result).toBe("/admin/users");
+  });
+
+  it('returns "/" when window is undefined (SSR)', () => {
+    // Arrange
+    vi.stubGlobal("window", undefined);
+    // Act
+    const result = getLocationPathname();
+    // Assert
+    expect(result).toBe("/");
   });
 });
 
@@ -127,27 +152,6 @@ describe("pushState", () => {
     // Assert
     expect(pushStateSpy).toHaveBeenCalledWith({}, "", "/new-path?dialog=test");
     pushStateSpy.mockRestore();
-  });
-
-  it('normalizes a query-clearing "?" so no bare "?" lingers in the URL', () => {
-    // Arrange — a dialog is open on a sub-route
-    window.history.pushState({}, "", "/sub-route?dialog=x");
-    // Act — close builders return "?" when no dialog params remain
-    pushState("?");
-    // Assert — query cleared, and the path has no trailing "?"
-    expect(window.location.pathname).toBe("/sub-route");
-    expect(window.location.search).toBe("");
-    expect(window.location.href.endsWith("?")).toBe(false);
-  });
-
-  it("resolves a relative search-only URL against the current path", () => {
-    // Arrange
-    window.history.pushState({}, "", "/sub-route?dialog=x");
-    // Act
-    pushState("?dialog=y");
-    // Assert — stays on the current path, query updated
-    expect(window.location.pathname).toBe("/sub-route");
-    expect(window.location.search).toBe("?dialog=y");
   });
 
   it("is a no-op when window is undefined (SSR)", () => {

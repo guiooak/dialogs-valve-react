@@ -6,12 +6,14 @@ import type { DialogMap } from "../types";
 
 vi.mock("../browser", () => ({
   getLocationSearch: vi.fn(() => ""),
+  getLocationPathname: vi.fn(() => "/"),
   addLocationChangeListener: vi.fn(() => () => {}),
   pushState: vi.fn(),
 }));
 
 import {
   getLocationSearch,
+  getLocationPathname,
   addLocationChangeListener,
   pushState,
 } from "../browser";
@@ -235,11 +237,12 @@ describe("DialogsValveProvider — closeDialog", () => {
 // ---------------------------------------------------------------------------
 
 describe("DialogsValveProvider — closeAllDialogs", () => {
-  it('calls onNavigate with "?" — a relative URL that clears the query and keeps the route', () => {
+  it("calls onNavigate with the current pathname, clearing the query and keeping the route", () => {
     // Arrange
     vi.mocked(getLocationSearch).mockReturnValue(
       "?dialog=dialog-a&dialog=dialog-b",
     );
+    vi.mocked(getLocationPathname).mockReturnValue("/admin/users");
     const onNavigate = vi.fn();
     const { result } = renderHook(() => useDialogsValve()!, {
       wrapper: makeWrapper({ onNavigate }),
@@ -248,9 +251,9 @@ describe("DialogsValveProvider — closeAllDialogs", () => {
     act(() => {
       result.current.closeAllDialogs();
     });
-    // Assert — relative "?" keeps the current path/basename, no bounce to "/"
+    // Assert — stays on the current route, no bounce to "/"
     const calledUrl: string = onNavigate.mock.calls[0][0];
-    expect(calledUrl).toBe("?");
+    expect(calledUrl).toBe("/admin/users");
   });
 });
 

@@ -7,7 +7,7 @@ import {
   DIALOG_BOOLEAN_PREFIX,
   DIALOG_MAIN_KEY,
 } from "./constants";
-import { getLocationSearch } from "./browser";
+import { getLocationSearch, getLocationPathname } from "./browser";
 import type {
   BuildDialogUrlOptions,
   DialogPropValue,
@@ -127,14 +127,12 @@ export function buildDialogUrl<TKeys extends string = RegisteredDialogKeys>(
     );
   }
 
-  // Emit a relative URL (search only) when staying on the current route, so the
-  // consumer's router resolves it against the *current location* — preserving
-  // the pathname and any router `basename`. Returning an absolute pathname here
-  // would double the basename under routers (e.g. react-router) that re-prepend
-  // it on navigate. For a cross-route `pathName`, the consumer supplies the
-  // (basename-relative) target path explicitly.
+  // Root the URL at an explicit pathname: the cross-route `pathName` when
+  // given, otherwise the current location's pathname. The result is an absolute
+  // path so the destination is unambiguous regardless of where the consumer's
+  // router is mounted.
   const search = params.toString();
-  return !pathName ? `?${search}` : `${pathName}?${search}`;
+  return `${pathName || getLocationPathname()}?${search}`;
 }
 
 function buildDialogPropParamKey(dialogKey: string, propKey: string): string {
@@ -156,14 +154,12 @@ export function buildCloseDialogUrl<
   // must survive the close.
   deleteDialogPropParams(params, dialogKey);
 
-  // Return a relative URL so the router resolves it against the current
-  // location, keeping the pathname (and any `basename`) intact. When no params
-  // remain we return "?" rather than "" — an empty string leaves the existing
-  // query in place under the `history.pushState` fallback (and resolves to the
-  // origin for `<a href="">`), whereas "?" reliably clears the query on every
-  // navigation path while staying on the current route.
+  // Root the close URL at the current pathname so the destination is explicit.
+  // When the query becomes empty we return the pathname alone (no trailing
+  // "?"), keeping the user on the current page.
+  const pathname = getLocationPathname();
   const search = params.toString();
-  return search ? `?${search}` : "?";
+  return search ? `${pathname}?${search}` : pathname;
 }
 
 export function buildCloseAllDialogsUrl(
@@ -179,8 +175,9 @@ export function buildCloseAllDialogsUrl(
     deleteDialogPropParams(params, dialogKey),
   );
 
+  const pathname = getLocationPathname();
   const search = params.toString();
-  return search ? `?${search}` : "?";
+  return search ? `${pathname}?${search}` : pathname;
 }
 
 /**

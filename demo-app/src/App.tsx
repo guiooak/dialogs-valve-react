@@ -13,6 +13,17 @@ export type AppPermissionsContextValue = {
 export const PermissionsContext =
   createContext<AppPermissionsContextValue | null>(null);
 
+// This demo is served under a router basename ("/dialogs-valve-react"). The URL
+// builders return an absolute path read from window.location.pathname, which
+// already includes that basename — and react-router's navigate() re-prepends
+// the basename. Strip it here so the two don't stack into a doubled path.
+const BASENAME = import.meta.env.BASE_URL.replace(/\/$/, "");
+
+function stripBasename(url: string): string {
+  if (!BASENAME) return url;
+  return url.startsWith(BASENAME) ? url.slice(BASENAME.length) || "/" : url;
+}
+
 function App() {
   const [isAdmin, setIsAdmin] = useState(false);
   const navigate = useNavigate();
@@ -21,7 +32,7 @@ function App() {
     <PermissionsContext.Provider value={{ isAdmin, setIsAdmin }}>
       <DialogsValveProvider
         dialogs={dialogs}
-        onNavigate={navigate}
+        onNavigate={(url) => navigate(stripBasename(url))}
         permissions={{ isAdmin }}
       >
         <Routes>

@@ -2,10 +2,8 @@
 "@dialogs-valve/react": patch
 ---
 
-Keep the current route (and any router `basename`) when closing dialogs. `buildCloseDialogUrl` and `buildCloseAllDialogsUrl` previously returned `""` when no dialog params remained — under the `history.pushState` fallback (and for `<a href="">`) an empty string resolves to the current/origin URL with the existing query left in place, so the dialog wasn't reliably cleared. They now return `"?"`, which clears the query while staying on the current path across every navigation path (`navigate`, `<Link>`, and `pushState`).
-
-The same-route builders deliberately return a **relative**, search-only URL (e.g. `?dialog=x`, or `?`) rather than an absolute pathname: returning the current `window.location.pathname` would double a configured router `basename` (e.g. react-router re-prepends it on `navigate`). Relative URLs let the router resolve against the current location, preserving the pathname and basename. Cross-route links via the `pathName` option are unaffected.
-
-The built-in `history.pushState` fallback (used when no `onNavigate` is provided) now resolves the URL against the current location and pushes `pathname + search + hash`, so the query-clearing `"?"` doesn't leave a bare `"?"` lingering in the address bar.
+Root every URL builder at an explicit pathname so closing a dialog keeps you on the current page instead of bouncing to the origin (`/`). `buildDialogUrl` uses the cross-route `pathName` option when provided, otherwise the current `window.location.pathname`; `buildCloseDialogUrl` and `buildCloseAllDialogsUrl` use the current pathname. When the query becomes empty the builders return the pathname alone (no trailing `"?"`).
 
 Closing dialogs now preserves unrelated query params. `buildCloseAllDialogsUrl` previously dropped the entire query string; it now removes only the dialog keys and their serialized props, leaving anything else (e.g. `utm_source`, filters, pagination) intact. Prop cleanup across `buildCloseDialogUrl`, `buildCloseAllDialogsUrl`, and `cleanUpQueryParams` also matches the exact `dialogKey + "."` prefix instead of a loose substring, so a param like `username` is no longer removed when closing a `user` dialog (and a single-character key no longer matches the `dialog` param itself).
+
+Note: because the builders return the full `window.location.pathname`, it includes any router `basename`. Consumers whose router re-prepends the basename on navigation (e.g. react-router) should strip it in `onNavigate` before navigating, to avoid a doubled path.

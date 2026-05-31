@@ -466,24 +466,25 @@ openDialog('cross-route-drawer');
 closeDialog('cross-route-drawer');
 // URL → /sub-route   (path kept, query cleared)
 
-// Same-route builders return RELATIVE urls
-// (?dialog=…, or ? when empty) so your router
-// resolves them against the current location —
-// the pathname and any basename are preserved,
-// never dropped to "/" and never duplicated.`;
+// The builders root every URL at the current
+// pathname, so closing keeps you on the page —
+// never dropped to "/". This demo runs under a
+// router basename, so onNavigate strips it before
+// navigate() (see App.tsx) to avoid a doubled path.`;
 
   return (
     <SectionLayout
       id="cross-route"
       label="06"
-      title="Cross-Route & Basename Safety"
+      title="Cross-Route Navigation"
       description={
         <>
           Opening and closing dialogs keeps you on whatever route you're on. The
-          same-route URL builders stay <strong>relative</strong>, so the router
-          preserves the current pathname and any configured{" "}
-          <code>basename</code> — closing a dialog never bounces you back to the
-          origin (<code>/</code>).
+          URL builders root every link at the current <strong>pathname</strong>,
+          so closing a dialog never bounces you back to the origin (
+          <code>/</code>). This demo runs under a router <code>basename</code>,
+          which <code>onNavigate</code> strips before handing the URL to{" "}
+          <code>navigate()</code>.
         </>
       }
       demo={
