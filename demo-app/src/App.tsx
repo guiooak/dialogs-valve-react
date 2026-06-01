@@ -1,6 +1,6 @@
-import { createContext, useCallback, useState } from "react";
+import { createContext, useEffect, useState } from "react";
 import { Routes, Route, useNavigate } from "react-router-dom";
-import { buildDialogUrl, DialogsValveProvider } from "@dialogs-valve/react";
+import { DialogsValveProvider, useDialogsValve } from "@dialogs-valve/react";
 import HomePage from "./pages/HomePage";
 import SubRoutePage from "./pages/SubRoutePage";
 import { dialogs } from "./dialogs-valve-registry";
@@ -15,11 +15,8 @@ export const PermissionsContext =
 
 function App() {
   const [isAdmin, setIsAdmin] = useState(false);
+  const [unauthorized, setUnauthorized] = useState(false);
   const navigate = useNavigate();
-
-  const handleUnauthorized = useCallback(() => {
-    navigate(buildDialogUrl("access-denied", { overlap: false }));
-  }, [navigate]);
 
   return (
     <PermissionsContext.Provider value={{ isAdmin, setIsAdmin }}>
@@ -27,8 +24,12 @@ function App() {
         dialogs={dialogs}
         onNavigate={navigate}
         permissions={{ isAdmin }}
-        onUnauthorized={handleUnauthorized}
+        onUnauthorized={() => setUnauthorized(true)}
       >
+        <AccessDeniedHandler
+          trigger={unauthorized}
+          onReset={() => setUnauthorized(false)}
+        />
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/sub-route" element={<SubRoutePage />} />
@@ -36,6 +37,24 @@ function App() {
       </DialogsValveProvider>
     </PermissionsContext.Provider>
   );
+}
+
+function AccessDeniedHandler({
+  trigger,
+  onReset,
+}: {
+  trigger: boolean;
+  onReset: () => void;
+}) {
+  const { openDialog } = useDialogsValve()!;
+
+  useEffect(() => {
+    if (!trigger) return;
+    openDialog("access-denied", { overlap: false });
+    onReset();
+  }, [trigger, openDialog, onReset]);
+
+  return null;
 }
 
 export default App;
