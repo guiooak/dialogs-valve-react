@@ -168,6 +168,16 @@ describe("extractDialogProps", () => {
     // Assert
     expect(result).toEqual({ title: "ForA" });
   });
+
+  it("ignores params that merely contain the prefix mid-string (prefix is matched, not substring)", () => {
+    // Arrange — `xuser.id` contains "user." but is not a prop of dialog "user".
+    // A naive includes() match would wrongly extract it (as key "xid").
+    const search = "?dialog=user&user.id=number.9&xuser.id=number.1";
+    // Act
+    const result = extractDialogProps(search, "user");
+    // Assert — only the genuinely prefixed param is extracted
+    expect(result).toEqual({ id: 9 });
+  });
 });
 
 // ---------------------------------------------------------------------------
