@@ -294,6 +294,17 @@
   background: rgba(245, 158, 11, 0.15);
 }
 
+/* Access denied hint (inside AccessDeniedModal) */
+.access-denied-hint {
+  font-size: 0.82rem;
+  color: var(--color-text-muted);
+  margin-top: var(--space-2);
+}
+
+.access-denied-hint code {
+  color: var(--color-text-secondary);
+}
+
 /* ============================================================
    Profile Cards (props section)
    ============================================================ */

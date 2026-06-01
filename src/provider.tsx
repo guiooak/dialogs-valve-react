@@ -180,6 +180,22 @@ export function DialogsValveProvider<
     [activeKeys],
   );
 
+  const buildDialogUrlBound = useCallback(
+    (key: string, options?: BuildDialogUrlOptions) =>
+      buildDialogUrl(key, options, dialogParamKey),
+    [dialogParamKey],
+  );
+
+  const buildCloseDialogUrlBound = useCallback(
+    (key: string) => buildCloseDialogUrl(key, dialogParamKey),
+    [dialogParamKey],
+  );
+
+  const buildCloseAllDialogsUrlBound = useCallback(
+    () => buildCloseAllDialogsUrl(dialogParamKey),
+    [dialogParamKey],
+  );
+
   const getDialogProps = useCallback(
     (key: TKeys): Record<string, DialogPropValue> =>
       extractDialogProps(effectiveSearch, key),
@@ -199,6 +215,12 @@ export function DialogsValveProvider<
         key: TKeys,
       ) => Record<string, DialogPropValue>,
       dialogParamKey,
+      buildDialogUrl: buildDialogUrlBound as (
+        key: TKeys,
+        options?: BuildDialogUrlOptions,
+      ) => string,
+      buildCloseDialogUrl: buildCloseDialogUrlBound as (key: TKeys) => string,
+      buildCloseAllDialogsUrl: buildCloseAllDialogsUrlBound,
     }),
     [
       openDialog,
@@ -207,6 +229,9 @@ export function DialogsValveProvider<
       isOpen,
       getDialogProps,
       dialogParamKey,
+      buildDialogUrlBound,
+      buildCloseDialogUrlBound,
+      buildCloseAllDialogsUrlBound,
     ],
   );
 
