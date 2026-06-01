@@ -67,3 +67,19 @@ export function pushState(url: string): void {
   const { pathname, search, hash } = new URL(url, window.location.href);
   window.history.pushState(null, "", `${pathname}${search}${hash}`);
 }
+
+/**
+ * Like {@link pushState}, but swaps the current history entry via
+ * `history.replaceState` instead of pushing a new one. Used as the fallback
+ * navigation when no custom router is provided and a navigation requests
+ * `replace` (e.g. a transient dialog that shouldn't add a back-button step).
+ *
+ * Resolves the relative, search-only builder URLs the same way as `pushState`.
+ *
+ * @param {string} url - The URL to navigate to.
+ */
+export function replaceState(url: string): void {
+  if (typeof window === "undefined") return;
+  const { pathname, search, hash } = new URL(url, window.location.href);
+  window.history.replaceState(null, "", `${pathname}${search}${hash}`);
+}

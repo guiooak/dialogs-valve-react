@@ -8,12 +8,14 @@ vi.mock("../browser", () => ({
   getLocationSearch: vi.fn(() => ""),
   addLocationChangeListener: vi.fn(() => () => {}),
   pushState: vi.fn(),
+  replaceState: vi.fn(),
 }));
 
 import {
   getLocationSearch,
   addLocationChangeListener,
   pushState,
+  replaceState,
 } from "../browser";
 
 // ---------------------------------------------------------------------------
@@ -132,6 +134,7 @@ describe("DialogsValveProvider — openDialog", () => {
     // Assert
     expect(onNavigate).toHaveBeenCalledWith(
       expect.stringContaining("dialog=dialog-a"),
+      { replace: false },
     );
   });
 
@@ -291,6 +294,97 @@ describe("DialogsValveProvider — navigation fallback", () => {
     });
     // Assert
     expect(vi.mocked(pushState)).not.toHaveBeenCalled();
+  });
+});
+
+// ---------------------------------------------------------------------------
+// replace option
+// ---------------------------------------------------------------------------
+
+describe("DialogsValveProvider — replace option", () => {
+  beforeEach(() => {
+    vi.mocked(getLocationSearch).mockReturnValue("");
+    vi.mocked(pushState).mockClear();
+    vi.mocked(replaceState).mockClear();
+  });
+
+  it("forwards { replace: true } to onNavigate when openDialog is called with replace", () => {
+    // Arrange
+    const onNavigate = vi.fn();
+    const { result } = renderHook(() => useDialogsValve()!, {
+      wrapper: makeWrapper({ onNavigate }),
+    });
+    // Act
+    act(() => {
+      result.current.openDialog("dialog-a", { replace: true });
+    });
+    // Assert
+    expect(onNavigate).toHaveBeenCalledWith(
+      expect.stringContaining("dialog=dialog-a"),
+      { replace: true },
+    );
+  });
+
+  it("forwards { replace: true } to onNavigate when closeDialog is called with replace", () => {
+    // Arrange
+    vi.mocked(getLocationSearch).mockReturnValue("?dialog=dialog-a");
+    const onNavigate = vi.fn();
+    const { result } = renderHook(() => useDialogsValve()!, {
+      wrapper: makeWrapper({ onNavigate }),
+    });
+    // Act
+    act(() => {
+      result.current.closeDialog("dialog-a", { replace: true });
+    });
+    // Assert
+    expect(onNavigate).toHaveBeenCalledWith(expect.any(String), {
+      replace: true,
+    });
+  });
+
+  it("forwards { replace: true } to onNavigate when closeAllDialogs is called with replace", () => {
+    // Arrange
+    vi.mocked(getLocationSearch).mockReturnValue("?dialog=dialog-a&dialog=dialog-b");
+    const onNavigate = vi.fn();
+    const { result } = renderHook(() => useDialogsValve()!, {
+      wrapper: makeWrapper({ onNavigate }),
+    });
+    // Act
+    act(() => {
+      result.current.closeAllDialogs({ replace: true });
+    });
+    // Assert
+    expect(onNavigate).toHaveBeenCalledWith("?", { replace: true });
+  });
+
+  it("falls back to replaceState (not pushState) when replace is requested and no onNavigate is provided", () => {
+    // Arrange — no onNavigate, so the built-in history fallback is used
+    const { result } = renderHook(() => useDialogsValve()!, {
+      wrapper: makeWrapper(),
+    });
+    // Act
+    act(() => {
+      result.current.openDialog("dialog-a", { replace: true });
+    });
+    // Assert
+    expect(vi.mocked(replaceState)).toHaveBeenCalledWith(
+      expect.stringContaining("dialog=dialog-a"),
+    );
+    expect(vi.mocked(pushState)).not.toHaveBeenCalled();
+  });
+
+  it("uses pushState (not replaceState) when replace is omitted", () => {
+    // Arrange
+    const { result } = renderHook(() => useDialogsValve()!, {
+      wrapper: makeWrapper(),
+    });
+    // Act
+    act(() => {
+      result.current.openDialog("dialog-a");
+    });
+    // Assert
+    expect(vi.mocked(pushState)).toHaveBeenCalledOnce();
+    expect(vi.mocked(replaceState)).not.toHaveBeenCalled();
   });
 });
 
@@ -473,6 +567,7 @@ describe("DialogsValveProvider — locationSearch prop", () => {
 
     expect(onNavigate).toHaveBeenCalledWith(
       expect.stringContaining("dialog=dialog-a"),
+      { replace: false },
     );
   });
 });

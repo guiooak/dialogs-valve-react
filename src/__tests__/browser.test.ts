@@ -3,6 +3,7 @@ import {
   getLocationSearch,
   addLocationChangeListener,
   pushState,
+  replaceState,
 } from "../browser";
 
 afterEach(() => {
@@ -159,5 +160,42 @@ describe("pushState", () => {
     vi.stubGlobal("window", undefined);
     // Act / Assert — must not throw
     expect(() => pushState("/any")).not.toThrow();
+  });
+});
+
+// ---------------------------------------------------------------------------
+// replaceState
+// ---------------------------------------------------------------------------
+
+describe("replaceState", () => {
+  it("calls window.history.replaceState, swapping the current entry", () => {
+    // Arrange — open a dialog on a sub-route via a pushed entry
+    window.history.pushState(null, "", "/sub-route?dialog=x");
+    const replaceSpy = vi.spyOn(window.history, "replaceState");
+    // Act
+    replaceState("?dialog=y");
+    // Assert — same path, query swapped, used replaceState (not pushState)
+    expect(replaceSpy).toHaveBeenCalledWith(null, "", "/sub-route?dialog=y");
+    expect(window.location.pathname).toBe("/sub-route");
+    expect(window.location.search).toBe("?dialog=y");
+    replaceSpy.mockRestore();
+  });
+
+  it('normalizes a query-clearing "?" so no bare "?" lingers in the URL', () => {
+    // Arrange
+    window.history.pushState(null, "", "/sub-route?dialog=x");
+    // Act
+    replaceState("?");
+    // Assert
+    expect(window.location.pathname).toBe("/sub-route");
+    expect(window.location.search).toBe("");
+    expect(window.location.href.endsWith("?")).toBe(false);
+  });
+
+  it("is a no-op when window is undefined (SSR)", () => {
+    // Arrange
+    vi.stubGlobal("window", undefined);
+    // Act / Assert — must not throw
+    expect(() => replaceState("/any")).not.toThrow();
   });
 });

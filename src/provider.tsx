@@ -11,6 +11,7 @@ import {
   getLocationSearch,
   addLocationChangeListener,
   pushState,
+  replaceState,
 } from "./browser";
 import {
   extractDialogProps,
@@ -24,9 +25,11 @@ import { DialogsController } from "./controller";
 import type {
   BuildDialogUrlOptions,
   DialogMap,
+  DialogNavigateOptions,
   DialogPropValue,
   DialogsValveConfig,
   DialogsValveContextValue,
+  OpenDialogOptions,
   onNavigateType,
 } from "./types";
 
@@ -138,9 +141,13 @@ export function DialogsValveProvider<
   // Navigation Helper
   // -----------------------------------------------------------------------
   const navigate = useCallback(
-    (url: string) => {
+    (url: string, replace = false) => {
       if (onNavigate) {
-        onNavigate(url);
+        // Forward the navigation intent so routers that support it can replace
+        // the entry; routers that ignore the second arg still push.
+        onNavigate(url, { replace });
+      } else if (replace) {
+        replaceState(url);
       } else {
         pushState(url);
       }
@@ -158,22 +165,25 @@ export function DialogsValveProvider<
   // Context value
   // -----------------------------------------------------------------------
   const openDialog = useCallback(
-    (key: string, options?: BuildDialogUrlOptions) => {
-      navigate(buildDialogUrl(key, options, dialogParamKey));
+    (key: string, options?: OpenDialogOptions) => {
+      navigate(buildDialogUrl(key, options, dialogParamKey), options?.replace);
     },
     [navigate, dialogParamKey],
   );
 
   const closeDialog = useCallback(
-    (key: string) => {
-      navigate(buildCloseDialogUrl(key, dialogParamKey));
+    (key: string, options?: DialogNavigateOptions) => {
+      navigate(buildCloseDialogUrl(key, dialogParamKey), options?.replace);
     },
     [navigate, dialogParamKey],
   );
 
-  const closeAllDialogs = useCallback(() => {
-    navigate(buildCloseAllDialogsUrl(dialogParamKey));
-  }, [navigate, dialogParamKey]);
+  const closeAllDialogs = useCallback(
+    (options?: DialogNavigateOptions) => {
+      navigate(buildCloseAllDialogsUrl(dialogParamKey), options?.replace);
+    },
+    [navigate, dialogParamKey],
+  );
 
   const isOpen = useCallback(
     (key: TKeys) => activeKeys.includes(key),
@@ -204,11 +214,11 @@ export function DialogsValveProvider<
 
   const contextValue: DialogsValveContextValue<TKeys> = useMemo(
     () => ({
-      openDialog: openDialog as (
+      openDialog: openDialog as (key: TKeys, options?: OpenDialogOptions) => void,
+      closeDialog: closeDialog as (
         key: TKeys,
-        options?: BuildDialogUrlOptions,
+        options?: DialogNavigateOptions,
       ) => void,
-      closeDialog: closeDialog as (key: TKeys) => void,
       closeAllDialogs,
       isOpen: isOpen as (key: TKeys) => boolean,
       getDialogProps: getDialogProps as (

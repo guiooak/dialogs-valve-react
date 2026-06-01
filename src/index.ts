@@ -7,6 +7,8 @@ export type {
   InferDialogKeys,
   DialogsValveConfig,
   BuildDialogUrlOptions,
+  DialogNavigateOptions,
+  OpenDialogOptions,
   DialogsValveContextValue,
   RegisteredDialogKeys,
 } from "./types";

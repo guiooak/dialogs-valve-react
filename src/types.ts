@@ -18,8 +18,16 @@ export type DialogPropValue = string | number | boolean;
  *
  * This allows the library to remain router-agnostic. Consumers provide this function
  * (e.g., from `useNavigate` in react-router-dom or `useRouter` in Next.js).
+ *
+ * The optional second argument forwards navigation intent — currently
+ * `{ replace }` — so routers that support it can swap the history entry instead
+ * of pushing a new one. `react-router`'s `navigate(to, { replace })` matches
+ * this shape directly. Routers that ignore the second argument keep pushing.
  */
-export type onNavigateType = (url: string) => void;
+export type onNavigateType = (
+  url: string,
+  options?: DialogNavigateOptions,
+) => void;
 
 // ---------------------------------------------------------------------------
 // Dialog registry
@@ -117,6 +125,34 @@ export type BuildDialogUrlOptions = {
 };
 
 // ---------------------------------------------------------------------------
+// Navigation options
+// ---------------------------------------------------------------------------
+
+/**
+ * Navigation behaviour shared by the open/close actions.
+ */
+export type DialogNavigateOptions = {
+  /**
+   * Replace the current history entry instead of pushing a new one.
+   *
+   * Useful for transient dialogs you don't want to add a step to the back
+   * button (e.g. a confirmation that should return to where the user was).
+   * Honoured by the built-in `history` fallback; when a custom `onNavigate` is
+   * provided, the flag is forwarded as `onNavigate(url, { replace })` for the
+   * router to act on.
+   *
+   * @default false
+   */
+  replace?: boolean;
+};
+
+/**
+ * Options accepted by `openDialog()` — the URL-builder options plus navigation
+ * behaviour (`replace`).
+ */
+export type OpenDialogOptions = BuildDialogUrlOptions & DialogNavigateOptions;
+
+// ---------------------------------------------------------------------------
 // Utility types
 // ---------------------------------------------------------------------------
 
@@ -173,14 +209,14 @@ export type RegisteredDialogKeys = DialogsValveRegistry extends {
  * @template TKeys - Allowed keys for the dialogs.
  */
 export type DialogsValveContextValue<TKeys extends string = string> = {
-  /** Open a dialog by key with optional props and overlap. */
-  openDialog: (key: TKeys, options?: BuildDialogUrlOptions) => void;
+  /** Open a dialog by key with optional props, overlap and `replace`. */
+  openDialog: (key: TKeys, options?: OpenDialogOptions) => void;
 
-  /** Close a specific dialog by key. */
-  closeDialog: (key: TKeys) => void;
+  /** Close a specific dialog by key. Optionally `replace` the history entry. */
+  closeDialog: (key: TKeys, options?: DialogNavigateOptions) => void;
 
-  /** Close all currently open dialogs. */
-  closeAllDialogs: () => void;
+  /** Close all currently open dialogs. Optionally `replace` the history entry. */
+  closeAllDialogs: (options?: DialogNavigateOptions) => void;
 
   /** Check whether a specific dialog is currently open. */
   isOpen: (key: TKeys) => boolean;

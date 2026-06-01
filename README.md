@@ -157,6 +157,18 @@ openDialog("settings");
 
 Each dialog only removes itself when closed — the others remain open.
 
+### Replacing History Entries
+
+By default, opening or closing a dialog **pushes** a new browser-history entry, so the back button steps through your dialog state. For transient dialogs you don't want in that history (e.g. a confirmation that should return the user to where they were), pass `replace: true`:
+
+```tsx
+openDialog("confirm-delete", { replace: true });
+closeDialog("confirm-delete", { replace: true });
+closeAllDialogs({ replace: true });
+```
+
+When using the built-in `history` fallback, this calls `history.replaceState` instead of `pushState`. When you provide `onNavigate`, the flag is forwarded as the second argument — `onNavigate(url, { replace: true })` — so routers that support it swap the entry. `react-router`'s `navigate(to, { replace })` matches this shape, so `onNavigate={navigate}` honours `replace` out of the box.
+
 ### Cross-Route Dialog Links
 
 To open a dialog on a **different** route — "navigate to another page _and_ open a dialog there" from a single click — pass `pathName`. The helper builds a fresh query string rooted at that path, keeping prop serialization intact.
@@ -364,7 +376,7 @@ Import directly from `@dialogs-valve/react`.
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
 | `dialogs` | `DialogMap` | — | **Required.** Your dialog registry map. |
-| `onNavigate` | `(url: string) => void` | `history.pushState` | Navigation callback from your router. |
+| `onNavigate` | `(url: string, options?: { replace?: boolean }) => void` | `history.pushState` | Navigation callback from your router. The second argument forwards `{ replace }`; wire it to your router's replace semantics (e.g. `react-router`'s `navigate`). |
 | `permissions` | `TPermissions` | — | Permissions context forwarded to `canShow` guards. |
 | `permissionsLoading` | `boolean` | `false` | While `true`, dialogs with a `canShow` guard are deferred until permissions resolve. Unguarded dialogs are unaffected. |
 | `onUnauthorized` | `(key, permissions?) => void` | — | Called when a `canShow` guard denies a dialog. Fires from an effect, once per block event. |
@@ -380,9 +392,9 @@ Import directly from `@dialogs-valve/react`. Must be called within a `DialogsVal
 
 | Method / Property | Signature | Description |
 |-------------------|-----------|-------------|
-| `openDialog` | `(key, options?) => void` | Opens a dialog. Optionally pass `props`, `overlap`, or `pathName`. |
-| `closeDialog` | `(key) => void` | Closes a specific dialog by key. |
-| `closeAllDialogs` | `() => void` | Closes all currently open dialogs. |
+| `openDialog` | `(key, options?) => void` | Opens a dialog. Optionally pass `props`, `overlap`, `pathName`, or `replace`. |
+| `closeDialog` | `(key, options?) => void` | Closes a specific dialog by key. Optionally pass `replace`. |
+| `closeAllDialogs` | `(options?) => void` | Closes all currently open dialogs. Optionally pass `replace`. |
 | `isOpen` | `(key) => boolean` | Returns `true` if the dialog is currently open. |
 | `getDialogProps` | `(key) => Record<string, DialogPropValue>` | Returns the deserialized props for a dialog from the URL. |
 | `dialogParamKey` | `string` | The active URL param key (e.g. `"dialog"`). |
@@ -453,7 +465,9 @@ import type {
   DialogsValveProviderProps,
   InferDialogKeys,        // Extracts key union from a registry type
   RegisteredDialogKeys,   // Key union resolved from DialogsValveRegistry augmentation
-  onNavigateType,         // (url: string) => void
+  DialogNavigateOptions,  // { replace?: boolean }
+  OpenDialogOptions,      // BuildDialogUrlOptions & DialogNavigateOptions
+  onNavigateType,         // (url: string, options?: { replace?: boolean }) => void
 } from "@dialogs-valve/react";
 ```
 
