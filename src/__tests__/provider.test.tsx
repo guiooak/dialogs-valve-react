@@ -481,6 +481,84 @@ describe("DialogsValveProvider — locationSearch prop", () => {
 // closeDelay config
 // ---------------------------------------------------------------------------
 
+// ---------------------------------------------------------------------------
+// Bound URL builders
+// ---------------------------------------------------------------------------
+
+describe("DialogsValveProvider — bound URL builders", () => {
+  beforeEach(() => {
+    vi.mocked(getLocationSearch).mockReturnValue("");
+  });
+
+  it("buildDialogUrl uses the default dialogParamKey", () => {
+    // Arrange
+    const { result } = renderHook(() => useDialogsValve()!, {
+      wrapper: makeWrapper(),
+    });
+    // Act
+    const url = result.current.buildDialogUrl("dialog-a");
+    // Assert
+    expect(url).toContain("dialog=dialog-a");
+  });
+
+  it("buildDialogUrl uses the custom dialogParamKey from config", () => {
+    // Arrange
+    const { result } = renderHook(() => useDialogsValve()!, {
+      wrapper: makeWrapper({ config: { dialogParamKey: "drawer" } }),
+    });
+    // Act
+    const url = result.current.buildDialogUrl("dialog-a");
+    // Assert
+    expect(url).toContain("drawer=dialog-a");
+    expect(url).not.toContain("dialog=");
+  });
+
+  it("buildDialogUrl includes serialized props", () => {
+    // Arrange
+    const { result } = renderHook(() => useDialogsValve()!, {
+      wrapper: makeWrapper({ config: { dialogParamKey: "drawer" } }),
+    });
+    // Act
+    const url = result.current.buildDialogUrl("dialog-a", {
+      props: { userId: "42" },
+    });
+    // Assert
+    const parsed = new URL(url, "http://x");
+    expect(parsed.searchParams.get("dialog-a.userId")).toBe("42");
+  });
+
+  it("buildCloseDialogUrl uses the custom dialogParamKey from config", () => {
+    // Arrange — simulate an open dialog under the custom key
+    vi.mocked(getLocationSearch).mockReturnValue("?drawer=dialog-a");
+    const { result } = renderHook(() => useDialogsValve()!, {
+      wrapper: makeWrapper({ config: { dialogParamKey: "drawer" } }),
+    });
+    // Act
+    const url = result.current.buildCloseDialogUrl("dialog-a");
+    // Assert — the URL should not contain the custom key for dialog-a
+    const parsed = new URL(url, "http://x");
+    expect(parsed.searchParams.getAll("drawer")).not.toContain("dialog-a");
+  });
+
+  it("buildCloseAllDialogsUrl returns '?' with the custom dialogParamKey", () => {
+    // Arrange
+    vi.mocked(getLocationSearch).mockReturnValue(
+      "?drawer=dialog-a&drawer=dialog-b",
+    );
+    const { result } = renderHook(() => useDialogsValve()!, {
+      wrapper: makeWrapper({ config: { dialogParamKey: "drawer" } }),
+    });
+    // Act
+    const url = result.current.buildCloseAllDialogsUrl();
+    // Assert
+    expect(url).toBe("?");
+  });
+});
+
+// ---------------------------------------------------------------------------
+// closeDelay config
+// ---------------------------------------------------------------------------
+
 describe("DialogsValveProvider — closeDelay config", () => {
   afterEach(() => {
     vi.useRealTimers();

@@ -190,4 +190,23 @@ export type DialogsValveContextValue<TKeys extends string = string> = {
 
   /** The dialog param key in use (resolved from config or default). */
   dialogParamKey: string;
+
+  /**
+   * Build a URL that opens the given dialog.
+   * Pre-bound to the active `dialogParamKey` — use this instead of the
+   * standalone `buildDialogUrl` export when inside a provider tree.
+   */
+  buildDialogUrl: (key: TKeys, options?: BuildDialogUrlOptions) => string;
+
+  /**
+   * Build a URL that closes the given dialog.
+   * Pre-bound to the active `dialogParamKey`.
+   */
+  buildCloseDialogUrl: (key: TKeys) => string;
+
+  /**
+   * Build a URL that closes all open dialogs.
+   * Pre-bound to the active `dialogParamKey`.
+   */
+  buildCloseAllDialogsUrl: () => string;
 };
