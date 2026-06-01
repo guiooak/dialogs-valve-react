@@ -392,28 +392,17 @@ export const dialogs = {
   'access-denied': { Component: AccessDeniedModal },
 } satisfies DialogMap<string, { isAdmin: boolean }>;
 
-// Signal unauthorized via state; handle it inside the tree
-// so openDialog from the hook is available:
+// Pass permissions + onUnauthorized to the provider:
 <DialogsValveProvider
+  onNavigate={navigate}
   permissions={{ isAdmin }}
-  onUnauthorized={() => setUnauthorized(true)}
+  onUnauthorized={() => {
+    // Open a custom modal instead of a silent console.warn
+    navigate(buildDialogUrl('access-denied', { overlap: false }));
+  }}
 >
-  <AccessDeniedHandler
-    trigger={unauthorized}
-    onReset={() => setUnauthorized(false)}
-  />
-</DialogsValveProvider>
-
-// Inside the provider tree — uses openDialog from the hook:
-function AccessDeniedHandler({ trigger, onReset }) {
-  const { openDialog } = useDialogsValve()!;
-  useEffect(() => {
-    if (!trigger) return;
-    openDialog('access-denied', { overlap: false });
-    onReset();
-  }, [trigger, openDialog, onReset]);
-  return null;
-}`;
+  <App />
+</DialogsValveProvider>`;
 
   return (
     <SectionLayout
