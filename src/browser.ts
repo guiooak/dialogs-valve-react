@@ -41,13 +41,28 @@ export function addLocationChangeListener(callback: () => void): () => void {
    * FALLBACK: pushState/replaceState changes do not trigger the native 'popstate' event.
    * To detect these changes without monkey-patching the history API, we observe
    * DOM mutations which typically happen concurrently with router navigation.
+   *
+   * The observer fires on *every* DOM mutation anywhere in the document, so we
+   * coalesce bursts into a single callback per animation frame. Without this, a
+   * busy app re-runs the URL check on every unrelated DOM change.
    */
-  const observer = new MutationObserver(callback);
+  let frameId: number | null = null;
+  const scheduleCallback = () => {
+    if (frameId !== null) return;
+    frameId = requestAnimationFrame(() => {
+      frameId = null;
+      callback();
+    });
+  };
+  const observer = new MutationObserver(scheduleCallback);
   observer.observe(document, { subtree: true, childList: true });
 
   return () => {
     window.removeEventListener("popstate", callback);
     observer.disconnect();
+    if (frameId !== null) {
+      cancelAnimationFrame(frameId);
+    }
   };
 }
 
