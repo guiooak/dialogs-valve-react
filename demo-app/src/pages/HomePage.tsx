@@ -1,7 +1,8 @@
 import React, { useContext } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { PermissionsContext } from "../App";
-import { useDialogsValve } from "@dialogs-valve/react";
+import { DialogsValveProvider, useDialogsValve } from "@dialogs-valve/react";
+import CustomKeyDrawer from "../dialogs/custom-param-key/CustomKeyDrawer";
 import UrlInspector from "../components/UrlInspector/UrlInspector";
 import SectionLayout from "../components/SectionLayout/SectionLayout";
 import CodeBlock from "../components/CodeBlock/CodeBlock";
@@ -23,6 +24,7 @@ const HomePage: React.FC = () => (
       <PermissionsSection />
       <CrossRouteSection />
       <QueryParamsSection />
+      <CustomParamKeySection />
       <InstallSection />
     </main>
     <footer className="showcase-footer">
@@ -387,18 +389,20 @@ export const dialogs = {
     Component: AdminPanelDrawer,
     canShow: (permissions) => permissions.isAdmin,
   },
+  'access-denied': { Component: AccessDeniedModal },
 } satisfies DialogMap<string, { isAdmin: boolean }>;
 
-// Pass permissions to the provider:
+// Pass permissions + onUnauthorized to the provider:
 <DialogsValveProvider
   onNavigate={navigate}
   permissions={{ isAdmin }}
+  onUnauthorized={() => {
+    // Open a custom modal instead of a silent console.warn
+    navigate(buildDialogUrl('access-denied', { overlap: false }));
+  }}
 >
   <App />
-</DialogsValveProvider>
-
-// If canShow returns false, the dialog is skipped
-// and a console.warn is emitted.`;
+</DialogsValveProvider>`;
 
   return (
     <SectionLayout
@@ -581,7 +585,95 @@ closeDialog('query-params-drawer');
   );
 };
 
-// ─── Section 8: Installation ──────────────────────────────────────────────────
+// ─── Section 8: Custom Param Key ─────────────────────────────────────────────
+
+const customKeyDialogs = { "feature-drawer": { Component: CustomKeyDrawer } };
+
+const CustomParamKeySection: React.FC = () => {
+  const navigate = useNavigate();
+
+  const code = `// Configure a custom query param key for all dialogs:
+<DialogsValveProvider
+  dialogs={dialogs}
+  onNavigate={navigate}
+  config={{ dialogParamKey: "drawer" }}
+>
+  ...
+</DialogsValveProvider>
+
+// Inside the tree, use hook-bound builders —
+// they automatically use the configured key:
+const { openDialog, buildDialogUrl } = useDialogsValve()!;
+
+openDialog('feature-drawer');
+// URL: ?drawer=feature-drawer
+
+// Safe for <Link> patterns too:
+const url = buildDialogUrl('feature-drawer');
+// → "?drawer=feature-drawer"`;
+
+  return (
+    <SectionLayout
+      id="custom-param-key"
+      label="08"
+      title="Custom Param Key"
+      description={
+        <>
+          Change the URL query param key from the default <code>"dialog"</code>{" "}
+          to anything you like — useful when avoiding collisions with existing
+          params or matching your team's naming convention. Use the hook-bound{" "}
+          <code>buildDialogUrl</code> inside the tree so the key is always
+          correct.
+        </>
+      }
+      demo={
+        <DialogsValveProvider
+          dialogs={customKeyDialogs}
+          onNavigate={navigate}
+          config={{ dialogParamKey: "drawer" }}
+        >
+          <CustomParamKeyDemo />
+        </DialogsValveProvider>
+      }
+      code={<CodeBlock code={code} filename="App.tsx" />}
+    />
+  );
+};
+
+const CustomParamKeyDemo: React.FC = () => {
+  const { openDialog, buildDialogUrl } = useDialogsValve<string>()!;
+
+  return (
+    <div className="demo-card">
+      <p className="demo-card-hint">
+        Open the drawer and watch the URL Inspector — the param key is{" "}
+        <code>drawer</code>, not <code>dialog</code>.
+      </p>
+      <div className="demo-actions">
+        <button
+          className="btn btn-primary"
+          onClick={() => openDialog("feature-drawer")}
+        >
+          Open Feature Drawer
+        </button>
+      </div>
+      <div className="demo-url-preview">
+        <span className="demo-url-label">Expected URL shape</span>
+        <code>?drawer=feature-drawer</code>
+      </div>
+      <div className="demo-callout">
+        <span className="demo-callout-tag">Tip</span>
+        <span>
+          The URL was built by the hook-bound{" "}
+          <code>buildDialogUrl("feature-drawer")</code> →{" "}
+          <code>{buildDialogUrl("feature-drawer")}</code>
+        </span>
+      </div>
+    </div>
+  );
+};
+
+// ─── Section 9: Installation ──────────────────────────────────────────────────
 
 const InstallSection: React.FC = () => {
   const installCode = `npm install @dialogs-valve/react
@@ -632,7 +724,7 @@ function SettingsButton() {
   return (
     <section id="installation" className="section section-install">
       <div className="section-meta">
-        <span className="section-number">08</span>
+        <span className="section-number">09</span>
         <h2 className="section-title">Quick Start</h2>
       </div>
       <p className="section-desc">

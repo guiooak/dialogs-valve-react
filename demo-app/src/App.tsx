@@ -1,6 +1,6 @@
-import { createContext, useState } from "react";
+import { createContext, useCallback, useState } from "react";
 import { Routes, Route, useNavigate } from "react-router-dom";
-import { DialogsValveProvider } from "@dialogs-valve/react";
+import { buildDialogUrl, DialogsValveProvider } from "@dialogs-valve/react";
 import HomePage from "./pages/HomePage";
 import SubRoutePage from "./pages/SubRoutePage";
 import { dialogs } from "./dialogs-valve-registry";
@@ -17,12 +17,17 @@ function App() {
   const [isAdmin, setIsAdmin] = useState(false);
   const navigate = useNavigate();
 
+  const handleUnauthorized = useCallback(() => {
+    navigate(buildDialogUrl("access-denied", { overlap: false }));
+  }, [navigate]);
+
   return (
     <PermissionsContext.Provider value={{ isAdmin, setIsAdmin }}>
       <DialogsValveProvider
         dialogs={dialogs}
         onNavigate={navigate}
         permissions={{ isAdmin }}
+        onUnauthorized={handleUnauthorized}
       >
         <Routes>
           <Route path="/" element={<HomePage />} />
