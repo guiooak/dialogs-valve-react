@@ -26,9 +26,13 @@ export function extractDialogProps<TKeys extends string = RegisteredDialogKeys>(
   const propPrefix = `${dialogKey}${DIALOG_PROP_PREFIX_SEPARATOR}`;
   const result: Record<string, DialogPropValue> = {};
 
+  // Match the exact `dialogKey + separator` prefix (mirrors
+  // `deleteDialogPropParams`). A loose `includes()` substring match would
+  // wrongly pull in unrelated params that merely contain the prefix elsewhere
+  // (e.g. extracting `xuser.id` as a prop of dialog `user`).
   params.forEach((value, key) => {
-    if (key?.includes(propPrefix)) {
-      const realPropKey = key.replace(propPrefix, "");
+    if (key.startsWith(propPrefix)) {
+      const realPropKey = key.slice(propPrefix.length);
       result[realPropKey] = parsePropValue(value);
     }
   });
