@@ -88,8 +88,11 @@ export function parsePropValue(value: string): DialogPropValue {
     return false;
   }
 
-  if (DIALOG_NUMBER_REGEX.test(value)) {
-    return Number(value.replace(DIALOG_NUMBER_PREFIX, ""));
+  if (value.startsWith(DIALOG_NUMBER_PREFIX)) {
+    const numericPart = value.slice(DIALOG_NUMBER_PREFIX.length);
+    if (DIALOG_NUMBER_REGEX.test(numericPart)) {
+      return Number(numericPart);
+    }
   }
 
   return value;
