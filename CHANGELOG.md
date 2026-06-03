@@ -1,5 +1,18 @@
 # @dialogs-valve/react
 
+## 0.3.0
+
+### Minor Changes
+
+- 4ddf692: Expose pre-bound URL builders from `useDialogsValve()`: `buildDialogUrl`, `buildCloseDialogUrl`, and `buildCloseAllDialogsUrl`. Each is pre-bound to the provider's resolved `dialogParamKey`, fixing the bug where standalone imports would silently ignore a custom key configured via `<DialogsValveProvider config={{ dialogParamKey: "..." }}>`.
+
+### Patch Changes
+
+- 128d0d2: Docs: clarify that `useDialogsValve()` returns `null` (and logs an error) when called outside a `<DialogsValveProvider>` — it does not throw. The hook's JSDoc, the context comment, and the README return-value section previously implied it would throw; they now describe the actual nullable contract and the `useDialogsValve()!` assertion pattern.
+- 2ef9bd3: Performance: coalesce the built-in `MutationObserver` fallback. The observer used to detect router navigations fires on _every_ DOM mutation in the document, which re-ran the URL check on each unrelated change in busy apps. Observer-triggered checks are now batched into a single callback per animation frame (and the pending frame is cancelled on cleanup). The synchronous `popstate` path is unchanged. This only affects the fallback listener — apps that pass `locationSearch` from their router are unaffected.
+- 12e83d3: Fix `extractDialogProps` to match the exact `dialogKey + separator` prefix instead of a loose substring (`includes`). Previously an unrelated query param that merely contained the prefix mid-string (e.g. `xuser.id` while opening dialog `user`) could be wrongly extracted as a dialog prop. This aligns extraction with the prefix matching already used when deleting prop params.
+- 786020e: Fix number prop round-tripping for negative and decimal (and exponent) values. `parsePropValue` previously validated with `/^number.\d+$/`, which only matched non-negative integers — so a serialized `number.-5` or `number.3.14` came back as a **string** instead of a number. The numeric payload is now matched against a grammar that accepts signs, decimals and exponent notation (the forms `String(value)` produces), while still rejecting hex, `Infinity`/`NaN` and empty payloads. The stray unescaped `.` in the old pattern is also gone.
+
 ## 0.2.1
 
 ### Patch Changes
