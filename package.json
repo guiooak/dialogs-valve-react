@@ -1,6 +1,6 @@
 {
   "name": "@dialogs-valve/react",
-  "version": "0.2.1",
+  "version": "0.3.0",
   "description": "A small library to manage dialogs (like modals, drawers, etc) using URL query params.",
   "type": "module",
   "sideEffects": false,
