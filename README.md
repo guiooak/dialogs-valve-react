@@ -376,7 +376,7 @@ Import directly from `@dialogs-valve/react`.
 
 ### `useDialogsValve()` Return Value
 
-Import directly from `@dialogs-valve/react`. Must be called within a `DialogsValveProvider`. Keys are automatically typed from your `DialogsValveRegistry` augmentation.
+Import directly from `@dialogs-valve/react`. Must be called within a `DialogsValveProvider`. When called outside one, the hook logs an error and returns `null` (it does not throw) — that's why the examples above use the non-null assertion (`useDialogsValve()!`). Keys are automatically typed from your `DialogsValveRegistry` augmentation.
 
 | Method / Property | Signature | Description |
 |-------------------|-----------|-------------|
