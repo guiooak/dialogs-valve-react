@@ -66,7 +66,7 @@ const HeroSection: React.FC = () => (
         <span className="badge badge-muted">TypeScript</span>
       </div>
       <h1 className="hero-title">
-        <a href="/" className="hero-title-link">
+        <a href={location.pathname} className="hero-title-link">
           <span className="hero-at">@</span>
           <span className="hero-scope">dialogs-valve</span>
           <span className="hero-slash">/</span>
