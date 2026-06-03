@@ -112,6 +112,65 @@ describe("addLocationChangeListener", () => {
     // Assert
     expect(disconnectSpy).toHaveBeenCalledOnce();
   });
+
+  it("coalesces rapid MutationObserver mutations into a single callback per frame", () => {
+    // Arrange — capture the observer's callback and the scheduled frame callback
+    let observerCallback: (() => void) | undefined;
+    const MockObserver = vi.fn((cb: () => void) => {
+      observerCallback = cb;
+      return { observe: vi.fn(), disconnect: vi.fn() };
+    });
+    vi.stubGlobal("MutationObserver", MockObserver);
+    let frameCallback: (() => void) | undefined;
+    const rafSpy = vi.fn((cb: () => void) => {
+      frameCallback = cb;
+      return 1;
+    });
+    vi.stubGlobal("requestAnimationFrame", rafSpy);
+    const callback = vi.fn();
+    addLocationChangeListener(callback);
+
+    // Act — three mutations in the same frame
+    observerCallback?.();
+    observerCallback?.();
+    observerCallback?.();
+
+    // Assert — only one frame scheduled, user callback not yet run
+    expect(rafSpy).toHaveBeenCalledOnce();
+    expect(callback).not.toHaveBeenCalled();
+
+    // When the frame fires, the user callback runs exactly once
+    frameCallback?.();
+    expect(callback).toHaveBeenCalledOnce();
+
+    // A later mutation schedules a fresh frame
+    observerCallback?.();
+    expect(rafSpy).toHaveBeenCalledTimes(2);
+  });
+
+  it("cancels a pending animation frame on cleanup", () => {
+    // Arrange
+    let observerCallback: (() => void) | undefined;
+    const MockObserver = vi.fn((cb: () => void) => {
+      observerCallback = cb;
+      return { observe: vi.fn(), disconnect: vi.fn() };
+    });
+    vi.stubGlobal("MutationObserver", MockObserver);
+    vi.stubGlobal(
+      "requestAnimationFrame",
+      vi.fn(() => 42),
+    );
+    const cancelSpy = vi.fn();
+    vi.stubGlobal("cancelAnimationFrame", cancelSpy);
+    const cleanup = addLocationChangeListener(vi.fn());
+
+    // Act — schedule a frame, then clean up before it fires
+    observerCallback?.();
+    cleanup();
+
+    // Assert — the pending frame is cancelled
+    expect(cancelSpy).toHaveBeenCalledWith(42);
+  });
 });
 
 // ---------------------------------------------------------------------------
