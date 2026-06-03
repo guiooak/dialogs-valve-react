@@ -15,13 +15,16 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Enable Corepack
+        run: corepack enable
+
       - uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: yarn
 
       - name: Install dependencies
-        run: yarn install --frozen-lockfile
+        run: yarn install --immutable
 
       - name: Verify changeset is present
         run: yarn changeset status --since=origin/${{ github.base_ref }}
@@ -31,13 +34,16 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Enable Corepack
+        run: corepack enable
+
       - uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: yarn
 
       - name: Install dependencies
-        run: yarn install --frozen-lockfile
+        run: yarn install --immutable
 
       - name: Lint
         run: yarn lint
@@ -47,13 +53,16 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Enable Corepack
+        run: corepack enable
+
       - uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: yarn
 
       - name: Install dependencies
-        run: yarn install --frozen-lockfile
+        run: yarn install --immutable
 
       - name: Type check
         run: yarn typecheck
@@ -63,13 +72,16 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Enable Corepack
+        run: corepack enable
+
       - uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: yarn
 
       - name: Install dependencies
-        run: yarn install --frozen-lockfile
+        run: yarn install --immutable
 
       - name: Test with coverage
         run: yarn test:coverage
@@ -86,13 +98,16 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Enable Corepack
+        run: corepack enable
+
       - uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: yarn
 
       - name: Install dependencies
-        run: yarn install --frozen-lockfile
+        run: yarn install --immutable
 
       - name: Check formatting
         run: yarn format:check
@@ -102,13 +117,16 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Enable Corepack
+        run: corepack enable
+
       - uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: yarn
 
       - name: Install dependencies
-        run: yarn install --frozen-lockfile
+        run: yarn install --immutable
 
       - name: Build library
         run: yarn build
@@ -125,13 +143,16 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Enable Corepack
+        run: corepack enable
+
       - uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: yarn
 
       - name: Install root dependencies
-        run: yarn install --frozen-lockfile
+        run: yarn install --immutable
 
       - name: Download dist
         uses: actions/download-artifact@v4
@@ -141,7 +162,7 @@ jobs:
 
       - name: Install demo-app dependencies
         working-directory: demo-app
-        run: yarn install --frozen-lockfile
+        run: yarn install --immutable
 
       - name: Type check demo-app
         working-directory: demo-app
@@ -153,13 +174,16 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Enable Corepack
+        run: corepack enable
+
       - uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: yarn
 
       - name: Install root dependencies
-        run: yarn install --frozen-lockfile
+        run: yarn install --immutable
 
       - name: Download dist
         uses: actions/download-artifact@v4
@@ -169,7 +193,7 @@ jobs:
 
       - name: Install demo-app dependencies
         working-directory: demo-app
-        run: yarn install --frozen-lockfile
+        run: yarn install --immutable
 
       - name: Build demo-app
         working-directory: demo-app
