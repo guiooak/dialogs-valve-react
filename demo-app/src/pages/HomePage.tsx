@@ -302,9 +302,9 @@ openDialog('replacement-b', { overlap: false });
 // ─── Section 4: Props via URL ─────────────────────────────────────────────────
 
 const USERS = [
-  { name: "Alice", role: "Admin", userId: "001" },
-  { name: "Bob", role: "Viewer", userId: "002" },
-  { name: "Carol", role: "Editor", userId: "003" },
+  { name: "Alice", role: "Admin", userId: "001", age: 34, verified: true },
+  { name: "Bob", role: "Viewer", userId: "002", age: 28, verified: false },
+  { name: "Carol", role: "Editor", userId: "003", age: 22, verified: true },
 ];
 
 const PropsSection: React.FC = () => {
@@ -313,19 +313,24 @@ const PropsSection: React.FC = () => {
   const code = `// Pass any string | number | boolean as URL props
 openDialog('user-profile', {
   props: {
-    name: 'Alice',
-    role: 'Admin',
-    userId: '001',
+    name: 'Alice',     // string
+    role: 'Admin',     // string
+    userId: '001',     // string
+    age: 34,           // number  → "number.34" in the URL
+    verified: true,    // boolean → "bool.true" in the URL
   },
 });
 
-// The dialog component receives them as React props:
+// The dialog component receives them as React props,
+// deserialized back to their original types:
 type UserProfileDrawerProps = {
   open: boolean;
   onClose: () => void;
-  name?: string;    // serialized in URL
-  role?: string;    // serialized in URL
-  userId?: string;  // serialized in URL
+  name?: string;       // serialized in URL
+  role?: string;       // serialized in URL
+  userId?: string;     // serialized in URL
+  age?: number;        // serialized in URL
+  verified?: boolean;  // serialized in URL
 };`;
 
   return (
@@ -360,7 +365,13 @@ type UserProfileDrawerProps = {
                 className="profile-card"
                 onClick={() =>
                   openDialog("user-profile", {
-                    props: { name: u.name, role: u.role, userId: u.userId },
+                    props: {
+                      name: u.name,
+                      role: u.role,
+                      userId: u.userId,
+                      age: u.age,
+                      verified: u.verified,
+                    },
                   })
                 }
               >
