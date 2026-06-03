@@ -84,13 +84,58 @@ describe("parsePropValue", () => {
     expect(result).toBe("bool.maybe");
   });
 
-  it("does not treat 'number.abc' as a number — regex requires digits only", () => {
+  it("does not treat 'number.abc' as a number — the numeric payload must be numeric", () => {
     // Arrange
     const input = "number.abc";
     // Act
     const result = parsePropValue(input);
     // Assert
     expect(result).toBe("number.abc");
+  });
+
+  it("parses a negative number", () => {
+    // Arrange
+    const input = "number.-5";
+    // Act
+    const result = parsePropValue(input);
+    // Assert
+    expect(result).toBe(-5);
+  });
+
+  it("parses a decimal number", () => {
+    // Arrange
+    const input = "number.3.14";
+    // Act
+    const result = parsePropValue(input);
+    // Assert
+    expect(result).toBe(3.14);
+  });
+
+  it("parses exponent notation", () => {
+    // Arrange — large numbers stringify to exponent form (e.g. 1e21 → "1e+21")
+    const input = "number.1e+21";
+    // Act
+    const result = parsePropValue(input);
+    // Assert
+    expect(result).toBe(1e21);
+  });
+
+  it("returns 'number.' (empty payload) as-is", () => {
+    // Arrange
+    const input = "number.";
+    // Act
+    const result = parsePropValue(input);
+    // Assert
+    expect(result).toBe("number.");
+  });
+
+  it("does not coerce non-decimal numeric forms like hex", () => {
+    // Arrange — serialization never emits hex; treat it as a plain string
+    const input = "number.0x10";
+    // Act
+    const result = parsePropValue(input);
+    // Assert
+    expect(result).toBe("number.0x10");
   });
 });
 
@@ -428,6 +473,22 @@ describe("buildDialogUrl", () => {
     // Assert
     const url = new URL(result, "http://x");
     expect(url.searchParams.get("d.count")).toBe("number.7");
+  });
+
+  it("round-trips a negative number through build → extract", () => {
+    // Arrange / Act
+    const result = buildDialogUrl("d", { props: { balance: -42 } });
+    // Assert — the serialized value parses back to the same negative number
+    const url = new URL(result, "http://x");
+    expect(extractDialogProps(url.search, "d")).toEqual({ balance: -42 });
+  });
+
+  it("round-trips a decimal number through build → extract", () => {
+    // Arrange / Act
+    const result = buildDialogUrl("d", { props: { ratio: 3.14 } });
+    // Assert
+    const url = new URL(result, "http://x");
+    expect(extractDialogProps(url.search, "d")).toEqual({ ratio: 3.14 });
   });
 
   it("appends to existing dialog params when overlap is true (default)", () => {

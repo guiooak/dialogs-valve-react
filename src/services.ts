@@ -84,6 +84,18 @@ export function validateDialogKeys<TKeys extends string = RegisteredDialogKeys>(
 }
 
 export function parsePropValue(value: string): DialogPropValue {
+  if (value.startsWith(DIALOG_BOOLEAN_PREFIX)) {
+    return parsePropBooleanValue(value);
+  }
+
+  if (value.startsWith(DIALOG_NUMBER_PREFIX)) {
+    return parsePropNumberValue(value);
+  }
+
+  return value;
+}
+
+function parsePropBooleanValue(value: string) {
   if (value === DIALOG_BOOLEAN_TRUE) {
     return true;
   }
@@ -92,9 +104,22 @@ export function parsePropValue(value: string): DialogPropValue {
     return false;
   }
 
-  if (DIALOG_NUMBER_REGEX.test(value)) {
-    return Number(value.replace(DIALOG_NUMBER_PREFIX, ""));
+  console.error(
+    `@dialogs-valve/react: Invalid boolean prop value was provided. ("${value}") \n`,
+  );
+
+  return value;
+}
+
+function parsePropNumberValue(value: string) {
+  const numericPart = value.slice(DIALOG_NUMBER_PREFIX.length);
+  if (DIALOG_NUMBER_REGEX.test(numericPart)) {
+    return Number(numericPart);
   }
+
+  console.error(
+    `@dialogs-valve/react: Invalid number prop value was provided. ("${value}") \n`,
+  );
 
   return value;
 }
