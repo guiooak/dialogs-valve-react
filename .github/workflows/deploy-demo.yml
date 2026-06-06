@@ -23,20 +23,23 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Enable Corepack
+        run: corepack enable
+
       - uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: yarn
 
       - name: Install root dependencies
-        run: yarn install --frozen-lockfile
+        run: yarn install --immutable
 
       - name: Build library
         run: yarn build
 
       - name: Install demo-app dependencies
         working-directory: demo-app
-        run: yarn install --frozen-lockfile
+        run: yarn install --immutable
 
       - name: Build demo-app
         working-directory: demo-app
